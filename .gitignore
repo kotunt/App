@@ -1,0 +1,22 @@
+# Ignore local environment files and dependencies
+.env
+/vendor/
+/node_modules/
+/.idea/
+/.vscode/
+/.env.local
+/.env.*.local
+/.phpunit.result.cache
+/.DS_Store
+/logs/
+/uploads/
+/.env
+
+# Composer
+/vendor
+
+# Logs
+logs/errorlog.txt
+
+# Ignore any uploaded binaries
+uploads/
