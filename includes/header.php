@@ -18,7 +18,7 @@ if (file_exists(dirname(__DIR__) . '/lang/language.php')) {
     <title><?= isset($page_title) ? htmlspecialchars($page_title) : 'Thai 2D3D' ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <?php 
-       // db_connect မပါသေးပါက ထည့်ပေးရန်လိုအပ်ပါသည် (index.php တွင် ပါပြီးသားဖြစ်၍ ပြဿနာမရှိပါ)
+       // db_connect မပါသေးပါက ထည့်ပေးရန်လိုအပ်ပါသည် (index.php တွင် ပါပြီးသားဖြစ်၍ ပြဿနာမရှိ)
        require_once __DIR__ . '/seo.php'; 
     ?>
     <script>
@@ -58,8 +58,33 @@ if (file_exists(dirname(__DIR__) . '/lang/language.php')) {
             border-color: #4b5563 !important; 
         }
         html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.15) !important; color: #93c5fd !important; }
+
+        /* Focus styles for accessibility */
+        :focus {
+            outline: 3px solid rgba(59,130,246,0.6);
+            outline-offset: 2px;
+        }
+
+        /* Marquee-like accessible animation for announcements */
+        .marquee-wrap { overflow: hidden; }
+        .animate-marquee { display: inline-block; white-space: nowrap; animation: marquee 12s linear infinite; }
+        @keyframes marquee { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+
+        /* Nav & floating UI tweaks */
+        .floating-btn { width: 8rem; }
     </style>
     <script>
+        // Notification permission helper (do NOT auto-request; call from user gesture)
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        console.log('Notification permission granted.');
+                    }
+                });
+            }
+        }
+        
         // Theme Initialization (Run immediately to prevent flash of white)
         (function() {
             const savedTheme = localStorage.getItem('user_theme');
@@ -81,38 +106,28 @@ if (file_exists(dirname(__DIR__) . '/lang/language.php')) {
             });
         }
 
-        // Request Notification Permission
-        function requestNotificationPermission() {
-            if ('Notification' in window) {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        console.log('Notification permission granted.');
-                    }
-                });
-            }
-        }
-        
-        // Auto request on load if not determined
-        if ('Notification' in window && Notification.permission === 'default') {
-            setTimeout(requestNotificationPermission, 3000);
-        }
-
         // Floating Language & Theme Switcher (Responsive Updated)
         window.addEventListener('DOMContentLoaded', () => {
             const floatingUI = document.createElement('div');
             // Added flex layout to hold both theme and language toggles
-            floatingUI.className = 'fixed top-24 right-4 md:top-8 md:right-8 lg:right-10 z-50 flex flex-col md:flex-row gap-1 md:gap-2 bg-white/90 dark:bg-gray-800/90 backdrop-blur shadow-lg p-1 md:px-2 md:py-1.5 rounded-full md:rounded-2xl border border-gray-200 dark:border-gray-700 transition-all duration-300 items-center';
+            floatingUI.className = 'fixed top-24 right-4 md:top-8 md:right-8 lg:right-10 z-50 flex flex-col md:flex-row gap-1 md:gap-2 bg-white/90 dark:bg-gray-800/90 backdrop-blur shadow-lg p-1 rounded-lg';
             
             floatingUI.innerHTML = `
-                <button id="floatingThemeToggle" title="Toggle Theme" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full md:rounded-xl text-sm md:text-base transition-all duration-300 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105">
+                <button id="floatingThemeToggle" title="Toggle Theme" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full md:rounded-xl text-sm md:text-base transition-all">
                     <i class="fas fa-moon dark:hidden"></i>
                     <i class="fas fa-sun hidden dark:inline-block text-yellow-400"></i>
                 </button>
                 
                 <div class="w-6 h-px md:w-px md:h-6 bg-gray-300 dark:bg-gray-600"></div>
 
-                <a href="?lang=mm" title="မြန်မာ" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full md:rounded-xl text-[10px] md:text-xs font-bold transition-all duration-300 <?= ($_SESSION['lang'] ?? 'mm') === 'mm' ? 'bg-primary text-white shadow-md transform scale-105' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105' ?>">MM</a>
-                <a href="?lang=en" title="English" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full md:rounded-xl text-[10px] md:text-xs font-bold transition-all duration-300 <?= ($_SESSION['lang'] ?? 'mm') === 'en' ? 'bg-primary text-white shadow-md transform scale-105' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:scale-105' ?>">EN</a>
+                <a href="?lang=mm" title="မြန်မာ" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full md:rounded-xl text-[10px] md:text-xs font-bold transition-all">MM</a>
+                <a href="?lang=en" title="English" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full md:rounded-xl text-[10px] md:text-xs font-bold transition-all">EN</a>
+
+                <div class="w-6 h-px md:w-px md:h-6 bg-gray-300 dark:bg-gray-600"></div>
+
+                <button id="floatingNotifyBtn" title="Enable Notifications" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full md:rounded-xl text-sm md:text-base bg-yellow-400 hover:bg-yellow-300">
+                    <i class="fas fa-bell"></i>
+                </button>
             `;
             document.body.appendChild(floatingUI);
 
@@ -123,6 +138,13 @@ if (file_exists(dirname(__DIR__) . '/lang/language.php')) {
                 const isDark = document.documentElement.classList.contains('dark');
                 localStorage.setItem('user_theme', isDark ? 'dark' : 'light');
                 if (navigator.vibrate) navigator.vibrate(40);
+            });
+
+            // Notification Opt-in Button
+            const notifyBtn = document.getElementById('floatingNotifyBtn');
+            notifyBtn.addEventListener('click', () => {
+                requestNotificationPermission();
+                notifyBtn.classList.add('opacity-60');
             });
         });
     </script>
