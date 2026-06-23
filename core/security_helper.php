@@ -44,12 +44,15 @@ function record_failed_login($ip_address, $phone_number) {
         $update_stmt = $conn->prepare("UPDATE login_attempts SET attempts = ?, last_attempt = ? WHERE id = ?");
         $update_stmt->bind_param("isi", $new_attempts, $current_time, $row['id']);
         $update_stmt->execute();
+        $update_stmt->close();
     } else {
         // Insert new
         $insert_stmt = $conn->prepare("INSERT INTO login_attempts (ip_address, phone_number, attempts, last_attempt) VALUES (?, ?, 1, ?)");
         $insert_stmt->bind_param("sss", $ip_address, $phone_number, $current_time);
         $insert_stmt->execute();
+        $insert_stmt->close();
     }
+    $stmt->close();
 }
 
 /**
@@ -80,7 +83,8 @@ function record_failed_pin($user_id) {
     
     $stmt = $conn->prepare("INSERT INTO pin_attempts (user_id, attempts, last_attempt) VALUES (?, 1, ?) 
                             ON DUPLICATE KEY UPDATE attempts = attempts + 1, last_attempt = ?");
-    $stmt->bind_param("isss", $user_id, $current_time, $current_time);
+    // types: i, s, s
+    $stmt->bind_param("iss", $user_id, $current_time, $current_time);
     $stmt->execute();
     $stmt->close();
 }
@@ -104,6 +108,33 @@ function clear_failed_logins($ip_address, $phone_number) {
     $stmt = $conn->prepare("DELETE FROM login_attempts WHERE ip_address = ? AND phone_number = ?");
     $stmt->bind_param("ss", $ip_address, $phone_number);
     $stmt->execute();
+    $stmt->close();
+}
+
+/**
+ * CSRF token helpers
+ */
+function generate_csrf_token($form = 'global') {
+    if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+    if (!isset($_SESSION['csrf_tokens'])) $_SESSION['csrf_tokens'] = [];
+    $token = bin2hex(random_bytes(32));
+    $_SESSION['csrf_tokens'][$form] = $token;
+    return $token;
+}
+
+function csrf_input_field($form = 'global') {
+    $token = generate_csrf_token($form);
+    return '<input type="hidden" name="_csrf_token" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
+}
+
+function validate_csrf_token($token, $form = 'global') {
+    if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+    if (empty($token)) return false;
+    if (empty($_SESSION['csrf_tokens'][$form])) return false;
+    $stored = $_SESSION['csrf_tokens'][$form];
+    $valid = hash_equals($stored, $token);
+    if ($valid) unset($_SESSION['csrf_tokens'][$form]);
+    return $valid;
 }
 
 /**
@@ -151,4 +182,3 @@ function send_security_alert_to_telegram($message) {
     
     return $response;
 }
-?>
