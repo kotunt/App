@@ -89,7 +89,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt_noti->bind_param("is", $user_id, $noti_msg);
                 $stmt_noti->execute();
                 $stmt_noti->close();
-                $conn->query("UPDATE users SET notifications = notifications + 1 WHERE id = $user_id");
+                $stmt_noti_update = $conn->prepare("UPDATE users SET notifications = notifications + 1 WHERE id = ?");
+                $stmt_noti_update->bind_param("i", $user_id);
+                $stmt_noti_update->execute();
+                $stmt_noti_update->close();
 
                 // User ဆီသို့ Telegram မှ အောင်မြင်ကြောင်း Message ပို့ရန်
                 if (!empty($user['telegram_chat_id'])) {

@@ -1,15 +1,12 @@
 <?php
 // security_helper.php
 
-// Required DB connection to be available globally or passed in
-require_once __DIR__ . '/db_connect.php';
-
 /**
  * Checks if the user's IP is rate-limited for login attempts.
  * Limit is set to 5 attempts per 15 minutes.
+ * @param mysqli $conn The database connection object.
  */
-function check_login_rate_limit($ip_address, $phone_number) {
-    global $conn;
+function check_login_rate_limit($conn, $ip_address, $phone_number) {
     $time_limit = date('Y-m-d H:i:s', strtotime('-15 minutes'));
     
     $stmt = $conn->prepare("SELECT attempts FROM login_attempts WHERE ip_address = ? AND phone_number = ? AND last_attempt > ?");
@@ -27,9 +24,9 @@ function check_login_rate_limit($ip_address, $phone_number) {
 
 /**
  * Records a failed login attempt.
+ * @param mysqli $conn The database connection object.
  */
-function record_failed_login($ip_address, $phone_number) {
-    global $conn;
+function record_failed_login($conn, $ip_address, $phone_number) {
     $current_time = date('Y-m-d H:i:s');
     
     // Check if a record exists
@@ -58,9 +55,9 @@ function record_failed_login($ip_address, $phone_number) {
 /**
  * Checks if the user's PIN is rate-limited.
  * Limit is set to 5 attempts per 15 minutes.
+ * @param mysqli $conn The database connection object.
  */
-function check_pin_rate_limit($user_id) {
-    global $conn;
+function check_pin_rate_limit($conn, $user_id) {
     $time_limit = date('Y-m-d H:i:s', strtotime('-15 minutes'));
     
     $stmt = $conn->prepare("SELECT attempts FROM pin_attempts WHERE user_id = ? AND last_attempt > ?");
@@ -76,9 +73,9 @@ function check_pin_rate_limit($user_id) {
 
 /**
  * Records a failed PIN attempt for a user.
+ * @param mysqli $conn The database connection object.
  */
-function record_failed_pin($user_id) {
-    global $conn;
+function record_failed_pin($conn, $user_id) {
     $current_time = date('Y-m-d H:i:s');
     
     $stmt = $conn->prepare("INSERT INTO pin_attempts (user_id, attempts, last_attempt) VALUES (?, 1, ?) 
@@ -91,9 +88,9 @@ function record_failed_pin($user_id) {
 
 /**
  * Clears failed PIN attempts after a successful verification.
+ * @param mysqli $conn The database connection object.
  */
-function clear_failed_pins($user_id) {
-    global $conn;
+function clear_failed_pins($conn, $user_id) {
     $stmt = $conn->prepare("DELETE FROM pin_attempts WHERE user_id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
@@ -102,9 +99,9 @@ function clear_failed_pins($user_id) {
 
 /**
  * Clears failed login attempts after a successful login.
+ * @param mysqli $conn The database connection object.
  */
-function clear_failed_logins($ip_address, $phone_number) {
-    global $conn;
+function clear_failed_logins($conn, $ip_address, $phone_number) {
     $stmt = $conn->prepare("DELETE FROM login_attempts WHERE ip_address = ? AND phone_number = ?");
     $stmt->bind_param("ss", $ip_address, $phone_number);
     $stmt->execute();
@@ -139,10 +136,9 @@ function validate_csrf_token($token, $form = 'global') {
 
 /**
  * Sends an urgent security alert via Telegram.
+ * @param mysqli $conn The database connection object.
  */
-function send_security_alert_to_telegram($message) {
-    global $conn;
-    
+function send_security_alert_to_telegram($conn, $message) {
     $bot_token = '';
     $chat_id = '';
     
@@ -182,3 +178,4 @@ function send_security_alert_to_telegram($message) {
     
     return $response;
 }
+

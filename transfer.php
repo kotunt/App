@@ -77,7 +77,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $stmt4->bind_param("isis", $user_id, $sender_msg, $receiver_id, $receiver_msg);
                     $stmt4->execute();
 
-                    $conn->query("UPDATE users SET notifications = notifications + 1 WHERE id IN ($user_id, $receiver_id)");
+                    $stmt5 = $conn->prepare("UPDATE users SET notifications = notifications + 1 WHERE id IN (?, ?)");
+                    $stmt5->bind_param("ii", $user_id, $receiver_id);
+                    $stmt5->execute();
 
                     $conn->commit();
                     $user['balance'] -= $amount; // UI တွင် ချက်ချင်းပြောင်းလဲရန်

@@ -124,7 +124,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                                 $stmt_noti = $conn->prepare("INSERT INTO system_notifications (user_id, message) VALUES (?, ?)");
                                 $stmt_noti->bind_param("is", $user_id, $noti_msg);
                                 $stmt_noti->execute();
-                                $conn->query("UPDATE users SET notifications = notifications + 1 WHERE id = $user_id");
+                                $stmt_noti_update = $conn->prepare("UPDATE users SET notifications = notifications + 1 WHERE id = ?");
+                                $stmt_noti_update->bind_param("i", $user_id);
+                                $stmt_noti_update->execute();
+                                $stmt_noti_update->close();
                                 
                                 $success_message = __('deposit_auto_approved_success');
                             } else {
