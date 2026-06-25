@@ -37,10 +37,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 // Database ထဲတွင် အဆိုပါ ဖုန်းနံပါတ် ရှိ/မရှိ စစ်ဆေးခြင်း
                 $stmt = $db->prepare("SELECT id, username, password, is_banned, verification_status, role, google2fa_secret, last_login_ip FROM users WHERE phone_number = ?");
-                if (!$stmt) {
-                    // last_login_ip column မရှိသေးပါက Error မတက်စေရန် Fallback အသုံးပြုမည်
-                    $stmt = $db->prepare("SELECT id, username, password, is_banned, verification_status, role, google2fa_secret, NULL as last_login_ip FROM users WHERE phone_number = ?");
-                }
             
                 if ($stmt) {
                     $stmt->bind_param("s", $phone);
