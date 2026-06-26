@@ -6,6 +6,13 @@ require_once __DIR__ . '/../core/auth_helper.php';
 // Admin များသာ ဝင်ရောက်ခွင့်ရှိသည်
 require_admin_login();
 
+// CSRF Token Check for AJAX
+$csrf_token_header = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+if (empty($csrf_token_header) || !isset($_SESSION['admin_csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $csrf_token_header)) {
+    http_response_code(403);
+    die(json_encode(['error' => 'Invalid security token.']));
+}
+
 /**
  * Fetches recent transactions with an optional search term.
  * @param mysqli $conn The database connection.
@@ -116,6 +123,33 @@ if (isset($_GET['search_tx'])) {
 }
 
 if (isset($_GET['search_bet'])) {
-    // ... (The logic for search_bet will be added in the next step)
+    $search_bet = trim($_GET['search_bet']);
+    $recent_bets = get_recent_bets($conn, $search_bet);
+
+    if (count($recent_bets) > 0):
+        foreach ($recent_bets as $bet): ?>
+            <tr class="hover:bg-gray-50 transition">
+                <td class="px-4 py-3 font-bold whitespace-nowrap"><?= htmlspecialchars($bet['username']) ?></td>
+                <td class="px-4 py-3 text-center font-bold text-blue-600 whitespace-nowrap tracking-wider"><?= htmlspecialchars($bet['bet_number']) ?></td>
+                <td class="px-4 py-3 text-right font-bold text-red-600 whitespace-nowrap"><?= number_format($bet['amount']) ?> Ks</td>
+                <td class="px-4 py-3 text-center whitespace-nowrap">
+                    <?php if ($bet['status'] == 'win'): ?>
+                        <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded border border-green-300"><?= __('admin_dash_status_win') ?></span>
+                    <?php elseif ($bet['status'] == 'pending'): ?>
+                        <span class="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-1 rounded border border-yellow-300"><?= __('admin_dash_status_pending') ?></span>
+                    <?php else: ?>
+                        <span class="bg-red-100 text-red-700 text-[10px] px-2 py-1 rounded border border-red-300"><?= __('admin_dash_status_lose') ?></span>
+                    <?php endif; ?>
+                </td>
+                <td class="px-4 py-3 text-right text-xs text-gray-500 whitespace-nowrap">
+                    <?= date('d-M-Y h:i A', strtotime($bet['created_at'])) ?>
+                </td>
+            </tr>
+        <?php endforeach;
+    else: ?>
+        <tr>
+            <td colspan="5" class="px-4 py-8 text-center text-gray-500 italic"><?= __('admin_dash_no_records') ?></td>
+        </tr>
+    <?php endif;
     exit();
 }

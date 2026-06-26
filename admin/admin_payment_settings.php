@@ -45,6 +45,13 @@ if ($check_logo_col && $check_logo_col->num_rows == 0) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // AJAX ဖြင့် အစီအစဉ် (Sort Order) ပြောင်းလဲရန် တောင်းဆိုလာသောအခါ
     if (isset($_POST['action']) && $_POST['action'] === 'update_order') {
+        // AJAX CSRF Check
+        if (!isset($_SERVER['HTTP_X_CSRF_TOKEN']) || !hash_equals($_SESSION['admin_csrf_token'], $_SERVER['HTTP_X_CSRF_TOKEN'])) {
+            echo json_encode(['success' => false, 'error' => 'Invalid CSRF Token']);
+            exit();
+        }
+    }
+    if (isset($_POST['action']) && $_POST['action'] === 'update_order') {
         $order = json_decode($_POST['order'], true);
         if (is_array($order)) {
             $stmt = $conn->prepare("UPDATE payment_accounts SET sort_order = ? WHERE id = ?");
@@ -58,6 +65,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo json_encode(['success' => true]);
             exit();
         }
+    }
+
+    // Form Submissions CSRF Check
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) {
+        $error_message = __('csrf_token_mismatch');
     }
 
     if (isset($_POST['add_account'])) {
@@ -169,6 +181,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <!-- Add New Account Form -->
         <form method="POST" action="" enctype="multipart/form-data" class="bg-white p-4 sm:p-6 rounded-xl shadow-md mb-8 border-t-4 border-blue-500">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
             <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-plus-circle text-blue-500 mr-2"></i><?= __('admin_payment_add_new') ?></h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
@@ -247,7 +260,7 @@ require_once __DIR__ . '/../includes/header.php';
                                 <th class="px-5 py-3 text-sm"><?= __('admin_payment_col_info') ?></th>
                                 <th class="px-5 py-3 text-sm text-center"><?= __('admin_payment_col_qr') ?></th>
                                 <th class="px-5 py-3 text-sm text-center"><?= __('admin_payment_col_status') ?></th>
-                                <th class="px-5 py-3 text-sm text-center"><?= __('admin_payment_col_action') ?></th>
+                                <th class="px-5 py-3 text-sm text-center"><?= __('delete') ?></th>
                             </tr>
                         </thead>
                         <tbody id="sortable-list">
@@ -262,8 +275,8 @@ require_once __DIR__ . '/../includes/header.php';
                                     </td>
                                     <td class="px-5 py-3"><p class="font-bold text-blue-600 tracking-wider"><?= htmlspecialchars($acc['account_number']) ?></p><p class="text-xs text-gray-500"><?= htmlspecialchars($acc['account_name']) ?></p></td>
                                     <td class="px-5 py-3 text-center"><?php if(!empty($acc['qr_image_url'])): ?><img src="<?= htmlspecialchars($acc['qr_image_url']) ?>" class="w-10 h-10 object-cover rounded border mx-auto cursor-pointer" onclick="window.open(this.src)"><?php else: ?><span class="text-gray-400 text-xs">-</span><?php endif; ?></td>
-                                    <td class="px-5 py-3 text-center"><form method="POST"><input type="hidden" name="account_id" value="<?= $acc['id'] ?>"><input type="hidden" name="current_status" value="<?= $acc['is_active'] ?>"><button type="submit" name="toggle_status" class="px-3 py-1 rounded-full text-xs font-bold transition <?= $acc['is_active'] ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200' ?>"><?= $acc['is_active'] ? '<i class="fas fa-check-circle mr-1"></i> '.__('admin_payment_active') : '<i class="fas fa-times-circle mr-1"></i> '.__('admin_payment_inactive') ?></button></form></td>
-                                    <td class="px-5 py-3 text-center"><form method="POST" onsubmit="return confirm('<?= __('admin_payment_confirm_delete') ?>');"><input type="hidden" name="account_id" value="<?= $acc['id'] ?>"><button type="submit" name="delete_account" class="text-red-500 hover:text-red-900 p-1"><i class="fas fa-trash-alt"></i></button></form></td>
+                                    <td class="px-5 py-3 text-center"><form method="POST"><input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>"><input type="hidden" name="account_id" value="<?= $acc['id'] ?>"><input type="hidden" name="current_status" value="<?= $acc['is_active'] ?>"><button type="submit" name="toggle_status" class="px-3 py-1 rounded-full text-xs font-bold transition <?= $acc['is_active'] ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-700 hover:bg-red-200' ?>"><?= $acc['is_active'] ? '<i class="fas fa-check-circle mr-1"></i> '.__('admin_payment_active') : '<i class="fas fa-times-circle mr-1"></i> '.__('admin_payment_inactive') ?></button></form></td>
+                                    <td class="px-5 py-3 text-center"><form method="POST" onsubmit="return confirm('<?= __('admin_payment_confirm_delete') ?>');"><input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>"><input type="hidden" name="account_id" value="<?= $acc['id'] ?>"><button type="submit" name="delete_account" class="text-red-500 hover:text-red-900 p-1"><i class="fas fa-trash-alt"></i></button></form></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -294,8 +307,15 @@ require_once __DIR__ . '/../includes/header.php';
                 var formData = new FormData();
                 formData.append('action', 'update_order');
                 formData.append('order', JSON.stringify(order));
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 
-                fetch('admin_payment_settings.php', { method: 'POST', body: formData })
+                fetch('admin_payment_settings.php', { 
+                    method: 'POST', 
+                    headers: {
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: formData })
                     .catch(err => console.error('Order update failed', err));
             }
 

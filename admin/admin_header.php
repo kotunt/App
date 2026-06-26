@@ -1,5 +1,11 @@
 <?php
 // ခေါင်းစဉ်နှင့် အိုင်ကွန်ကို မူလတန်ဖိုးများ သတ်မှတ်ထားခြင်း
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (empty($_SESSION['admin_csrf_token'])) {
+    $_SESSION['admin_csrf_token'] = bin2hex(random_bytes(32));
+}
 require_once __DIR__ . '/../core/auth_helper.php';
 
 $header_title = $header_title ?? 'Admin Control Panel';
@@ -40,6 +46,9 @@ function get_all_pending_counts($conn) {
 
 $pending_counts = get_all_pending_counts($conn); // This variable will be available in the files that include this header.
 ?>
+
+<!-- CSRF Token for AJAX Requests -->
+<meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
 
 <style>
     /* Dropdown Animation CSS */

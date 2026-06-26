@@ -27,6 +27,11 @@ if ($check_dep_slip_col && $check_dep_slip_col->num_rows == 0) {
 
 // Approve သို့မဟုတ် Reject ခလုတ်နှိပ်လိုက်သောအခါ လုပ်ဆောင်မည့် အပိုင်း
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // CSRF Token စစ်ဆေးခြင်း
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) {
+        $error_message = __('csrf_token_mismatch');
+    } else {
+
     $action = $_POST['action'] ?? '';
     $type = $_POST['type'] ?? '';
     $req_id = intval($_POST['request_id'] ?? 0);
@@ -144,6 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $message = __('admin_tx_error') . ": " . $e->getMessage();
         }
     }
+    }
 }
 
 // Search filter
@@ -231,6 +237,7 @@ require_once __DIR__ . '/../includes/header.php';
                             </div>
                             <form method="POST" class="mt-3 flex flex-col space-y-2">
                                 <input type="hidden" name="type" value="deposit">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                 <input type="hidden" name="request_id" value="<?= $dep['id'] ?>">
                                 <input type="text" name="reject_reason" placeholder="<?= __('admin_tx_reject_reason_ph') ?>" class="w-full py-2 px-3 border border-gray-300 rounded text-sm focus:outline-none focus:border-red-500">
                                 <div class="flex space-x-2">
@@ -282,6 +289,7 @@ require_once __DIR__ . '/../includes/header.php';
                             </div>
                             <form method="POST" class="mt-3 flex flex-col space-y-2">
                                 <input type="hidden" name="type" value="withdrawal">
+                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                 <input type="hidden" name="request_id" value="<?= $with['id'] ?>">
                                 <input type="text" name="admin_payment_account" placeholder="<?= __('admin_tx_admin_acc_ph') ?>" class="w-full py-2 px-3 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500">
                                 <input type="text" name="reject_reason" placeholder="<?= __('admin_tx_reject_reason_ph') ?>" class="w-full py-2 px-3 border border-gray-300 rounded text-sm focus:outline-none focus:border-red-500">

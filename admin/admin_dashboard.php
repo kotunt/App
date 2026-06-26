@@ -640,14 +640,20 @@ require_once __DIR__ . '/../includes/header.php';
             let url = `ajax_dashboard_search.php?search_tx=${encodeURIComponent(searchTerm)}`;
             
             let tbody = document.getElementById('txTableBody');
-            if (tbody) tbody.style.opacity = '0.5';
+            if (tbody) tbody.style.opacity = '0.5'; // Show loading state
             
-            fetch(url)
+            // Get CSRF token from meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch(url, {
+                headers: {
+                    'X-CSRF-Token': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest' // Standard header for AJAX
+                }
+            })
                 .then(response => response.text())
                 .then(html => {
-                    if (tbody) {
-                        tbody.innerHTML = html;
-                    }
+                    if (tbody) tbody.innerHTML = html;
                     if (tbody) tbody.style.opacity = '1';
                 })
                 .catch(err => console.error('Search error:', err));
@@ -663,14 +669,20 @@ require_once __DIR__ . '/../includes/header.php';
             let url = `ajax_dashboard_search.php?search_bet=${encodeURIComponent(searchTerm)}`;
             
             let tbody = document.getElementById('betTableBody');
-            if (tbody) tbody.style.opacity = '0.5';
+            if (tbody) tbody.style.opacity = '0.5'; // Show loading state
             
-            fetch(url)
+            // Get CSRF token from meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch(url, {
+                headers: {
+                    'X-CSRF-Token': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
                 .then(response => response.text())
                 .then(html => {
-                    if (tbody) {
-                        tbody.innerHTML = html;
-                    }
+                    if (tbody) tbody.innerHTML = html;
                     if (tbody) tbody.style.opacity = '1';
                 })
                 .catch(err => console.error('Search error:', err));
