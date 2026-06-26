@@ -9,8 +9,15 @@ require_permission('can_manage_users');
 $success_message = "";
 $error_message = "";
 
+// CSRF Token
+if (empty($_SESSION['admin_csrf_token'])) {
+    $_SESSION['admin_csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Avatar ပြင်ဆင်ရန် / ဖျက်သိမ်းရန်
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) { $error_message = __('csrf_token_mismatch'); }
+    else {
     if ($_POST['action'] === 'update_avatar' && !empty($_POST['cropped_avatar_data'])) {
         $target_user_id = intval($_POST['target_user_id'] ?? 0);
         if ($target_user_id > 0) {
@@ -93,10 +100,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             $success_message = sprintf(__('admin_users_avatar_remove_success'), $target_user_id);
         }
     }
+    }
 }
 
 // အကောင့်သစ်ဖွင့်ရန် (Add New User)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) { $error_message = __('csrf_token_mismatch'); }
+    else {
     $new_username = trim($_POST['new_username'] ?? '');
     $new_phone = trim($_POST['new_phone'] ?? '');
     $new_password = $_POST['new_user_password'] ?? '';
@@ -130,10 +140,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_user'])) {
     } else {
         $error_message = __('admin_users_add_validation');
     }
+    }
 }
 
 // CSV ဖြင့် အစုလိုက်အပြုံလိုက် အကောင့်ဖွင့်ရန် (Bulk Import)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['bulk_import_users'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) { $error_message = __('csrf_token_mismatch'); }
+    else {
     if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK) {
         // Check file size (max 5MB)
         if ($_FILES['csv_file']['size'] > 5 * 1024 * 1024) {
@@ -213,10 +226,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['bulk_import_users'])) 
     } else {
         $error_message = __('admin_users_upload_error');
     }
+    }
 }
 
 // Balance ပြင်ဆင်ရန် Form Submit လုပ်လာသောအခါ
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_balance'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) { $error_message = __('csrf_token_mismatch'); }
+    else {
     $target_user_id = intval($_POST['target_user_id'] ?? 0);
     $new_balance = floatval($_POST['new_balance'] ?? -1);
 
@@ -233,10 +249,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_balance'])) {
     } else {
         $error_message = __('admin_users_invalid_amount');
     }
+    }
 }
 
 // Password ပြင်ဆင်ရန် Form Submit လုပ်လာသောအခါ
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_password'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) { $error_message = __('csrf_token_mismatch'); }
+    else {
     $target_user_id = intval($_POST['target_user_id'] ?? 0);
     $new_password = trim($_POST['new_password'] ?? '');
 
@@ -254,10 +273,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_password'])) {
     } else {
         $error_message = __('admin_users_invalid_password');
     }
+    }
 }
 
 // Phone ပြင်ဆင်ရန် Form Submit လုပ်လာသောအခါ
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_phone'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) { $error_message = __('csrf_token_mismatch'); }
+    else {
     $target_user_id = intval($_POST['target_user_id'] ?? 0);
     $new_phone = trim($_POST['new_phone'] ?? '');
 
@@ -285,10 +307,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_phone'])) {
     } else {
         $error_message = __('admin_users_invalid_phone_input');
     }
+    }
 }
 
 // User အကောင့်သို့ ဝင်ရောက်ရန် (Login As User)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login_as_user'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) { $error_message = __('csrf_token_mismatch'); }
+    else {
     $target_user_id = intval($_POST['target_user_id'] ?? 0);
 
     if ($target_user_id > 0) {
@@ -314,10 +339,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login_as_user'])) {
         }
         $stmt->close();
     }
+    }
 }
 
 // Ban/Unban ပြုလုပ်ရန် Form Submit လုပ်လာသောအခါ
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['toggle_ban'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) { $error_message = __('csrf_token_mismatch'); }
+    else {
     $target_user_id = intval($_POST['target_user_id'] ?? 0);
     $current_status = intval($_POST['current_status'] ?? 0);
     $new_status = $current_status ? 0 : 1;
@@ -334,10 +362,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['toggle_ban'])) {
     } else {
         $error_message = __('admin_users_cannot_ban_admin');
     }
+    }
 }
 
 // Verify User လုပ်ရန်
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['verify_user'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) { $error_message = __('csrf_token_mismatch'); }
+    else {
     $target_user_id = intval($_POST['target_user_id'] ?? 0);
     $action = $_POST['verify_action'] ?? '';
     
@@ -350,10 +381,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['verify_user'])) {
         }
         $stmt->close();
     }
+    }
 }
 
 // User အကောင့်ကို အပြီးတိုင်ဖျက်သိမ်းရန်
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_user'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['admin_csrf_token'], $_POST['csrf_token'])) { $error_message = __('csrf_token_mismatch'); }
+    else {
     $target_user_id = intval($_POST['target_user_id'] ?? 0);
 
     if ($target_user_id > 1) { // Admin (ID 1) ကို ဖျက်လို့မရအောင် ကာကွယ်ခြင်း
@@ -384,6 +418,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_user'])) {
         $del_stmt->close();
     } else {
         $error_message = __('admin_users_cannot_delete_admin');
+    }
     }
 }
 
@@ -466,6 +501,7 @@ require_once __DIR__ . '/../includes/header.php';
         
         <!-- Add New User Form -->
         <form id="addUserForm" method="POST" action="" class="hidden bg-white p-6 rounded-xl shadow-md border-t-4 border-primary mb-6 transition-all duration-300">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
             <h2 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-user-plus text-primary mr-2"></i> <?= __('admin_users_title_add_user') ?></h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
                 <div>
@@ -502,6 +538,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <!-- Bulk Import Form -->
         <form id="bulkImportForm" method="POST" action="" enctype="multipart/form-data" class="hidden bg-white p-6 rounded-xl shadow-md border-t-4 border-purple-500 mb-6 transition-all duration-300">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
             <div class="flex flex-wrap justify-between items-center border-b pb-2 mb-4 gap-2">
                 <h2 class="font-bold text-gray-800"><i class="fas fa-file-import text-purple-500 mr-2"></i> <?= __('admin_users_title_bulk_import') ?></h2>
                 <a href="data:text/csv;charset=utf-8,Username,Phone,Password,Balance%0AUser1,09111111111,123456,1000%0AUser2,09222222222,123456,0" download="sample_users.csv" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 py-1.5 px-3 rounded shadow-sm transition font-bold"><i class="fas fa-download mr-1"></i> <?= __('admin_users_btn_download_csv') ?></a>
@@ -523,6 +560,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <!-- Hidden Form for Cropped Avatar Submission -->
         <form id="cropForm" method="POST" action="">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
             <input type="hidden" name="action" value="update_avatar">
             <input type="hidden" name="target_user_id" id="crop_target_user_id" value="">
             <input type="hidden" name="cropped_avatar_data" id="cropped_avatar_data" value="">
@@ -585,8 +623,8 @@ require_once __DIR__ . '/../includes/header.php';
                             <tr class="border-b border-gray-200 hover:bg-gray-50 transition duration-150 hidden md:table-row">
                                 <td class="px-5 py-4 text-sm text-gray-600 font-bold">#<?= $u['id'] ?></td>
                                 <td class="px-5 py-4 text-sm text-gray-800 font-bold">
-                                    <?= htmlspecialchars($u['username']) ?>
-                                    <?php if($u['id'] == 1) echo '<span class="ml-2 text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded border border-red-200">Admin</span>'; ?>
+                                    <a href="admin_user_history.php?user_id=<?= $u['id'] ?>" class="hover:underline"><?= htmlspecialchars($u['username']) ?></a>
+                                    <?php if($u['id'] == 1) echo '<span class="ml-2 text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded border border-red-200">' . __('admin_role_main') . '</span>'; ?>
                                     <?php if(isset($u['is_banned']) && $u['is_banned']) echo '<span class="ml-2 text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-300"><i class="fas fa-ban"></i> ' . __('admin_users_ban') . '</span>'; ?>
                                     <?php if(isset($u['vip_level']) && $u['vip_level'] !== 'Standard'): ?>
                                         <span class="ml-2 text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded border border-yellow-300" title="VIP Level"><i class="fas fa-crown"></i> <?= htmlspecialchars($u['vip_level']) ?></span>
@@ -596,6 +634,7 @@ require_once __DIR__ . '/../includes/header.php';
                                 </td>
                                 <td class="px-5 py-3 whitespace-nowrap">
                                     <form method="POST" action="" class="flex items-center space-x-2">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                         <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
                                         <input type="text" name="new_phone" value="<?= htmlspecialchars($u['phone_number']) ?>" class="w-32 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500 font-mono text-gray-700" required>
                                         <button type="submit" name="update_phone" class="bg-teal-500 hover:bg-teal-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition" title="<?= __('admin_users_btn_edit_phone') ?>" onclick="return confirm('<?= sprintf(__('admin_users_confirm_edit_phone'), htmlspecialchars($u['username'])) ?>');">
@@ -609,6 +648,7 @@ require_once __DIR__ . '/../includes/header.php';
                                         <?php if (!empty($u['avatar'])): ?>
                                         <img src="../<?= ltrim(htmlspecialchars($u['avatar']), '../') ?>" class="w-8 h-8 rounded-full object-cover border border-gray-300">
                                             <form method="POST" action="" onsubmit="return confirm('<?= __('admin_users_confirm_delete_avatar') ?>');" class="inline">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                                 <input type="hidden" name="action" value="remove_avatar">
                                                 <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
                                                 <button type="submit" class="text-red-500 hover:text-red-700 p-1" title="<?= __('admin_users_btn_delete_avatar') ?>"><i class="fas fa-trash"></i></button>
@@ -626,6 +666,7 @@ require_once __DIR__ . '/../includes/header.php';
                                 </td>
                                 <td class="px-5 py-3 whitespace-nowrap">
                                     <form method="POST" action="" class="flex items-center space-x-2">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                         <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
                                         <input type="number" name="new_balance" value="<?= (float)$u['balance'] ?>" step="0.01" min="0" class="w-28 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500 font-bold text-primary" required>
                                         <button type="submit" name="update_balance" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition" onclick="return confirm('<?= sprintf(__('admin_users_confirm_edit_bal'), htmlspecialchars($u['username'])) ?>');">
@@ -635,6 +676,7 @@ require_once __DIR__ . '/../includes/header.php';
                                 </td>
                                 <td class="px-5 py-3 whitespace-nowrap">
                                     <form method="POST" action="" class="flex items-center space-x-2">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                         <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
                                         <input type="text" name="new_password" placeholder="<?= __('admin_users_ph_new_pwd') ?>" minlength="6" class="w-24 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:border-blue-500" required>
                                         <button type="submit" name="update_password" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition" title="<?= __('admin_users_btn_change_pwd') ?>" onclick="return confirm('<?= sprintf(__('admin_users_confirm_change_pwd'), htmlspecialchars($u['username'])) ?>');">
@@ -652,11 +694,13 @@ require_once __DIR__ . '/../includes/header.php';
                                     <?php endif; ?>
                                     <a href="admin_notifications.php?user_id=<?= $u['id'] ?>" class="bg-yellow-100 text-yellow-700 hover:bg-yellow-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition inline-block"><i class="fas fa-envelope mr-1"></i> <?= __('admin_users_action_noti') ?></a>
                                     <a href="admin_send_message.php?user_id=<?= $u['id'] ?>" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition inline-block mb-1"><i class="fas fa-comment-dots mr-1"></i> <?= __('admin_users_action_msg') ?></a>
-                                    <form method="POST" action="" class="inline-block mb-1">
+                                    <form method="POST" action="" class="inline-block mb-1" onsubmit="return confirm('<?= sprintf(__('admin_users_confirm_login_as'), htmlspecialchars($u['username'])) ?>');">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                         <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
-                                        <button type="submit" name="login_as_user" class="bg-purple-100 text-purple-700 hover:bg-purple-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition" title="<?= __('admin_users_btn_login_as') ?>" onclick="return confirm('<?= sprintf(__('admin_users_confirm_login_as'), htmlspecialchars($u['username'])) ?>');"><i class="fas fa-sign-in-alt mr-1"></i> <?= __('admin_users_btn_login_as') ?></button>
+                                        <button type="submit" name="login_as_user" class="bg-purple-100 text-purple-700 hover:bg-purple-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition" title="<?= __('admin_users_btn_login_as') ?>"><i class="fas fa-sign-in-alt mr-1"></i> <?= __('admin_users_btn_login_as') ?></button>
                                     </form>
                                     <form method="POST" action="" class="inline-block">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                         <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
                                         <input type="hidden" name="current_status" value="<?= $u['is_banned'] ? 1 : 0 ?>">
                                         <?php if($u['is_banned']): ?>
@@ -665,13 +709,15 @@ require_once __DIR__ . '/../includes/header.php';
                                             <button type="submit" name="toggle_ban" class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition" onclick="return confirm('<?= __('admin_users_confirm_ban') ?>');"><i class="fas fa-ban mr-1"></i> <?= __('admin_users_ban') ?></button>
                                         <?php endif; ?>
                                     </form>
-                                    <form method="POST" action="" class="inline-block mb-1 ml-1">
+                                    <form method="POST" action="" class="inline-block mb-1 ml-1" onsubmit="return confirm('<?= __('admin_users_confirm_delete') ?>');">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                         <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
-                                        <button type="submit" name="delete_user" class="bg-gray-800 text-white hover:bg-gray-900 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition" onclick="return confirm('<?= __('admin_users_confirm_delete') ?>');"><i class="fas fa-trash-alt mr-1"></i> <?= __('delete') ?></button>
+                                        <button type="submit" name="delete_user" class="bg-gray-800 text-white hover:bg-gray-900 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition"><i class="fas fa-trash-alt mr-1"></i> <?= __('delete') ?></button>
                                     </form>
                                 <?php endif; ?>
                                 <?php if(isset($u['verification_status']) && $u['verification_status'] == 'pending'): ?>
-                                    <form method="POST" action="" class="inline-block mt-2 block w-full text-left">
+                                    <form method="POST" action="" class="mt-2 block w-full text-left">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                         <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
                                         <button type="submit" name="verify_user" value="1" onclick="document.getElementById('verify_action_<?= $u['id'] ?>').value='approved'; return confirm('<?= __('admin_users_confirm_approve') ?>');" class="bg-green-100 text-green-700 hover:bg-green-200 px-3 py-1.5 rounded text-[11px] font-bold shadow-sm transition"><i class="fas fa-check mr-1"></i> <?= __('admin_users_approve') ?></button>
                                         <button type="submit" name="verify_user" value="1" onclick="document.getElementById('verify_action_<?= $u['id'] ?>').value='rejected'; return confirm('<?= __('admin_users_confirm_reject') ?>');" class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded text-[11px] font-bold shadow-sm transition ml-1"><i class="fas fa-times mr-1"></i> <?= __('admin_users_reject') ?></button>
@@ -696,7 +742,7 @@ require_once __DIR__ . '/../includes/header.php';
                                     <div class="flex-1">
                                         <p class="font-bold text-gray-800"><?= htmlspecialchars($u['username']) ?></p>
                                         <p class="text-xs text-gray-500 font-mono"><?= htmlspecialchars($u['phone_number']) ?></p>
-                                        <div class="flex flex-wrap gap-1 mt-1">
+                                        <div class="flex flex-wrap gap-1 mt-1.5">
                                             <?php if($u['id'] == 1) echo '<span class="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded border border-red-200">Admin</span>'; ?>
                                             <?php if(isset($u['is_banned']) && $u['is_banned']) echo '<span class="text-[9px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border border-gray-300"><i class="fas fa-ban"></i> ' . __('admin_users_ban') . '</span>'; ?>
                                             <?php if(isset($u['vip_level']) && $u['vip_level'] !== 'Standard') echo '<span class="text-[9px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded border border-yellow-300" title="VIP Level"><i class="fas fa-crown"></i> '.htmlspecialchars($u['vip_level']).'</span>'; ?>
@@ -715,11 +761,13 @@ require_once __DIR__ . '/../includes/header.php';
                                         <?php if(check_permission('can_manage_transactions')): ?>
                                             <a href="admin_deposit.php?user_id=<?= $u['id'] ?>" class="bg-pink-100 text-pink-700 hover:bg-pink-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition inline-block"><i class="fas fa-donate mr-1"></i> <?= __('admin_users_action_transfer') ?></a>
                                         <?php endif; ?>
-                                        <form method="POST" action="" class="inline-block">
+                                        <form method="POST" action="" class="inline-block" onsubmit="return confirm('<?= sprintf(__('admin_users_confirm_login_as'), htmlspecialchars($u['username'])) ?>');">
+                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                             <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
-                                            <button type="submit" name="login_as_user" class="bg-purple-100 text-purple-700 hover:bg-purple-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition" title="<?= __('admin_users_btn_login_as') ?>" onclick="return confirm('<?= sprintf(__('admin_users_confirm_login_as'), htmlspecialchars($u['username'])) ?>');"><i class="fas fa-sign-in-alt mr-1"></i> <?= __('admin_users_btn_login_as') ?></button>
+                                            <button type="submit" name="login_as_user" class="bg-purple-100 text-purple-700 hover:bg-purple-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition" title="<?= __('admin_users_btn_login_as') ?>"><i class="fas fa-sign-in-alt mr-1"></i> <?= __('admin_users_btn_login_as') ?></button>
                                         </form>
                                         <form method="POST" action="" class="inline-block">
+                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
                                             <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
                                             <input type="hidden" name="current_status" value="<?= $u['is_banned'] ? 1 : 0 ?>">
                                             <?php if($u['is_banned']): ?>

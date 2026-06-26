@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $dirs = ['uploads', '../uploads/avatars', '../uploads/slips', '../uploads/notifications'];
             foreach ($dirs as $dir) {
                 if (!is_dir($dir)) {
-                    if (!@mkdir($dir, 0777, true)) {
+                    if (!@mkdir($dir, 0755, true)) { // Security: Use more restrictive permissions than 0777
                         throw new Exception(sprintf(__('admin_health_upload_dir_error') ?? 'Cannot create directory %s', $dir));
                     }
                 }
@@ -183,16 +183,21 @@ if ($db_connected) {
                 add_check($results, 'database', "Table: `{$table_name}`", 'error', $msg);
                 
                 foreach($missing_columns as $mc) {
-                    if ($table_name == 'users' && $mc == 'transaction_pin') $sql_fixes[] = "ALTER TABLE `users` ADD `transaction_pin` VARCHAR(255) NULL AFTER `last_active`;";
-                    if ($table_name == 'users' && $mc == 'vip_level') $sql_fixes[] = "ALTER TABLE `users` ADD `vip_level` VARCHAR(50) DEFAULT 'Standard' AFTER `transaction_pin`;";
-                    if ($table_name == 'users' && $mc == 'lifetime_bet') $sql_fixes[] = "ALTER TABLE `users` ADD `lifetime_bet` DECIMAL(15, 2) DEFAULT 0.00 AFTER `vip_level`;";
-                    if ($table_name == 'users' && $mc == 'agent_commission_percent') $sql_fixes[] = "ALTER TABLE `users` ADD `agent_commission_percent` DECIMAL(5, 2) DEFAULT 0.00 AFTER `lifetime_bet`;";
-                    if ($table_name == 'users' && $mc == 'agent_share_percent') $sql_fixes[] = "ALTER TABLE `users` ADD `agent_share_percent` DECIMAL(5, 2) DEFAULT 0.00 AFTER `agent_commission_percent`;";
-                    if ($table_name == 'users' && $mc == 'telegram_chat_id') $sql_fixes[] = "ALTER TABLE `users` ADD `telegram_chat_id` VARCHAR(50) NULL AFTER `last_active`;";
-                    if ($table_name == 'users' && $mc == 'last_login_ip') $sql_fixes[] = "ALTER TABLE `users` ADD `last_login_ip` VARCHAR(45) NULL AFTER `last_active`;";
-                    if ($table_name == 'users' && $mc == 'kbz_pay_name') $sql_fixes[] = "ALTER TABLE `users` ADD `kbz_pay_name` VARCHAR(100) NULL AFTER `kbz_pay_number`;";
-                    if ($table_name == 'users' && $mc == 'wave_pay_name') $sql_fixes[] = "ALTER TABLE `users` ADD `wave_pay_name` VARCHAR(100) NULL AFTER `wave_pay_number`;";
-                    if ($table_name == 'users' && $mc == 'payment_info_json') $sql_fixes[] = "ALTER TABLE `users` ADD `payment_info_json` TEXT NULL AFTER `wave_pay_name`;";
+                    // Refactor: Use switch for better organization of SQL fixes
+                    if ($table_name == 'users') {
+                        switch ($mc) {
+                            case 'transaction_pin': $sql_fixes[] = "ALTER TABLE `users` ADD `transaction_pin` VARCHAR(255) NULL AFTER `last_active`;"; break;
+                            case 'vip_level': $sql_fixes[] = "ALTER TABLE `users` ADD `vip_level` VARCHAR(50) DEFAULT 'Standard' AFTER `transaction_pin`;"; break;
+                            case 'lifetime_bet': $sql_fixes[] = "ALTER TABLE `users` ADD `lifetime_bet` DECIMAL(15, 2) DEFAULT 0.00 AFTER `vip_level`;"; break;
+                            case 'agent_commission_percent': $sql_fixes[] = "ALTER TABLE `users` ADD `agent_commission_percent` DECIMAL(5, 2) DEFAULT 0.00 AFTER `lifetime_bet`;"; break;
+                            case 'agent_share_percent': $sql_fixes[] = "ALTER TABLE `users` ADD `agent_share_percent` DECIMAL(5, 2) DEFAULT 0.00 AFTER `agent_commission_percent`;"; break;
+                            case 'telegram_chat_id': $sql_fixes[] = "ALTER TABLE `users` ADD `telegram_chat_id` VARCHAR(50) NULL AFTER `last_active`;"; break;
+                            case 'last_login_ip': $sql_fixes[] = "ALTER TABLE `users` ADD `last_login_ip` VARCHAR(45) NULL AFTER `last_active`;"; break;
+                            case 'kbz_pay_name': $sql_fixes[] = "ALTER TABLE `users` ADD `kbz_pay_name` VARCHAR(100) NULL AFTER `kbz_pay_number`;"; break;
+                            case 'wave_pay_name': $sql_fixes[] = "ALTER TABLE `users` ADD `wave_pay_name` VARCHAR(100) NULL AFTER `wave_pay_number`;"; break;
+                            case 'payment_info_json': $sql_fixes[] = "ALTER TABLE `users` ADD `payment_info_json` TEXT NULL AFTER `wave_pay_name`;"; break;
+                        }
+                    }
                     
                     if ($table_name == 'bets' && $mc == 'odds') $sql_fixes[] = "ALTER TABLE `bets` ADD `odds` INT NULL DEFAULT NULL AFTER `discount_amount`;";
                     
