@@ -815,22 +815,28 @@ require_once __DIR__ . '/../includes/header.php';
             // 300ms စောင့်ပြီးမှ Database သို့ Request ပို့မည် (စာလုံးရိုက်တိုင်း Server ကို မပို့စေရန်)
             searchTimeout = setTimeout(() => {
                 let searchTerm = document.querySelector('input[name="search_term"]').value;
-                let startDate = document.querySelector('input[name="start_date"]').value;
-                let endDate = document.querySelector('input[name="end_date"]').value;
-                let sortBy = document.querySelector('select[name="sort_by"]').value;
+                let startDate = document.querySelector('input[name="start_date"]').value || '';
+                let endDate = document.querySelector('input[name="end_date"]').value || '';
+                let sortBy = document.querySelector('select[name="sort_by"]').value || 'id_desc';
                 
-                let url = `admin_users.php?search_term=${encodeURIComponent(searchTerm)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}&sort_by=${encodeURIComponent(sortBy)}`;
+                let url = `ajax_user_search.php?search_term=${encodeURIComponent(searchTerm)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}&sort_by=${encodeURIComponent(sortBy)}`;
                 
-                let tbody = document.getElementById('userTableBody');
-                tbody.style.opacity = '0.5'; // Loading ဖြစ်နေကြောင်းပြသရန် အနည်းငယ်မှိန်လိုက်မည်
+                let container = document.getElementById('userTableContainer');
+                if (container) container.style.opacity = '0.5'; // Loading ဖြစ်နေကြောင်းပြသရန် အနည်းငယ်မှိန်လိုက်မည်
                 
-                fetch(url)
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                fetch(url, {
+                    headers: {
+                        'X-CSRF-Token': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
                     .then(response => response.text())
                     .then(html => {
                         let parser = new DOMParser();
                         let doc = parser.parseFromString(html, 'text/html');
                         
-                        let newTbody = doc.getElementById('userTableBody');
                         let newCount = doc.getElementById('totalUserCount');
                         
                         if (newTbody) tbody.innerHTML = newTbody.innerHTML;

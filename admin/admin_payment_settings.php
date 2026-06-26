@@ -45,13 +45,6 @@ if ($check_logo_col && $check_logo_col->num_rows == 0) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // AJAX ဖြင့် အစီအစဉ် (Sort Order) ပြောင်းလဲရန် တောင်းဆိုလာသောအခါ
     if (isset($_POST['action']) && $_POST['action'] === 'update_order') {
-        // AJAX CSRF Check
-        if (!isset($_SERVER['HTTP_X_CSRF_TOKEN']) || !hash_equals($_SESSION['admin_csrf_token'], $_SERVER['HTTP_X_CSRF_TOKEN'])) {
-            echo json_encode(['success' => false, 'error' => 'Invalid CSRF Token']);
-            exit();
-        }
-    }
-    if (isset($_POST['action']) && $_POST['action'] === 'update_order') {
         $order = json_decode($_POST['order'], true);
         if (is_array($order)) {
             $stmt = $conn->prepare("UPDATE payment_accounts SET sort_order = ? WHERE id = ?");
@@ -305,9 +298,11 @@ require_once __DIR__ . '/../includes/header.php';
                 });
                 
                 var formData = new FormData();
+                // Action နှင့် Order Data ကို Form Data အဖြစ်ထည့်သွင်းခြင်း
                 formData.append('action', 'update_order');
                 formData.append('order', JSON.stringify(order));
 
+                // Meta Tag မှ CSRF Token ကို ရယူခြင်း
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 
                 fetch('admin_payment_settings.php', { 
