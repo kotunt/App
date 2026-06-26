@@ -5,29 +5,6 @@ require_once __DIR__ . '/../core/db_connect.php';
 require_once __DIR__ . '/../core/auth_helper.php';
 require_admin_login();
 
-$stats = [
-    'total_users' => 0,
-    'today_users' => 0,
-    'this_month_users' => 0,
-    'total_balance' => 0,
-    'total_income' => 0,
-    'total_payout' => 0,
-    'today_income' => 0,
-    'today_payout' => 0,
-    'this_month_income' => 0,
-    'this_month_payout' => 0,
-    'pending_bets_amount' => 0,
-    'pending_deposits' => 0,
-    'pending_withdrawals' => 0,
-    'outstanding_loans' => 0,
-    'total_loans_given' => 0,
-    'total_loans_repaid' => 0,
-    'today_loans_given' => 0,
-    'today_loans_repaid' => 0,
-    'this_month_loans_given' => 0,
-    'this_month_loans_repaid' => 0,
-];
-
 $search_tx = '';
 $search_bet = '';
 
@@ -174,15 +151,24 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
     }
 }
 
+// Initialize stats array
+$stats = [
+    'total_users' => 0, 'today_users' => 0, 'this_month_users' => 0,
+    'total_balance' => 0, 'total_income' => 0, 'total_payout' => 0,
+    'today_income' => 0, 'today_payout' => 0, 'this_month_income' => 0, 'this_month_payout' => 0,
+    'pending_bets_amount' => 0, 'outstanding_loans' => 0,
+    'total_loans_given' => 0, 'total_loans_repaid' => 0,
+    'today_loans_given' => 0, 'today_loans_repaid' => 0,
+    'this_month_loans_given' => 0, 'this_month_loans_repaid' => 0,
+];
+
     // ၁။ User Stats နှင့် Pending Counts - Consolidated Query
     $user_stats_query = "
         SELECT 
             COUNT(id) as total_users, 
             SUM(balance) as total_balance,
             SUM(CASE WHEN created_at >= CURDATE() AND created_at < CURDATE() + INTERVAL 1 DAY THEN 1 ELSE 0 END) as today_users,
-            SUM(CASE WHEN created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') AND created_at < DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH THEN 1 ELSE 0 END) as this_month_users,
-            (SELECT COUNT(id) FROM deposits WHERE status = 'pending') as pending_deposits,
-            (SELECT COUNT(id) FROM withdrawals WHERE status = 'pending') as pending_withdrawals
+            SUM(CASE WHEN created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') AND created_at < DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH THEN 1 ELSE 0 END) as this_month_users
         FROM users
     ";
     $res = $conn->query($user_stats_query);
@@ -191,8 +177,6 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
         $stats['total_balance'] = $row['total_balance'] ?? 0;
         $stats['today_users'] = $row['today_users'] ?? 0;
         $stats['this_month_users'] = $row['this_month_users'] ?? 0;
-        $stats['pending_deposits'] = $row['pending_deposits'] ?? 0;
-        $stats['pending_withdrawals'] = $row['pending_withdrawals'] ?? 0;
     }
 
     // ၂။ Bets Stats (Income, Payout, Pending for Total, Today, This Month) - Consolidated Query
@@ -319,7 +303,7 @@ require_once __DIR__ . '/../includes/header.php';
     $header_title = __('admin_dashboard_header_title');
     $header_icon = "fas fa-tachometer-alt";
     require_once __DIR__ . '/admin_header.php';
-    ?>
+?>
 
     <div class="p-4 md:p-6 pt-0">
         <!-- Quick Links (System Logs) -->
@@ -729,11 +713,11 @@ require_once __DIR__ . '/../includes/header.php';
             </div>
         </div>
 
-        <?php if($stats['pending_deposits'] > 0 || $stats['pending_withdrawals'] > 0): ?>
+        <?php if($pending_counts['total_tx'] > 0): ?>
             <div class="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-8 flex justify-between items-center shadow-sm">
                 <div>
                     <h3 class="font-bold text-orange-800 mb-1"><i class="fas fa-exclamation-triangle mr-1"></i> <?= __('admin_important_alert') ?></h3>
-                    <p class="text-sm text-orange-700"><?= __('admin_deposit_requests') ?> (<?= $stats['pending_deposits'] ?>) <?= __('admin_and') ?> <?= __('admin_withdrawal_requests') ?> (<?= $stats['pending_withdrawals'] ?>) <?= __('admin_to_review') ?></p>
+                    <p class="text-sm text-orange-700"><?= __('admin_deposit_requests') ?> (<?= $pending_counts['deposits'] ?>) <?= __('admin_and') ?> <?= __('admin_withdrawal_requests') ?> (<?= $pending_counts['withdrawals'] ?>) <?= __('admin_to_review') ?></p>
                 </div>
                 <a href="admin_transactions.php" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded shadow text-sm font-bold transition"><?= __('admin_go_to_review') ?></a>
             </div>

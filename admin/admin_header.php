@@ -38,7 +38,7 @@ function get_all_pending_counts($conn) {
     return $counts;
 }
 
-$pending_counts = get_all_pending_counts($conn);
+$pending_counts = get_all_pending_counts($conn); // This variable will be available in the files that include this header.
 ?>
 
 <style>
