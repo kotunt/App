@@ -27,6 +27,22 @@ services:
     env_file:
       - .env
 
+  # Cron Service (For running scheduled tasks)
+  cron:
+    container_name: thai2d3d-cron
+    image: ghcr.io/${COMPOSE_PROJECT_NAME:-gemini/app}/thai2d3d-php:${IMAGE_TAG:-latest}
+    restart: always
+    volumes:
+      # Mount the same code and log volumes as the php service
+      - .:/var/www/html
+      - ./docker/cron/crontab:/etc/cron/crontab:ro
+      - ./docker/cron/entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    depends_on:
+      - db
+    env_file:
+      - .env
+
   # Database Service (MySQL)
   db:
     image: mysql:8.0

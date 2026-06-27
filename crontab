@@ -1,0 +1,11 @@
+# Run 2D result update twice a day at 12:05 PM and 4:35 PM (Yangon Time)
+5 12 * * * /usr/local/bin/php /var/www/html/cron/auto_result_update.php >> /var/www/html/logs/cron.log 2>&1
+35 16 * * * /usr/local/bin/php /var/www/html/cron/auto_result_update.php >> /var/www/html/logs/cron.log 2>&1
+
+# Run cashback calculation every Monday at 2:00 AM
+0 2 * * 1 /usr/local/bin/php /var/www/html/cron/auto_cashback.php >> /var/www/html/logs/cron.log 2>&1
+
+# Run session notifier every 5 minutes
+*/5 * * * * /usr/local/bin/php /var/www/html/cron/session_notifier.php >> /var/www/html/logs/cron.log 2>&1
+
+# An empty line is required for the file to be valid

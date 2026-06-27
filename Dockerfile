@@ -23,6 +23,7 @@ WORKDIR /var/www/html
 # Install required system packages and PHP extensions
 RUN apk add --no-cache \
         freetype-dev \
+        busybox-cron \
         libjpeg-turbo-dev \
         libpng-dev \
         zip \

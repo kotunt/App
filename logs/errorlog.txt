@@ -8,3 +8,4 @@
 [2026-06-27 12:03:14] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
 [2026-06-27 12:05:27] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
 [2026-06-27 12:10:41] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
+[2026-06-27 12:14:07] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
