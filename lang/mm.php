@@ -56,6 +56,7 @@ return [
     'ready_to_confirm' => 'အတည်ပြုရန် အသင့်ဖြစ်ပါပြီ',
     'confirm' => 'အတည်ပြုမည်',
     'clear' => 'ဖျက်မည်',
+    'max' => 'အများဆုံး',
     'max_bet' => 'အကုန်ထိုးမည် (Max Bet)',
     
     // Quick Picks

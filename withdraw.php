@@ -330,6 +330,25 @@ require_once __DIR__ . '/includes/header.php';
             <div class="mb-8 md:mb-10">
                 <label class="block text-gray-700 text-sm md:text-base font-bold mb-2 md:mb-3"><?= __('withdraw_amount_ks') ?></label>
                 <input type="number" id="amount" name="amount" min="<?= $min_withdraw ?>" max="<?= $max_withdraw ?>" placeholder="<?= str_replace('%amount%', number_format($min_withdraw), __('min_withdraw_placeholder')) ?>" class="w-full py-3.5 md:py-4 px-4 md:px-5 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring focus:ring-blue-100 focus:outline-none text-lg md:text-xl font-bold transition-all text-primary" required oninput="calculateWithdrawal()">
+
+                <?php
+                $withdraw_presets = array_values(array_filter([10000, 30000, 50000, 100000, 300000, 500000], function($v) use ($min_withdraw, $max_withdraw) {
+                    return $v >= (int)$min_withdraw && ((int)$max_withdraw <= 0 || $v <= (int)$max_withdraw);
+                }));
+                ?>
+                <div class="flex flex-wrap items-center gap-2 mt-3">
+                    <?php foreach ($withdraw_presets as $pv): ?>
+                        <button type="button" onclick="addWithdrawAmount(<?= $pv ?>)" class="px-3 py-2 rounded-xl border border-blue-200 bg-blue-50 text-primary text-xs md:text-sm font-bold hover:bg-blue-100 hover:border-blue-300 active:scale-95 transition-all shadow-sm">
+                            <i class="fas fa-coins text-gold-500 mr-1"></i>+<?= number_format($pv) ?>
+                        </button>
+                    <?php endforeach; ?>
+                    <button type="button" onclick="setWithdrawMax()" class="px-3 py-2 rounded-xl border border-green-200 bg-green-50 text-green-700 text-xs md:text-sm font-bold hover:bg-green-100 hover:border-green-300 active:scale-95 transition-all shadow-sm">
+                        <i class="fas fa-wallet mr-1"></i><?= __('max') ?>
+                    </button>
+                    <button type="button" onclick="clearWithdrawAmount()" class="px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-500 text-xs md:text-sm font-bold hover:bg-gray-50 hover:text-red-500 active:scale-95 transition-all shadow-sm ml-auto">
+                        <i class="fas fa-eraser mr-1"></i><?= __('clear') ?>
+                    </button>
+                </div>
                 
                 <?php if ($withdrawal_fee_percent > 0): ?>
                     <div class="bg-red-50 p-4 mt-4 rounded-xl border border-red-100 text-sm md:text-base shadow-inner">
@@ -414,6 +433,11 @@ require_once __DIR__ . '/includes/header.php';
 
     <script>
         const withdrawalFeePercent = <?= $withdrawal_fee_percent ?>;
+        const withdrawBalance = <?= (int)floor($user['balance']) ?>;
+        const maxWithdraw = <?= (int)$max_withdraw ?>;
+        function addWithdrawAmount(v){const el=document.getElementById('amount');let cur=parseInt(el.value)||0;el.value=cur+v;calculateWithdrawal();}
+        function clearWithdrawAmount(){const el=document.getElementById('amount');el.value='';calculateWithdrawal();}
+        function setWithdrawMax(){const el=document.getElementById('amount');let m=withdrawBalance;if(maxWithdraw>0)m=Math.min(m,maxWithdraw);el.value=m;calculateWithdrawal();}
         const userAccounts = {
             <?php
             $acc_js = [];

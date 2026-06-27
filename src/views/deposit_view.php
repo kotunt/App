@@ -60,7 +60,28 @@
 
                     <div class="mb-6 md:mb-8">
                         <label class="block text-gray-700 text-sm md:text-base font-bold mb-2 md:mb-3 ml-1"><?= __('deposit_amount_ks') ?></label>
-                        <input type="number" name="amount" min="<?= $min_deposit ?>" max="<?= $max_deposit ?>" value="<?= htmlspecialchars($_SESSION['deposit_data']['amount'] ?? '') ?>" placeholder="<?= str_replace('%amount%', number_format($min_deposit), __('min_deposit_placeholder')) ?>" class="w-full py-3.5 md:py-4 px-4 rounded-2xl border border-gray-200 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 text-lg md:text-xl font-bold transition-all" required>
+                        <input type="number" id="depositAmount" name="amount" min="<?= $min_deposit ?>" max="<?= $max_deposit ?>" value="<?= htmlspecialchars($_SESSION['deposit_data']['amount'] ?? '') ?>" placeholder="<?= str_replace('%amount%', number_format($min_deposit), __('min_deposit_placeholder')) ?>" class="w-full py-3.5 md:py-4 px-4 rounded-2xl border border-gray-200 bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 text-lg md:text-xl font-bold transition-all" required>
+                        <?php
+                        $deposit_presets = array_values(array_filter([10000, 30000, 50000, 100000, 300000, 500000], function($v) use ($min_deposit, $max_deposit) {
+                            return $v >= (int)$min_deposit && ((int)$max_deposit <= 0 || $v <= (int)$max_deposit);
+                        }));
+                        ?>
+                        <?php if (!empty($deposit_presets)): ?>
+                        <div class="flex flex-wrap items-center gap-2 mt-3">
+                            <?php foreach ($deposit_presets as $pv): ?>
+                                <button type="button" onclick="addDepositAmount(<?= $pv ?>)" class="px-3 py-2 rounded-xl border border-primary-200 bg-primary-50 text-primary text-xs md:text-sm font-bold hover:bg-primary-100 hover:border-primary-300 active:scale-95 transition-all shadow-sm">
+                                    <i class="fas fa-coins text-gold-500 mr-1"></i>+<?= number_format($pv) ?>
+                                </button>
+                            <?php endforeach; ?>
+                            <button type="button" onclick="clearDepositAmount()" class="px-3 py-2 rounded-xl border border-gray-200 bg-white text-gray-500 text-xs md:text-sm font-bold hover:bg-gray-50 hover:text-red-500 active:scale-95 transition-all shadow-sm ml-auto">
+                                <i class="fas fa-eraser mr-1"></i><?= __('clear') ?>
+                            </button>
+                        </div>
+                        <script>
+                            function addDepositAmount(v){var el=document.getElementById('depositAmount');var cur=parseInt(el.value)||0;el.value=cur+v;el.focus();}
+                            function clearDepositAmount(){var el=document.getElementById('depositAmount');el.value='';el.focus();}
+                        </script>
+                        <?php endif; ?>
                     </div>
 
                     <button type="submit" class="w-full bg-brand-gradient hover:shadow-premium text-white font-bold py-3.5 md:py-4 rounded-2xl text-lg md:text-xl shadow-card hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2">

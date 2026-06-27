@@ -56,6 +56,7 @@ return [
     'ready_to_confirm' => 'Ready to Confirm',
     'confirm' => 'Confirm',
     'clear' => 'Clear',
+    'max' => 'Max',
     'max_bet' => 'Max Bet',
     
     // Quick Picks
