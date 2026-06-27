@@ -129,6 +129,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 $filter = $_GET['filter'] ?? 'all';
 $search_number = trim($_GET['search_number'] ?? '');
 $search_date = trim($_GET['search_date'] ?? '');
+$search_section = $_GET['search_section'] ?? '';
+if (!in_array($search_section, ['morning', 'evening', '3d'], true)) {
+    $search_section = '';
+}
 
 // Pagination Setup
 $limit = 10;
@@ -157,6 +161,12 @@ if (!empty($search_date)) {
     $filter_sql .= " AND DATE(created_at) = ?";
     $types .= "s";
     $params[] = $search_date;
+}
+
+if (!empty($search_section)) {
+    $filter_sql .= " AND bet_section = ?";
+    $types .= "s";
+    $params[] = $search_section;
 }
 
 // Get Total Rows for Pagination
@@ -309,13 +319,22 @@ require_once __DIR__ . '/includes/header.php';
                     <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
                     
                     <div class="flex gap-2 w-full md:w-2/3">
-                        <div class="w-1/2">
+                        <div class="w-1/3">
                             <label class="block text-xs font-bold text-gray-500 mb-1 ml-1"><?= __('search_number_placeholder') ?></label>
                             <input type="text" name="search_number" value="<?= htmlspecialchars($search_number) ?>" placeholder="ဥပမာ - 99" maxlength="3" class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                         </div>
-                        <div class="w-1/2">
+                        <div class="w-1/3">
                             <label class="block text-xs font-bold text-gray-500 mb-1 ml-1">ရက်စွဲ</label>
                             <input type="date" name="search_date" value="<?= htmlspecialchars($search_date) ?>" class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700">
+                        </div>
+                        <div class="w-1/3">
+                            <label class="block text-xs font-bold text-gray-500 mb-1 ml-1">အပိုင်း</label>
+                            <select name="search_section" class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700 bg-white">
+                                <option value="" <?= $search_section === '' ? 'selected' : '' ?>>အားလုံး</option>
+                                <option value="morning" <?= $search_section === 'morning' ? 'selected' : '' ?>>2D မနက်</option>
+                                <option value="evening" <?= $search_section === 'evening' ? 'selected' : '' ?>>2D ည</option>
+                                <option value="3d" <?= $search_section === '3d' ? 'selected' : '' ?>>3D</option>
+                            </select>
                         </div>
                     </div>
 
@@ -336,6 +355,7 @@ require_once __DIR__ . '/includes/header.php';
         $search_params = "";
         if(!empty($search_number)) $search_params .= "&search_number=".urlencode($search_number);
         if(!empty($search_date)) $search_params .= "&search_date=".urlencode($search_date);
+        if(!empty($search_section)) $search_params .= "&search_section=".urlencode($search_section);
         ?>
 
         <div class="px-4 mt-4">
