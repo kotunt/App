@@ -86,6 +86,10 @@ function require_admin_login() {
     }
 }
 
+function require_admin() {
+    require_admin_login();
+}
+
 function require_main_admin() {
     if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
         show_access_denied_page(__('admin_access_denied_main'));

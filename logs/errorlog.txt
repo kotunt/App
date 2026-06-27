@@ -27,3 +27,9 @@
 [27-Jun-2026 14:10:50 Asia/Yangon] Uncaught Exception: Class "App\Core\Session" not found in /workspaces/App/bootstrap.php:44
 #0 /workspaces/App/index.php(4): require_once()
 #1 {main}
+[2026-06-27 18:44:07] Error: Undefined variable $conn in /home/runner/workspace/maintenance.php on line 5
+[2026-06-27 18:44:07] Exception: Call to a member function query() on null in /home/runner/workspace/maintenance.php on line 5
+[2026-06-27 18:44:21] Error: Undefined variable $conn in /home/runner/workspace/maintenance.php on line 5
+[2026-06-27 18:44:21] Exception: Call to a member function query() on null in /home/runner/workspace/maintenance.php on line 5
+[2026-06-27 18:45:32] Error: Undefined variable $conn in /home/runner/workspace/maintenance.php on line 5
+[2026-06-27 18:45:32] Exception: Call to a member function query() on null in /home/runner/workspace/maintenance.php on line 5

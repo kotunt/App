@@ -56,6 +56,9 @@ Session::start();
 // 8. Load Language Helper
 require_once __DIR__ . '/lang/language.php';
 
+// 8b. Load Auth Helper (provides require_admin, require_admin_login, require_main_admin, etc.)
+require_once __DIR__ . '/core/auth_helper.php';
+
 // 9. Maintenance Mode Check
 $current_script = basename($_SERVER['PHP_SELF']);
 $allowed_scripts = ['maintenance.php', 'login.php', 'logout.php'];

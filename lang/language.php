@@ -25,6 +25,7 @@ if (!isset($_SESSION['lang'])) {
 $current_lang = $_SESSION['lang'];
 $lang_file = __DIR__ . "/{$current_lang}.php";
 
+global $translations;
 if (file_exists($lang_file)) {
     $translations = include($lang_file);
 } elseif (file_exists(__DIR__ . "/mm.php")) {
