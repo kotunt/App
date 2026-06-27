@@ -56,3 +56,12 @@
 [27-Jun-2026 20:47:40 Asia/Yangon] PHP Deprecated:  Using ${var} in strings is deprecated, use {$var} instead in /home/runner/workspace/core/GoogleAuthenticator.php on line 112
 [27-Jun-2026 20:47:40 Asia/Yangon] PHP Deprecated:  Using ${var} in strings is deprecated, use {$var} instead in /home/runner/workspace/core/GoogleAuthenticator.php on line 112
 [2026-06-27 20:47:47] Exception: Expression #7 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'thai_2d3d_db.bets.user_id' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by in /home/runner/workspace/bet_history.php on line 191
+[2026-06-27 20:54:13] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:54:17] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:54:18] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:54:21] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:54:47] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:54:55] Error: Undefined variable $conn in /home/runner/workspace/includes/footer.php on line 16
+[2026-06-27 20:54:55] Exception: Call to a member function query() on null in /home/runner/workspace/includes/footer.php on line 16
+[2026-06-27 20:55:03] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:55:09] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
