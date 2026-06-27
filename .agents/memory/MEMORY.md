@@ -1,3 +1,4 @@
 - [Admin header architecture](admin-header-architecture.md) — admin_header.php is a navbar FRAGMENT, not a full head; do NOT add doctype/head/body to it.
 - [Include path conventions](include-path-conventions.md) — correct __DIR__ depths for includes/views; which routing (legacy root vs MVC) is actually live vs dead.
 - [Frontend safety & modal patterns](frontend-safety-patterns.md) — Tailwind modals: toggle only `hidden` on a `hidden flex` overlay; wrap DB urls in `safe_url()` (header.php) for href/src.
+- [Home page render chain](home-page-render-chain.md) — index.php (bootstrap pattern) must include header.php + footer.php or the home page loses Tailwind/CSS entirely.
