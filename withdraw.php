@@ -171,14 +171,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                         $fee_amount = $amount * ($withdrawal_fee_percent / 100);
                         $net_amount = $amount - $fee_amount;
 
-                        $update_stmt = $conn->prepare("UPDATE users SET balance = balance - ? WHERE id = ?");
-                        $update_stmt->bind_param("di", $amount, $user_id);
-                        $update_stmt->execute();
+                        $update_stmt = $conn->prepare("UPDATE users SET balance = balance - ? WHERE id = ? AND balance >= ?");
+                        $update_stmt->bind_param("did", $amount, $user_id, $amount);
+                        if (!$update_stmt->execute()) {
+                            $update_stmt->close();
+                            throw new Exception('DB_ERROR');
+                        }
+                        $balance_affected = $update_stmt->affected_rows;
                         $update_stmt->close();
+
+                        if ($balance_affected < 1) {
+                            throw new Exception('INSUFFICIENT_BALANCE');
+                        }
 
                         $insert_stmt = $conn->prepare("INSERT INTO withdrawals (user_id, amount, fee_amount, payment_method, account_number) VALUES (?, ?, ?, ?, ?)");
                         $insert_stmt->bind_param("iddss", $user_id, $amount, $fee_amount, $payment_method, $account_number);
-                        $insert_stmt->execute();
+                        if (!$insert_stmt->execute()) {
+                            $insert_stmt->close();
+                            throw new Exception('DB_ERROR');
+                        }
                         $insert_stmt->close();
 
                         // Real-time event for admin dashboard
@@ -189,8 +200,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                         $conn->commit();
 
                         // --- Telegram Bot သို့ Admin ထံ Notification ပို့ရန် ---
-                        $bot_token = $pay_settings['telegram_bot_token'] ?? '';
-                        $admin_chat_id = $pay_settings['telegram_channel_id'] ?? '';
+                        $bot_token = $all_settings['telegram_bot_token'] ?? '';
+                        $admin_chat_id = $all_settings['telegram_channel_id'] ?? '';
 
                         if (!empty($bot_token) && !empty($admin_chat_id)) {
                             $telegram_msg = __('admin_withdraw_noti_title') . "\n\n";
@@ -226,7 +237,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                         unset($_SESSION['withdrawal_data']);
                     } catch (Exception $e) {
                         $conn->rollback();
-                        $error_message = __('system_error_try_again');
+                        $error_message = ($e->getMessage() === 'INSUFFICIENT_BALANCE')
+                            ? __('insufficient_balance')
+                            : __('system_error_try_again');
                         $step = 1;
                         unset($_SESSION['withdrawal_data']);
                     }
