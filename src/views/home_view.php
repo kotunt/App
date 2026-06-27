@@ -3,7 +3,7 @@
 if (!isset($user)) { exit('Direct access not permitted.'); }
 ?>
 
-<body class="w-full lg:max-w-5xl md:max-w-3xl mx-auto relative min-h-screen pb-20 bg-gray-50 md:shadow-2xl md:border-x border-gray-200 transition-all duration-300">
+<body class="w-full lg:max-w-5xl md:max-w-3xl mx-auto relative min-h-screen pb-20 bg-slate-50 dark:bg-slate-900 md:shadow-2xl md:border-x border-gray-200 dark:border-slate-800 transition-colors duration-300">
 
     <div class="bg-brand-gradient text-white rounded-b-4xl md:rounded-b-5xl pb-12 md:pb-16 shadow-premium relative overflow-hidden">
         <div class="absolute top-[-30%] right-[-10%] w-72 h-72 bg-gold-400/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -57,43 +57,43 @@ if (!isset($user)) { exit('Direct access not permitted.'); }
     </div>
 
     <div class="px-4 md:px-8 -mt-8 md:-mt-10 relative z-10">
-        <div class="bg-white rounded-2xl shadow-xl p-5 md:p-6 border border-gray-100">
-            <div class="flex justify-between items-center border-b border-gray-100 pb-4 mb-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl dark:shadow-2xl dark:shadow-black/30 p-5 md:p-6 border border-gray-100 dark:border-slate-700 transition-colors">
+            <div class="flex justify-between items-center border-b border-gray-100 dark:border-slate-700 pb-4 mb-4">
                 <div>
-                   <p class="text-primary font-bold text-sm md:text-base flex items-center mb-1">
+                   <p class="text-primary dark:text-blue-400 font-bold text-sm md:text-base flex items-center mb-1">
                     <?= __('balance') ?> (<?= __('currency') ?>) 
-                    <i id="toggleBalanceBtn" class="fas fa-eye ml-2 text-gray-400 cursor-pointer hover:text-gray-600 transition-colors"></i>
+                    <i id="toggleBalanceBtn" class="fas fa-eye ml-2 text-gray-400 dark:text-slate-500 cursor-pointer hover:text-gray-600 dark:hover:text-slate-300 transition-colors"></i>
                 </p>
-                <p id="balanceAmount" data-balance="<?= htmlspecialchars($user['balance']) ?>" class="text-primary font-bold text-2xl md:text-3xl tracking-tight">
+                <p id="balanceAmount" data-balance="<?= htmlspecialchars($user['balance']) ?>" class="text-primary dark:text-blue-300 font-bold text-2xl md:text-3xl tracking-tight">
                     <?= htmlspecialchars($user['balance']) ?>
                 </p>
                 </div>
-                <div class="bg-blue-50 p-3 md:p-4 rounded-full">
-                    <i class="fas fa-wallet text-primary text-2xl md:text-3xl opacity-80"></i>
+                <div class="bg-blue-50 dark:bg-blue-900/30 p-3 md:p-4 rounded-2xl">
+                    <i class="fas fa-wallet text-primary dark:text-blue-400 text-2xl md:text-3xl opacity-80"></i>
                 </div>
             </div>
             
             <div class="grid grid-cols-4 gap-2 md:gap-6 text-center mt-2">
-                <a href="deposit.php" class="text-primary font-bold text-xs md:text-sm hover:text-blue-700 flex flex-col items-center group">
-                    <div class="bg-blue-50 group-hover:bg-blue-100 p-2 md:p-3 rounded-full mb-2 transition-colors">
+                <a href="deposit.php" class="text-primary dark:text-blue-400 font-bold text-xs md:text-sm hover:text-blue-700 dark:hover:text-blue-300 flex flex-col items-center group">
+                    <div class="bg-blue-50 dark:bg-blue-900/30 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 p-2 md:p-3 rounded-2xl mb-2 transition-colors">
                         <i class="fas fa-plus-circle text-xl md:text-2xl"></i>
                     </div>
                     <?= __('deposit') ?>
                 </a>
-                <a href="withdraw.php" class="text-primary font-bold text-xs md:text-sm hover:text-blue-700 flex flex-col items-center group">
-                    <div class="bg-blue-50 group-hover:bg-blue-100 p-2 md:p-3 rounded-full mb-2 transition-colors">
+                <a href="withdraw.php" class="text-primary dark:text-blue-400 font-bold text-xs md:text-sm hover:text-blue-700 dark:hover:text-blue-300 flex flex-col items-center group">
+                    <div class="bg-blue-50 dark:bg-blue-900/30 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 p-2 md:p-3 rounded-2xl mb-2 transition-colors">
                         <i class="fas fa-minus-circle text-xl md:text-2xl"></i>
                     </div>
                     <?= __('withdraw') ?>
                 </a>
-                <a href="transfer.php" class="text-purple-600 font-bold text-xs md:text-sm hover:text-purple-800 flex flex-col items-center group">
-                    <div class="bg-purple-50 group-hover:bg-purple-100 p-2 md:p-3 rounded-full mb-2 transition-colors">
+                <a href="transfer.php" class="text-purple-600 dark:text-purple-400 font-bold text-xs md:text-sm hover:text-purple-800 dark:hover:text-purple-300 flex flex-col items-center group">
+                    <div class="bg-purple-50 dark:bg-purple-900/30 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/50 p-2 md:p-3 rounded-2xl mb-2 transition-colors">
                         <i class="fas fa-exchange-alt text-xl md:text-2xl"></i>
                     </div>
                     <?= __('transfer') ?>
                 </a>
-                <a href="loan.php" class="text-blue-500 font-bold text-xs md:text-sm hover:text-blue-700 flex flex-col items-center group">
-                    <div class="bg-blue-50 group-hover:bg-blue-100 p-2 md:p-3 rounded-full mb-2 transition-colors">
+                <a href="loan.php" class="text-blue-500 dark:text-blue-400 font-bold text-xs md:text-sm hover:text-blue-700 dark:hover:text-blue-300 flex flex-col items-center group">
+                    <div class="bg-blue-50 dark:bg-blue-900/30 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 p-2 md:p-3 rounded-2xl mb-2 transition-colors">
                         <i class="fas fa-hand-holding-usd text-xl md:text-2xl"></i>
                     </div>
                     <?= __('loan') ?>
@@ -104,19 +104,19 @@ if (!isset($user)) { exit('Direct access not permitted.'); }
 
     <?php if (!empty($bonus_alert)): ?>
         <div class="px-4 md:px-8 mt-5 relative z-10">
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 md:py-4 rounded-xl text-sm md:text-base font-bold shadow-sm text-center animate-pulse flex justify-center items-center">
+            <div class="bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-300 px-4 py-3 md:py-4 rounded-2xl text-sm md:text-base font-bold shadow-sm text-center animate-pulse flex justify-center items-center">
                 <i class="fas fa-gift mr-2 text-lg"></i> <?= htmlspecialchars($bonus_alert) ?>
             </div>
         </div>
     <?php endif; ?>
 
     <div class="px-4 md:px-8 mt-5 relative z-10">
-        <div class="bg-white rounded-full shadow-sm border border-gray-200 p-1 md:p-1.5 flex items-center overflow-hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-full shadow-sm border border-gray-200 dark:border-slate-700 p-1 md:p-1.5 flex items-center overflow-hidden transition-colors">
             <div class="bg-primary text-white w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center flex-shrink-0 z-10 shadow-sm">
                 <i class="fas fa-bullhorn text-xs md:text-sm animate-pulse"></i>
             </div>
             <div class="flex-1 overflow-hidden px-2 md:px-4 flex items-center">
-                <marquee behavior="scroll" direction="left" scrollamount="4" class="text-sm md:text-base font-bold text-gray-700 mt-1 md:mt-0">
+                <marquee behavior="scroll" direction="left" scrollamount="4" class="text-sm md:text-base font-bold text-gray-700 dark:text-slate-200 mt-1 md:mt-0">
                     <?= __('welcome_marquee') ?>
                 </marquee>
             </div>
@@ -211,7 +211,7 @@ if (!isset($user)) { exit('Direct access not permitted.'); }
                         <?php endif; ?>
                     </div>
                 </a>
-                <p class="font-bold text-gray-700 text-sm md:text-base text-center mt-2 leading-tight"><?= htmlspecialchars($g_label) ?></p>
+                <p class="font-bold text-gray-700 dark:text-slate-200 text-sm md:text-base text-center mt-2 leading-tight"><?= htmlspecialchars($g_label) ?></p>
             </div>
         <?php endforeach; ?>
     </div>
@@ -223,17 +223,17 @@ if (!isset($user)) { exit('Direct access not permitted.'); }
 
     <?php if (($announcement['announcement_is_active'] ?? '0') === '1' && (!empty($announcement['announcement_text']) || !empty($announcement['announcement_image_url']))): ?>
         <div id="announcementModal" class="fixed inset-0 bg-black bg-opacity-75 z-[60] flex items-center justify-center p-4 hidden">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-[slide-in_0.3s_ease-out] relative">
-                <button onclick="closeAnnouncement()" class="absolute top-3 right-3 w-8 h-8 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-full flex items-center justify-center transition z-10">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-[slide-in_0.3s_ease-out] relative">
+                <button onclick="closeAnnouncement()" class="absolute top-3 right-3 w-8 h-8 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 rounded-full flex items-center justify-center transition z-10">
                     <i class="fas fa-times"></i>
                 </button>
                 <div class="p-6 md:p-8 pb-4 text-center">
-                    <h2 class="text-xl md:text-2xl font-bold text-primary mb-4"><i class="fas fa-bullhorn text-red-500 mr-2 animate-bounce"></i> <?= __('special_announcement') ?></h2>
+                    <h2 class="text-xl md:text-2xl font-bold text-primary dark:text-blue-400 mb-4"><i class="fas fa-bullhorn text-red-500 mr-2 animate-bounce"></i> <?= __('special_announcement') ?></h2>
                     <?php if (!empty($announcement['announcement_image_url'])): ?>
                         <img src="<?= htmlspecialchars($announcement['announcement_image_url']) ?>" alt="Announcement" class="w-full h-auto rounded-lg mb-5 object-cover max-h-64 mx-auto shadow-sm">
                     <?php endif; ?>
                     <?php if (!empty($announcement['announcement_text'])): ?>
-                        <div class="text-sm md:text-base text-gray-700 leading-relaxed text-left bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <div class="text-sm md:text-base text-gray-700 dark:text-slate-300 leading-relaxed text-left bg-gray-50 dark:bg-slate-900/50 p-4 rounded-xl border border-gray-200 dark:border-slate-700">
                             <?= nl2br(htmlspecialchars($announcement['announcement_text'])) ?>
                         </div>
                     <?php endif; ?>
