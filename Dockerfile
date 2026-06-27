@@ -1,20 +1,29 @@
-# Use an official Node.js runtime as a parent image
-FROM node:18-alpine
+# Use the official PHP 8.1 FPM image as a base
+FROM php:8.1-fpm-alpine as base
 
 # Set the working directory in the container
-WORKDIR /usr/src/app
+WORKDIR /var/www/html
 
-# Copy package.json and package-lock.json (if available)
-COPY package*.json ./
+# Install system dependencies needed for extensions
+RUN apk add --no-cache \
+    $PHPIZE_DEPS \
+    libzip-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev
 
-# Install any needed packages
-RUN npm install
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd mysqli pdo pdo_mysql zip
 
-# Bundle app source
-COPY . .
+# --- Development Stage ---
+FROM base as dev
 
-# Your app will run on port 3000
-EXPOSE 3000
+# Copy composer from the official image
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Define the command to run your app
-CMD [ "node", "server.js" ]
+# Install development-specific dependencies
+RUN apk add --no-cache $PHPIZE_DEPS \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && apk del $PHPIZE_DEPS
