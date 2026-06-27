@@ -235,5 +235,12 @@ if ($grid_amounts_stmt) {
     }
 }
 
+// Dream book (အိပ်မက်ဂဏန်း) for in-flow modal
+$dream_book = [];
+$dream_stmt = $conn->query("SELECT title, icon, number_2d, number_3d FROM dream_book WHERE is_active = 1 ORDER BY sort_order ASC, id ASC");
+if ($dream_stmt) {
+    while ($d_row = $dream_stmt->fetch_assoc()) { $dream_book[] = $d_row; }
+}
+
 require_once __DIR__ . '/2d_bet_view.php'; 
 ?>

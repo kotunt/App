@@ -258,6 +258,14 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <div class="p-4 md:p-8 pt-2 md:pt-4 max-w-2xl mx-auto w-full">
+        <?php
+        $tv_url = '';
+        $tv_res = $conn->query("SELECT setting_value FROM settings WHERE setting_key = 'withdraw_video_url'");
+        if ($tv_res && $tv_row = $tv_res->fetch_assoc()) { $tv_url = trim($tv_row['setting_value']); }
+        $tv_label = __('how_to_withdraw_video');
+        $tv_id = 'withdrawVideoModal';
+        if (($step ?? 1) == 1) { require __DIR__ . '/includes/tutorial_video.php'; }
+        ?>
         <?php if ($step === 4 && !empty($success_message)): ?>
             <div class="bg-green-50 border border-green-200 text-green-700 px-5 py-4 rounded-xl relative mb-5 text-sm md:text-base font-bold shadow-sm text-center">
                 <i class="fas fa-check-circle text-green-500 text-2xl mb-2 block"></i>

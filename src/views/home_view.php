@@ -186,6 +186,63 @@ if (!isset($user)) { exit('Direct access not permitted.'); }
         </a>
     </div>
 
+    <div class="px-4 md:px-8 mt-8 md:mt-10">
+        <h3 class="font-bold text-gray-700 text-base md:text-lg mb-3 flex items-center"><i class="fas fa-grip text-primary mr-2"></i><?= __('quick_menu') ?></h3>
+        <div class="grid grid-cols-4 gap-3 md:gap-5">
+            <?php
+            $quick_items = [
+                ['results.php', 'fa-trophy', 'menu_results', 'text-amber-500', 'bg-amber-50'],
+                ['leaderboard.php', 'fa-crown', 'menu_leaderboard', 'text-yellow-500', 'bg-yellow-50'],
+                ['hot_numbers.php', 'fa-fire', 'menu_hot_numbers', 'text-red-500', 'bg-red-50'],
+                ['promotions.php', 'fa-gift', 'nav_promotions', 'text-pink-500', 'bg-pink-50'],
+                ['bet_history.php', 'fa-clock-rotate-left', 'menu_history', 'text-primary', 'bg-blue-50'],
+                ['game_wallet.php', 'fa-gamepad', 'title_game_wallet', 'text-purple-600', 'bg-purple-50'],
+                ['guides.php', 'fa-book-open', 'menu_guide', 'text-emerald-500', 'bg-emerald-50'],
+                ['contact.php', 'fa-headset', 'nav_contact', 'text-sky-500', 'bg-sky-50'],
+            ];
+            foreach ($quick_items as $qi):
+            ?>
+                <a href="<?= $qi[0] ?>" class="flex flex-col items-center group">
+                    <div class="w-14 h-14 md:w-16 md:h-16 <?= $qi[4] ?> rounded-2xl flex items-center justify-center mb-1.5 shadow-sm group-hover:-translate-y-1 transition-transform">
+                        <i class="fas <?= $qi[1] ?> <?= $qi[3] ?> text-xl md:text-2xl"></i>
+                    </div>
+                    <span class="text-[11px] md:text-xs font-semibold text-gray-600 text-center leading-tight"><?= __($qi[2]) ?></span>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
+    <?php if (!empty($external_games)): ?>
+    <div class="px-4 md:px-8 mt-8 md:mt-10">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-gray-700 text-base md:text-lg flex items-center"><i class="fas fa-dice text-gold-500 mr-2"></i><?= __('external_games_title') ?></h3>
+            <a href="game_wallet.php" class="text-xs md:text-sm font-semibold text-primary hover:underline"><?= __('view_all') ?> <i class="fas fa-chevron-right text-[10px]"></i></a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <?php foreach ($external_games as $g): ?>
+                <?php $g_href = !empty($g['launch_url']) ? htmlspecialchars(safe_url($g['launch_url'])) : 'game_wallet.php'; ?>
+                <a href="<?= $g_href ?>" <?= !empty($g['launch_url']) ? 'target="_blank" rel="noopener"' : '' ?> class="bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden card-hover block">
+                    <div class="h-28 md:h-36 bg-brand-gradient relative flex items-center justify-center">
+                        <?php if (!empty($g['image_url'])): ?>
+                            <img src="<?= htmlspecialchars($g['image_url']) ?>" class="w-full h-full object-cover absolute inset-0" alt="<?= htmlspecialchars($g['name']) ?>">
+                        <?php else: ?>
+                            <i class="fas fa-gamepad text-white/30 text-5xl"></i>
+                        <?php endif; ?>
+                        <?php if (!empty($g['badge'])): ?>
+                            <span class="absolute top-2 left-2 bg-gold-gradient text-primary-900 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-gold"><?= htmlspecialchars($g['badge']) ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="p-3 md:p-4">
+                        <p class="font-bold text-gray-800 text-sm md:text-base truncate"><?= htmlspecialchars($g['name']) ?></p>
+                        <p class="text-[11px] md:text-xs text-gray-400 mb-2 truncate"><?= htmlspecialchars($g['provider']) ?></p>
+                        <span class="block text-center bg-brand-gradient text-white font-bold text-xs md:text-sm py-2 rounded-xl"><?= __('play_now') ?></span>
+                    </div>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <div class="text-center mt-8 md:mt-12 mb-6">
         <p class="text-red-500 text-sm md:text-base font-semibold"><?= __('version') ?>: 1.7.3</p>
     </div>

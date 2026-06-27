@@ -10,6 +10,15 @@
     </div>
 
     <div class="p-4 md:p-8 max-w-2xl mx-auto">
+        <?php
+        require_once __DIR__ . '/../../core/db_connect.php';
+        $tv_url = '';
+        $tv_res = $conn->query("SELECT setting_value FROM settings WHERE setting_key = 'deposit_video_url'");
+        if ($tv_res && $tv_row = $tv_res->fetch_assoc()) { $tv_url = trim($tv_row['setting_value']); }
+        $tv_label = __('how_to_deposit_video');
+        $tv_id = 'depositVideoModal';
+        if ($step === 1) { require __DIR__ . '/../../includes/tutorial_video.php'; }
+        ?>
         <?php if (isset($success_message) && $step === 3): ?>
             <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 md:py-4 rounded-2xl relative mb-5 text-sm md:text-base font-medium shadow-card flex items-center gap-2">
                 <i class="fas fa-circle-check"></i>

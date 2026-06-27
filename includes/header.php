@@ -7,6 +7,25 @@ if (strpos($_SERVER['SCRIPT_NAME'], '/admin/') !== false || strpos($_SERVER['SCR
 if (file_exists(dirname(__DIR__) . '/lang/language.php')) {
     require_once dirname(__DIR__) . '/lang/language.php';
 }
+
+if (!function_exists('safe_url')) {
+    /**
+     * Allow only safe URL schemes for href/src to prevent javascript:/data: XSS.
+     * Returns '#' for anything that is not an allowed absolute URL or a relative path.
+     */
+    function safe_url($url, array $extra_schemes = []) {
+        $url = trim((string)$url);
+        if ($url === '') return '#';
+        $allowed = array_merge(['http', 'https'], $extra_schemes);
+        if (preg_match('#^([a-zA-Z][a-zA-Z0-9+.\-]*):#', $url, $m)) {
+            return in_array(strtolower($m[1]), $allowed, true) ? $url : '#';
+        }
+        // No scheme: treat as relative path/anchor, reject protocol-relative & control chars.
+        if (strpos($url, '//') === 0) return '#';
+        if (preg_match('/[\x00-\x1F\x7F]/', $url)) return '#';
+        return $url;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($_SESSION['lang'] ?? 'mm') ?>">

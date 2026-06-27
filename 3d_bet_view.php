@@ -201,6 +201,15 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
 
+                <!-- Quick Links: Hot / Results / Leaderboard -->
+                <div class="px-4 mb-3 grid grid-cols-3 gap-2">
+                    <a href="hot_numbers.php" class="flex flex-col items-center justify-center gap-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/40 rounded-2xl py-2.5 text-xs font-bold hover:-translate-y-0.5 transition-all"><i class="fas fa-fire text-base"></i> <?= __('menu_hot_numbers') ?></a>
+                    <a href="results.php" class="flex flex-col items-center justify-center gap-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800/40 rounded-2xl py-2.5 text-xs font-bold hover:-translate-y-0.5 transition-all"><i class="fas fa-trophy text-base"></i> <?= __('menu_results') ?></a>
+                    <a href="leaderboard.php" class="flex flex-col items-center justify-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-500 border border-yellow-100 dark:border-yellow-800/40 rounded-2xl py-2.5 text-xs font-bold hover:-translate-y-0.5 transition-all"><i class="fas fa-crown text-base"></i> <?= __('menu_leaderboard') ?></a>
+                </div>
+
+                <?php $dream_mode = '3d'; require __DIR__ . '/includes/dream_book_modal.php'; ?>
+
                 <!-- 3D Hundreds Tabs -->
                 <div class="px-4 mb-2">
                     <div class="flex overflow-x-auto gap-2 mb-3 pb-2 custom-scrollbar">

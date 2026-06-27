@@ -148,6 +148,13 @@ try {
         }
     }
 
+    // External Games ရယူခြင်း (A8, Live22, etc.)
+    $external_games = [];
+    $eg_stmt = $db->query("SELECT name, provider, image_url, launch_url, badge FROM external_games WHERE is_active = 1 ORDER BY sort_order ASC, id DESC");
+    if ($eg_stmt) {
+        $external_games = $eg_stmt->fetch_all(MYSQLI_ASSOC);
+    }
+
     // အသိပေးချက် (Announcement) ရယူခြင်း
     $announce_stmt = $db->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('announcement_text', 'announcement_image_url', 'announcement_is_active')");
     $announcement = [];
