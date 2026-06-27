@@ -36,3 +36,20 @@
 [2026-06-27 20:11:24] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
 [2026-06-27 20:11:27] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
 [2026-06-27 20:11:32] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:41:36] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:41:44] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:41:49] Error: Trying to access array offset on value of type null in /home/runner/workspace/2d_bet_view.php on line 46
+[2026-06-27 20:41:55] Error: Trying to access array offset on value of type null in /home/runner/workspace/2d_bet_view.php on line 46
+[2026-06-27 20:41:58] Error: Trying to access array offset on value of type null in /home/runner/workspace/2d_bet_view.php on line 46
+[2026-06-27 20:42:10] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:42:24] Error: Undefined variable $conn in /home/runner/workspace/includes/footer.php on line 16
+[2026-06-27 20:42:24] Exception: Call to a member function query() on null in /home/runner/workspace/includes/footer.php on line 16
+[2026-06-27 20:42:39] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:42:46] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:47:06] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:47:12] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:47:26] Error: Undefined variable $conn in /home/runner/workspace/includes/footer.php on line 16
+[2026-06-27 20:47:26] Exception: Call to a member function query() on null in /home/runner/workspace/includes/footer.php on line 16
+[2026-06-27 20:47:29] Exception: Expression #1 of ORDER BY clause is not in SELECT list, references column 'thai_2d3d_db.payment_accounts.sort_order' which is not in SELECT list; this is incompatible with DISTINCT in /home/runner/workspace/payment_accounts.php on line 18
+[2026-06-27 20:47:38] Error: Undefined variable $conn in /home/runner/workspace/includes/footer.php on line 16
+[2026-06-27 20:47:38] Exception: Call to a member function query() on null in /home/runner/workspace/includes/footer.php on line 16

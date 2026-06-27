@@ -134,7 +134,10 @@ $history = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 // မဖတ်ရသေးသော စာများရှိပါက ဖတ်ပြီးအဖြစ် သတ်မှတ်မည်
-$conn->query("UPDATE support_messages SET is_read = 1 WHERE user_id = $user_id AND is_read = 0");
+$mark_read_stmt = $conn->prepare("UPDATE support_messages SET is_read = 1 WHERE user_id = ? AND is_read = 0");
+$mark_read_stmt->bind_param("i", $user_id);
+$mark_read_stmt->execute();
+$mark_read_stmt->close();
 ?>
 
 <?php 
