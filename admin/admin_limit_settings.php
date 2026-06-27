@@ -71,35 +71,45 @@ require_once __DIR__ . '/../includes/header.php';
 
     <div class="p-4 md:p-6 pt-0">
         <?php if (!empty($success_message)): ?>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 text-sm shadow-sm"><?= htmlspecialchars($success_message) ?></div>
+            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3.5 rounded-xl relative mb-6 text-sm shadow-soft flex items-center gap-2"><i class="fas fa-circle-check text-base"></i><span><?= htmlspecialchars($success_message) ?></span></div>
         <?php endif; ?>
         <?php if (!empty($error_message)): ?>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 text-sm shadow-sm"><?= htmlspecialchars($error_message) ?></div>
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3.5 rounded-xl relative mb-6 text-sm shadow-soft flex items-center gap-2"><i class="fas fa-circle-exclamation text-base"></i><span><?= htmlspecialchars($error_message) ?></span></div>
         <?php endif; ?>
 
-        <div class="bg-white rounded-xl shadow-md p-4 sm:p-6">
-            <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><?= __('admin_limit_section_title') ?></h2>
+        <div class="bg-white rounded-2xl shadow-card border border-gray-100 p-5 sm:p-7 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-brand-gradient"></div>
+            <h2 class="text-base sm:text-lg font-extrabold text-gray-800 mb-5 flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-sliders-h"></i></span>
+                <?= __('admin_limit_section_title') ?>
+            </h2>
             
             <form method="POST" action="">
                 <div class="mb-5">
-                    <label class="block text-gray-700 font-bold mb-2"><?= __('admin_limit_2d_max') ?></label>
-                    <input type="number" name="max_limit" value="<?= htmlspecialchars($current_limit) ?>" min="1000" class="w-full py-3 px-4 border rounded-lg focus:border-blue-500 focus:outline-none bg-gray-50" required>
+                    <label class="block text-gray-700 font-bold mb-2 text-sm"><i class="fas fa-coins text-gold-500 mr-1"></i> <?= __('admin_limit_2d_max') ?></label>
+                    <div class="relative">
+                        <input type="number" name="max_limit" value="<?= htmlspecialchars($current_limit) ?>" min="1000" class="w-full py-3 px-4 pr-12 border border-gray-200 rounded-xl bg-gray-50 focus:border-blue-500 focus:ring focus:ring-blue-100 focus:outline-none transition-all font-bold" required>
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">Ks</span>
+                    </div>
                 </div>
                 
                 <div class="mb-5">
-                    <label class="block text-gray-700 font-bold mb-2"><?= __('admin_limit_3d_max') ?></label>
-                    <input type="number" name="max_limit_3d" value="<?= htmlspecialchars($current_limit_3d) ?>" min="1000" class="w-full py-3 px-4 border rounded-lg focus:border-blue-500 focus:outline-none bg-gray-50" required>
-                    <p class="text-xs text-gray-500 mt-2"><?= __('admin_limit_note_full') ?></p>
+                    <label class="block text-gray-700 font-bold mb-2 text-sm"><i class="fas fa-coins text-gold-500 mr-1"></i> <?= __('admin_limit_3d_max') ?></label>
+                    <div class="relative">
+                        <input type="number" name="max_limit_3d" value="<?= htmlspecialchars($current_limit_3d) ?>" min="1000" class="w-full py-3 px-4 pr-12 border border-gray-200 rounded-xl bg-gray-50 focus:border-blue-500 focus:ring focus:ring-blue-100 focus:outline-none transition-all font-bold" required>
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">Ks</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2"><i class="fas fa-circle-info mr-1 text-gray-400"></i><?= __('admin_limit_note_full') ?></p>
                 </div>
 
-                <div class="mb-5 border-t pt-4">
-                    <label class="block text-gray-700 font-bold mb-2"><?= __('admin_limit_cancel_time') ?></label>
-                    <input type="number" name="bet_cancel_time_limit" value="<?= htmlspecialchars($current_cancel_limit) ?>" min="0" class="w-full py-3 px-4 border rounded-lg focus:border-blue-500 focus:outline-none bg-gray-50" required>
-                    <p class="text-xs text-gray-500 mt-2"><?= __('admin_limit_cancel_time_note') ?></p>
+                <div class="mb-5 border-t border-gray-100 pt-5">
+                    <label class="block text-gray-700 font-bold mb-2 text-sm"><i class="fas fa-clock text-blue-500 mr-1"></i> <?= __('admin_limit_cancel_time') ?></label>
+                    <input type="number" name="bet_cancel_time_limit" value="<?= htmlspecialchars($current_cancel_limit) ?>" min="0" class="w-full py-3 px-4 border border-gray-200 rounded-xl bg-gray-50 focus:border-blue-500 focus:ring focus:ring-blue-100 focus:outline-none transition-all font-bold" required>
+                    <p class="text-xs text-gray-500 mt-2"><i class="fas fa-circle-info mr-1 text-gray-400"></i><?= __('admin_limit_cancel_time_note') ?></p>
                 </div>
 
-                <button type="submit" name="update_limit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-sm shadow-sm transition mt-4 w-full">
-                    <i class="fas fa-save mr-2"></i> <?= __('admin_limit_btn_save') ?>
+                <button type="submit" name="update_limit" class="w-full bg-brand-gradient hover:shadow-premium text-white font-bold py-3.5 px-6 rounded-xl text-base shadow-card hover:-translate-y-0.5 transition-all duration-200 mt-2 flex items-center justify-center gap-2">
+                    <i class="fas fa-save"></i> <?= __('admin_limit_btn_save') ?>
                 </button>
             </form>
         </div>

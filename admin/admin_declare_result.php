@@ -162,56 +162,69 @@ require_once __DIR__ . '/../includes/header.php';
 
     <div class="p-4 md:p-6 pt-0">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg shadow-sm">
-                <h2 class="font-bold text-blue-800 mb-2"><?= __('admin_declare_2d_morning') ?></h2>
-                <p class="text-gray-700"><?= __('admin_declare_tickets') ?><span class="font-bold"><?= number_format($pending_2d['morning']['total_bets'] ?? 0) ?></span></p>
-                <p class="text-gray-700"><?= __('admin_declare_total_amount') ?><span class="font-bold text-red-600"><?= number_format($pending_2d['morning']['total_amount'] ?? 0) ?></span> Ks</p>
+            <div class="bg-white rounded-2xl shadow-soft border border-gray-100 p-4 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
+                <div class="flex items-center gap-2.5 mb-3 pl-1">
+                    <span class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0"><i class="fas fa-sun"></i></span>
+                    <h2 class="font-bold text-gray-800 text-sm leading-tight"><?= __('admin_declare_2d_morning') ?></h2>
+                </div>
+                <p class="text-sm text-gray-600 flex justify-between items-center"><span><?= __('admin_declare_tickets') ?></span><span class="font-bold text-gray-800"><?= number_format($pending_2d['morning']['total_bets'] ?? 0) ?></span></p>
+                <p class="text-sm text-gray-600 flex justify-between items-center mt-1"><span><?= __('admin_declare_total_amount') ?></span><span class="font-bold text-red-600"><?= number_format($pending_2d['morning']['total_amount'] ?? 0) ?> Ks</span></p>
             </div>
-            <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 rounded-lg shadow-sm">
-                <h2 class="font-bold text-indigo-800 mb-2"><?= __('admin_declare_2d_evening') ?></h2>
-                <p class="text-gray-700"><?= __('admin_declare_tickets') ?><span class="font-bold"><?= number_format($pending_2d['evening']['total_bets'] ?? 0) ?></span></p>
-                <p class="text-gray-700"><?= __('admin_declare_total_amount') ?><span class="font-bold text-red-600"><?= number_format($pending_2d['evening']['total_amount'] ?? 0) ?></span> Ks</p>
+            <div class="bg-white rounded-2xl shadow-soft border border-gray-100 p-4 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+                <div class="flex items-center gap-2.5 mb-3 pl-1">
+                    <span class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0"><i class="fas fa-moon"></i></span>
+                    <h2 class="font-bold text-gray-800 text-sm leading-tight"><?= __('admin_declare_2d_evening') ?></h2>
+                </div>
+                <p class="text-sm text-gray-600 flex justify-between items-center"><span><?= __('admin_declare_tickets') ?></span><span class="font-bold text-gray-800"><?= number_format($pending_2d['evening']['total_bets'] ?? 0) ?></span></p>
+                <p class="text-sm text-gray-600 flex justify-between items-center mt-1"><span><?= __('admin_declare_total_amount') ?></span><span class="font-bold text-red-600"><?= number_format($pending_2d['evening']['total_amount'] ?? 0) ?> Ks</span></p>
             </div>
-            <div class="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-lg shadow-sm">
-                <h2 class="font-bold text-purple-800 mb-2"><?= __('admin_declare_3d_pending') ?></h2>
-                <p class="text-gray-700"><?= __('admin_declare_tickets') ?><span class="font-bold"><?= number_format($pending_3d['total_bets'] ?? 0) ?></span></p>
-                <p class="text-gray-700"><?= __('admin_declare_total_amount') ?><span class="font-bold text-red-600"><?= number_format($pending_3d['total_amount'] ?? 0) ?></span> Ks</p>
+            <div class="bg-white rounded-2xl shadow-soft border border-gray-100 p-4 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-purple-500"></div>
+                <div class="flex items-center gap-2.5 mb-3 pl-1">
+                    <span class="w-9 h-9 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center flex-shrink-0"><i class="fas fa-cube"></i></span>
+                    <h2 class="font-bold text-gray-800 text-sm leading-tight"><?= __('admin_declare_3d_pending') ?></h2>
+                </div>
+                <p class="text-sm text-gray-600 flex justify-between items-center"><span><?= __('admin_declare_tickets') ?></span><span class="font-bold text-gray-800"><?= number_format($pending_3d['total_bets'] ?? 0) ?></span></p>
+                <p class="text-sm text-gray-600 flex justify-between items-center mt-1"><span><?= __('admin_declare_total_amount') ?></span><span class="font-bold text-red-600"><?= number_format($pending_3d['total_amount'] ?? 0) ?> Ks</span></p>
             </div>
         </div>
 
         <?php if (!empty($success_message)): ?>
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 text-sm shadow-sm"><?= htmlspecialchars($success_message) ?></div>
+            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3.5 rounded-xl relative mb-5 text-sm shadow-soft flex items-center gap-2"><i class="fas fa-circle-check text-base"></i><span><?= htmlspecialchars($success_message) ?></span></div>
         <?php endif; ?>
         <?php if (!empty($error_message)): ?>
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-sm shadow-sm"><?= htmlspecialchars($error_message) ?></div>
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3.5 rounded-xl relative mb-5 text-sm shadow-soft flex items-center gap-2"><i class="fas fa-circle-exclamation text-base"></i><span><?= htmlspecialchars($error_message) ?></span></div>
         <?php endif; ?>
 
-        <form method="POST" action="" class="bg-white p-4 sm:p-6 rounded-xl shadow-md border-t-4 border-primary">
+        <form method="POST" action="" class="bg-white p-5 sm:p-7 rounded-2xl shadow-card border border-gray-100 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-brand-gradient"></div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-gray-700 font-bold mb-2"><?= __('admin_declare_section') ?></label>
-                    <select name="bet_section" id="bet_section" class="w-full py-3 px-4 border rounded-lg focus:border-blue-500 focus:outline-none" required>
+                    <label class="block text-gray-700 font-bold mb-2 text-sm"><?= __('admin_declare_section') ?></label>
+                    <select name="bet_section" id="bet_section" class="w-full py-3 px-4 border border-gray-200 rounded-xl bg-gray-50 focus:border-blue-500 focus:ring focus:ring-blue-100 focus:outline-none transition-all" required>
                         <option value="morning"><?= __('admin_declare_opt_morning') ?></option>
                         <option value="evening"><?= __('admin_declare_opt_evening') ?></option>
                         <option value="3d"><?= __('admin_declare_opt_3d') ?></option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-gray-700 font-bold mb-2"><?= __('admin_declare_date') ?></label>
-                    <input type="date" name="target_date" value="<?= date('Y-m-d') ?>" class="w-full py-3 px-4 border rounded-lg focus:border-blue-500 focus:outline-none" required>
+                    <label class="block text-gray-700 font-bold mb-2 text-sm"><?= __('admin_declare_date') ?></label>
+                    <input type="date" name="target_date" value="<?= date('Y-m-d') ?>" class="w-full py-3 px-4 border border-gray-200 rounded-xl bg-gray-50 focus:border-blue-500 focus:ring focus:ring-blue-100 focus:outline-none transition-all" required>
                 </div>
             </div>
             <div class="mb-5">
-                <label class="block text-gray-700 font-bold mb-2 text-lg"><?= __('admin_declare_winning_number') ?></label>
-                <input type="text" id="winning_number" name="winning_number" pattern="[0-9]{2,3}" maxlength="3" placeholder="<?= __('admin_declare_winning_number_ph') ?>" class="w-full text-center text-3xl sm:text-4xl tracking-widest font-bold py-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" required autocomplete="off" oninput="updateMultiplier()">
+                <label class="block text-gray-700 font-bold mb-2 text-base"><?= __('admin_declare_winning_number') ?></label>
+                <input type="text" id="winning_number" name="winning_number" pattern="[0-9]{2,3}" maxlength="3" placeholder="<?= __('admin_declare_winning_number_ph') ?>" class="w-full text-center text-3xl sm:text-4xl tracking-[0.3em] font-extrabold py-4 border-2 border-gray-200 rounded-2xl bg-gray-50 text-primary focus:border-blue-500 focus:ring focus:ring-blue-100 focus:outline-none transition-all" required autocomplete="off" oninput="updateMultiplier()">
             </div>
             <div class="mb-6">
                 <label class="block text-gray-700 text-sm font-bold mb-2"><?= __('admin_declare_multiplier') ?></label>
-                <input type="number" id="multiplier" name="multiplier" value="80" class="w-full py-3 px-4 border rounded-lg focus:border-blue-500 focus:outline-none bg-gray-50" required>
-                <p class="text-xs text-gray-500 mt-1"><?= __('admin_declare_multiplier_help') ?></p>
+                <input type="number" id="multiplier" name="multiplier" value="80" class="w-full py-3 px-4 border border-gray-200 rounded-xl bg-gray-50 focus:border-blue-500 focus:ring focus:ring-blue-100 focus:outline-none transition-all" required>
+                <p class="text-xs text-gray-500 mt-1.5"><i class="fas fa-circle-info mr-1 text-gray-400"></i><?= __('admin_declare_multiplier_help') ?></p>
             </div>
-            <button type="button" id="btnDeclare" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-lg text-lg shadow-lg transition duration-200">
-                <?= __('admin_declare_btn') ?>
+            <button type="button" id="btnDeclare" class="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-bold py-4 rounded-xl text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2">
+                <i class="fas fa-bullhorn"></i> <?= __('admin_declare_btn') ?>
             </button>
         </form>
     </div>
