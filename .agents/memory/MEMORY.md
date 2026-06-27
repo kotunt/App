@@ -1,1 +1,2 @@
 - [Admin header architecture](admin-header-architecture.md) — admin_header.php is a navbar FRAGMENT, not a full head; do NOT add doctype/head/body to it.
+- [Include path conventions](include-path-conventions.md) — correct __DIR__ depths for includes/views; which routing (legacy root vs MVC) is actually live vs dead.

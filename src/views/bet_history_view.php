@@ -1,4 +1,4 @@
-<?php require_once __DIR__ . '/../includes/header.php'; 
+<?php require_once __DIR__ . '/../../includes/header.php'; 
 
 extract($summary_data);
 $cancel_limit_minutes = $cancel_limit_seconds / 60;
@@ -265,4 +265,4 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
         }
     </script>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

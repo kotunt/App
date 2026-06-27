@@ -196,6 +196,6 @@ class ProfileController {
         // Extract data for easy access in the view
         extract($data);
         $page_title = __('edit_profile') . " - Thai 2D3D";
-        require_once __DIR__ . '/../../views/profile_view.php';
+        require_once __DIR__ . '/../views/profile_view.php';
     }
 }
