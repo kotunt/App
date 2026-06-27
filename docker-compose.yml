@@ -45,6 +45,15 @@ services:
     env_file:
       - .env
 
+  # WebSocket Service (Node.js)
+  websocket:
+    build: ./websocket
+    container_name: thai2d3d-websocket
+    restart: always
+    depends_on:
+      - redis
+    # No ports exposed to host, Nginx will proxy requests
+
   # Redis Service (For Caching)
   redis:
     image: redis:6.2-alpine
