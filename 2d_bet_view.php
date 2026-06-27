@@ -140,6 +140,18 @@ require_once __DIR__ . '/includes/header.php';
 
                 <?php $dream_mode = '2d'; require __DIR__ . '/includes/dream_book_modal.php'; ?>
 
+                <!-- Number Search -->
+                <div class="px-4 mb-3">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-slate-400 text-sm"></i>
+                        </div>
+                        <input type="text" id="numberSearch" inputmode="numeric" maxlength="2" oninput="searchNumber(this.value)"
+                               placeholder="ဂဏန်းရှာရန် (ဥပမာ ၁၂)"
+                               class="w-full pl-11 pr-4 py-3 border-2 border-slate-200 dark:border-slate-700 rounded-2xl focus:border-gold-400 focus:ring-4 focus:ring-gold-400/20 outline-none font-mono tracking-widest text-base text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 shadow-sm transition-all">
+                    </div>
+                </div>
+
                 <div class="px-4 mb-5">
                     <p class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider"><?= __('quick_pick_label') ?></p>
                     <div class="flex flex-wrap gap-2">
@@ -157,6 +169,15 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
                 </div>
                 
+                <!-- Fill Status Legend -->
+                <div class="px-4 mb-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> လက်ကျန်များ</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> ၅၀%+</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> ၈၀%+</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> ပြည့်ပြီ</span>
+                    <span class="flex items-center gap-1.5"><span class="w-3.5 h-2.5 rounded-sm bg-blocked-stripes border border-slate-300 dark:border-slate-600"></span> ပိတ်</span>
+                </div>
+
                 <div class="px-4 mb-6">
                     <div class="grid grid-cols-5 sm:grid-cols-10 gap-2 md:gap-3 max-h-[50vh] md:max-h-[28rem] overflow-y-auto custom-scrollbar p-2 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50 shadow-inner">
                         <?php for($i=0; $i<=99; $i++): 
@@ -189,6 +210,17 @@ require_once __DIR__ . '/includes/header.php';
                                 <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none hidden md:block"></div>
                             </button>
                         <?php endfor; ?>
+                    </div>
+                </div>
+
+                <!-- Selected Numbers Chips -->
+                <div class="px-4 mb-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ရွေးထားသော ဂဏန်းများ (<span id="chipCount" class="text-blue-600 dark:text-blue-400">0</span>)</p>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl p-3 min-h-[3.25rem] shadow-inner">
+                        <p id="chipsEmpty" class="text-xs text-slate-400 dark:text-slate-500 text-center py-1.5">အပေါ်ကဂဏန်းများကို ရွေးချယ်ပါ...</p>
+                        <div id="selectedChips" class="flex flex-wrap gap-2"></div>
                     </div>
                 </div>
 
@@ -380,6 +412,48 @@ require_once __DIR__ . '/includes/header.php';
                 }
             });
             calculateTotal();
+            renderChips();
+        }
+
+        function renderChips() {
+            const container = document.getElementById('selectedChips');
+            if (!container) return;
+            let nums = document.getElementById('bet_number').value.split(/[\s,]+/).filter(n => n.match(/^[0-9]{2}$/));
+            nums = [...new Set(nums)].sort();
+            const emptyEl = document.getElementById('chipsEmpty');
+            const countEl = document.getElementById('chipCount');
+            if (countEl) countEl.innerText = nums.length;
+            if (nums.length === 0) {
+                container.innerHTML = '';
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                return;
+            }
+            if (emptyEl) emptyEl.classList.add('hidden');
+            container.innerHTML = nums.map(n => `
+                <span class="inline-flex items-center gap-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-bold font-mono pl-3 pr-1.5 py-1 rounded-full shadow-sm animate__animated animate__fadeIn">
+                    ${n}
+                    <button type="button" onclick="removeChip('${n}')" class="w-5 h-5 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 transition-colors text-xs leading-none">&times;</button>
+                </span>`).join('');
+        }
+
+        function removeChip(num) {
+            let nums = document.getElementById('bet_number').value.split(/[\s,]+/).filter(n => n.match(/^[0-9]{2}$/));
+            nums = nums.filter(n => n !== num);
+            document.getElementById('bet_number').value = [...new Set(nums)].sort().join(', ');
+            syncGrid();
+        }
+
+        function searchNumber(val) {
+            const myanmarDigits = '၀၁၂၃၄၅၆၇၈၉';
+            const normalized = (val || '').replace(/[၀-၉]/g, d => myanmarDigits.indexOf(d));
+            const q = normalized.replace(/[^0-9]/g, '');
+            if (q.length !== 2) return;
+            const btn = document.getElementById('btn_' + q);
+            if (btn) {
+                btn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                btn.classList.add('ring-2', 'ring-gold-400', 'ring-offset-2', 'dark:ring-offset-slate-900');
+                setTimeout(() => btn.classList.remove('ring-2', 'ring-gold-400', 'ring-offset-2', 'dark:ring-offset-slate-900'), 1800);
+            }
         }
 
         function quickPick(type) {
