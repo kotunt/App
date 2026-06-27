@@ -43,7 +43,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <div class="bg-white dark:bg-slate-800/50 p-3.5 mx-4 md:mx-8 mt-4 rounded-2xl flex justify-between items-center border border-slate-200 dark:border-slate-700/50 shadow-card">
         <div class="text-xs md:text-sm font-bold text-slate-600 dark:text-slate-300">
-            <i class="far fa-calendar-alt mr-1"></i> <?= $active_session['target_date'] ?>
+            <i class="far fa-calendar-alt mr-1"></i> <?= $active_session['target_date'] ?? '' ?>
         </div>
         <div class="text-xs md:text-sm font-bold text-primary dark:text-blue-400 uppercase">
             <i class="fas <?= $is_morning ? 'fa-sun text-amber-500' : 'fa-moon text-indigo-500' ?> mr-1"></i> 

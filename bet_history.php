@@ -180,7 +180,7 @@ $query = "SELECT
             SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_count
             , MD5(CONCAT(created_at, user_id)) as voucher_id_hash
           FROM bets WHERE user_id = ?" . $filter_sql . " 
-          GROUP BY created_at ORDER BY created_at DESC LIMIT ?, ?";
+          GROUP BY created_at, user_id ORDER BY created_at DESC LIMIT ?, ?";
 
 // Add LIMIT params
 $types .= "ii";

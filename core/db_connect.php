@@ -42,6 +42,13 @@ set_error_handler(function($errno, $errstr, $errfile, $errline) {
 // -----------------------------------
 
 
+// Establish the shared database connection (singleton) for the entire request.
+// This is assigned unconditionally so every script that includes this file can
+// rely on $conn at global scope, regardless of the maintenance branch below
+// (previously $conn was only set inside the maintenance check, leaving allowed
+// scripts such as maintenance.php / login.php / logout.php without a connection).
+$conn = Database::getInstance()->getConnection();
+
 // --- Maintenance Mode Check ---
 $current_script = basename($_SERVER['PHP_SELF']);
 // Scripts that are allowed to run during maintenance mode
@@ -49,7 +56,6 @@ $allowed_scripts = ['maintenance.php', 'login.php', 'logout.php'];
 
 if (!in_array($current_script, $allowed_scripts)) {
     try {
-        $conn = Database::getInstance()->getConnection();
         $m_stmt = $conn->query("SELECT setting_value FROM settings WHERE setting_key = 'maintenance_mode'");
         
         if ($m_stmt && $m_stmt->num_rows > 0) {

@@ -13,6 +13,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 // CS Links များကို Database မှ ဆွဲယူခြင်း
 require_once dirname(__DIR__) . '/core/db_connect.php'; 
+// Fetch the connection from the singleton directly so this works even when the
+// footer is included in a scope where the global $conn is not visible.
+$conn = Database::getInstance()->getConnection();
 $cs_stmt = $conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('cs_messenger_link', 'cs_telegram_link', 'cs_viber_link')");
 $cs_links = [];
 if ($cs_stmt) {

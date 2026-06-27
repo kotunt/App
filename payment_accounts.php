@@ -15,7 +15,7 @@ $success_message = "";
 $error_message = "";
 
 // Admin မှ ဖွင့်ပေးထားသော (Active ဖြစ်သော) ငွေထုတ်နည်းလမ်းများကို အစီအစဉ်အတိုင်း (sort_order) ဆွဲထုတ်မည်
-$methods_stmt = $conn->query("SELECT DISTINCT payment_method, logo_url FROM payment_accounts WHERE is_active = 1 ORDER BY sort_order ASC");
+$methods_stmt = $conn->query("SELECT payment_method, logo_url FROM payment_accounts WHERE is_active = 1 GROUP BY payment_method, logo_url ORDER BY MIN(sort_order) ASC");
 $active_methods = [];
 if ($methods_stmt) {
     while ($row = $methods_stmt->fetch_assoc()) {
