@@ -43,6 +43,14 @@ services:
     env_file:
       - .env
 
+  # Redis Service (For Caching)
+  redis:
+    image: redis:6.2-alpine
+    container_name: thai2d3d-redis
+    restart: always
+    volumes:
+      - redis_data:/data
+
   # Database Service (MySQL)
   db:
     image: mysql:8.0
@@ -55,3 +63,4 @@ services:
 
 volumes:
   db_data:
+  redis_data:

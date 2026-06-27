@@ -22,11 +22,14 @@ WORKDIR /var/www/html
 
 # Install required system packages and PHP extensions
 RUN apk add --no-cache \
+        $PHPIZE_DEPS \
         freetype-dev \
         busybox-cron \
         libjpeg-turbo-dev \
         libpng-dev \
         zip \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd mysqli pdo pdo_mysql zip mbstring
 

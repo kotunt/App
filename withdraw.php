@@ -44,14 +44,10 @@ if (!empty($user['payment_info_json'])) {
 }
 
 // Withdraw limits များကို Database မှ ဆွဲထုတ်ခြင်း
-$settings_query = $conn->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('min_withdraw', 'max_withdraw', 'withdrawal_fee_percent')");
-$pay_settings = [];
-while ($row = $settings_query->fetch_assoc()) {
-    $pay_settings[$row['setting_key']] = $row['setting_value'];
-}
-$min_withdraw = isset($pay_settings['min_withdraw']) ? floatval($pay_settings['min_withdraw']) : 1000;
-$max_withdraw = isset($pay_settings['max_withdraw']) ? floatval($pay_settings['max_withdraw']) : 1000000;
-$withdrawal_fee_percent = isset($pay_settings['withdrawal_fee_percent']) ? floatval($pay_settings['withdrawal_fee_percent']) : 0;
+$all_settings = get_all_settings();
+$min_withdraw = floatval($all_settings['min_withdraw'] ?? 1000);
+$max_withdraw = floatval($all_settings['max_withdraw'] ?? 1000000);
+$withdrawal_fee_percent = floatval($all_settings['withdrawal_fee_percent'] ?? 0);
 
 // Fetch Active Payment Methods
 $active_methods_data = [];
@@ -97,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                     'account_number' => $account_number
                 ];
 
-                $bot_token = $pay_settings['telegram_bot_token'] ?? '';
+                $bot_token = $all_settings['telegram_bot_token'] ?? '';
 
                 if (!empty($user['telegram_chat_id']) && !empty($bot_token)) {
                     // Telegram ချိတ်ဆက်ထားပါက OTP ပို့မည်

@@ -24,6 +24,11 @@ services:
       context: .
       dockerfile: Dockerfile.dev
 
+  redis:
+    ports:
+      # Expose Redis port only for local debugging if needed
+      - "6379:6379"
+
   # MailHog Service for catching emails in development
   mailhog:
     image: mailhog/mailhog:latest
