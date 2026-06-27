@@ -41,6 +41,9 @@ set_exception_handler(function($e) {
 // 5. Load Global Configuration (this defines constants like DB_HOST)
 require_once __DIR__ . '/core/config.php';
 
+// Load the global Database class used by legacy controllers
+require_once __DIR__ . '/core/classes/Database.php';
+
 // Check for required extensions
 if (!extension_loaded('mysqli')) {
     http_response_code(500);
