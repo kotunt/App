@@ -174,72 +174,46 @@ if (!isset($user)) { exit('Direct access not permitted.'); }
 
 
     <div class="grid grid-cols-2 gap-4 md:gap-8 px-4 md:px-8 mt-6 md:mt-8">
-        <a href="2d_bet.php" class="group bg-brand-gradient text-white py-6 md:py-9 rounded-4xl shadow-card relative overflow-hidden font-extrabold text-xl md:text-3xl border border-primary-800/50 flex justify-center items-center card-hover hover:shadow-premium transition-all duration-300">
-            <span class="relative z-10 tracking-wide drop-shadow"><?= __('title_2d_bet') ?></span>
+        <a href="2d_bet.php" class="group bg-brand-gradient text-white py-6 md:py-9 rounded-4xl shadow-card relative overflow-hidden border border-primary-800/50 flex flex-col justify-center items-center card-hover hover:shadow-premium transition-all duration-300">
+            <span class="relative z-10 font-extrabold text-xl md:text-3xl tracking-wide drop-shadow"><?= __('title_2d_bet') ?></span>
+            <span class="relative z-10 text-xs md:text-sm font-bold text-gold-200 mt-1"><?= __('home_2d_sub') ?></span>
             <div class="absolute top-0 right-0 w-16 h-16 md:w-24 md:h-24 bg-gold-gradient opacity-20 rounded-bl-full group-hover:scale-125 transition-transform duration-500"></div>
             <i class="fas fa-play-circle absolute bottom-[-12px] left-[-12px] text-6xl md:text-8xl opacity-10 group-hover:rotate-12 transition-transform duration-500"></i>
         </a>
-        <a href="3d_bet.php" class="group bg-brand-gradient text-white py-6 md:py-9 rounded-4xl shadow-card relative overflow-hidden font-extrabold text-xl md:text-3xl border border-primary-800/50 flex justify-center items-center card-hover hover:shadow-premium transition-all duration-300">
-            <span class="relative z-10 tracking-wide drop-shadow"><?= __('title_3d_bet') ?></span>
+        <a href="3d_bet.php" class="group bg-brand-gradient text-white py-6 md:py-9 rounded-4xl shadow-card relative overflow-hidden border border-primary-800/50 flex flex-col justify-center items-center card-hover hover:shadow-premium transition-all duration-300">
+            <span class="relative z-10 font-extrabold text-xl md:text-3xl tracking-wide drop-shadow"><?= __('title_3d_bet') ?></span>
+            <span class="relative z-10 text-xs md:text-sm font-bold text-gold-200 mt-1"><?= __('home_3d_sub') ?></span>
             <div class="absolute top-0 right-0 w-16 h-16 md:w-24 md:h-24 bg-gold-gradient opacity-20 rounded-bl-full group-hover:scale-125 transition-transform duration-500"></div>
             <i class="fas fa-dice absolute bottom-[-12px] left-[-12px] text-6xl md:text-8xl opacity-10 group-hover:rotate-12 transition-transform duration-500"></i>
         </a>
     </div>
 
-    <div class="px-4 md:px-8 mt-8 md:mt-10">
-        <h3 class="font-bold text-gray-700 text-base md:text-lg mb-3 flex items-center"><i class="fas fa-grip text-primary mr-2"></i><?= __('quick_menu') ?></h3>
-        <div class="grid grid-cols-4 gap-3 md:gap-5">
-            <?php
-            $quick_items = [
-                ['results.php', 'fa-trophy', 'menu_results', 'text-amber-500', 'bg-amber-50'],
-                ['leaderboard.php', 'fa-crown', 'menu_leaderboard', 'text-yellow-500', 'bg-yellow-50'],
-                ['hot_numbers.php', 'fa-fire', 'menu_hot_numbers', 'text-red-500', 'bg-red-50'],
-                ['promotions.php', 'fa-gift', 'nav_promotions', 'text-pink-500', 'bg-pink-50'],
-                ['bet_history.php', 'fa-clock-rotate-left', 'menu_history', 'text-primary', 'bg-blue-50'],
-                ['game_wallet.php', 'fa-gamepad', 'title_game_wallet', 'text-purple-600', 'bg-purple-50'],
-                ['guides.php', 'fa-book-open', 'menu_guide', 'text-emerald-500', 'bg-emerald-50'],
-                ['contact.php', 'fa-headset', 'nav_contact', 'text-sky-500', 'bg-sky-50'],
-            ];
-            foreach ($quick_items as $qi):
-            ?>
-                <a href="<?= $qi[0] ?>" class="flex flex-col items-center group">
-                    <div class="w-14 h-14 md:w-16 md:h-16 <?= $qi[4] ?> rounded-2xl flex items-center justify-center mb-1.5 shadow-sm group-hover:-translate-y-1 transition-transform">
-                        <i class="fas <?= $qi[1] ?> <?= $qi[3] ?> text-xl md:text-2xl"></i>
-                    </div>
-                    <span class="text-[11px] md:text-xs font-semibold text-gray-600 text-center leading-tight"><?= __($qi[2]) ?></span>
-                </a>
-            <?php endforeach; ?>
-        </div>
-    </div>
-
     <?php if (!empty($external_games)): ?>
-    <div class="px-4 md:px-8 mt-8 md:mt-10">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="font-bold text-gray-700 text-base md:text-lg flex items-center"><i class="fas fa-dice text-gold-500 mr-2"></i><?= __('external_games_title') ?></h3>
-            <a href="game_wallet.php" class="text-xs md:text-sm font-semibold text-primary hover:underline"><?= __('view_all') ?> <i class="fas fa-chevron-right text-[10px]"></i></a>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <?php foreach ($external_games as $g): ?>
-                <?php $g_href = !empty($g['launch_url']) ? htmlspecialchars(safe_url($g['launch_url'])) : 'game_wallet.php'; ?>
-                <a href="<?= $g_href ?>" <?= !empty($g['launch_url']) ? 'target="_blank" rel="noopener"' : '' ?> class="bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden card-hover block">
-                    <div class="h-28 md:h-36 bg-brand-gradient relative flex items-center justify-center">
+    <div class="grid grid-cols-2 gap-4 md:gap-6 px-4 md:px-8 mt-6 md:mt-8">
+        <?php foreach ($external_games as $g): ?>
+            <?php
+                $g_href = !empty($g['launch_url']) ? htmlspecialchars(safe_url($g['launch_url'])) : 'game_wallet.php';
+                $g_name = $g['name'] ?? '';
+                $g_provider = $g['provider'] ?? '';
+                $g_label = ($g_provider !== '' && stripos($g_name, $g_provider) === false) ? $g_provider . ' ' . $g_name : $g_name;
+            ?>
+            <div class="flex flex-col items-center">
+                <a href="<?= $g_href ?>" <?= !empty($g['launch_url']) ? 'target="_blank" rel="noopener"' : '' ?> class="w-full block rounded-3xl overflow-hidden shadow-card border border-gray-100 card-hover hover:shadow-premium transition-all duration-300">
+                    <div class="h-28 md:h-40 bg-brand-gradient relative flex items-center justify-center">
                         <?php if (!empty($g['image_url'])): ?>
-                            <img src="<?= htmlspecialchars($g['image_url']) ?>" class="w-full h-full object-cover absolute inset-0" alt="<?= htmlspecialchars($g['name']) ?>">
+                            <img src="<?= htmlspecialchars(safe_url($g['image_url'])) ?>" class="w-full h-full object-cover" alt="<?= htmlspecialchars($g_label) ?>">
                         <?php else: ?>
-                            <i class="fas fa-gamepad text-white/30 text-5xl"></i>
+                            <i class="fas fa-gamepad text-white/10 text-7xl absolute"></i>
+                            <span class="relative z-10 text-white font-extrabold text-xl md:text-3xl tracking-wide drop-shadow text-center px-2"><?= htmlspecialchars($g_provider !== '' ? $g_provider : $g_name) ?></span>
                         <?php endif; ?>
                         <?php if (!empty($g['badge'])): ?>
                             <span class="absolute top-2 left-2 bg-gold-gradient text-primary-900 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-gold"><?= htmlspecialchars($g['badge']) ?></span>
                         <?php endif; ?>
                     </div>
-                    <div class="p-3 md:p-4">
-                        <p class="font-bold text-gray-800 text-sm md:text-base truncate"><?= htmlspecialchars($g['name']) ?></p>
-                        <p class="text-[11px] md:text-xs text-gray-400 mb-2 truncate"><?= htmlspecialchars($g['provider']) ?></p>
-                        <span class="block text-center bg-brand-gradient text-white font-bold text-xs md:text-sm py-2 rounded-xl"><?= __('play_now') ?></span>
-                    </div>
                 </a>
-            <?php endforeach; ?>
-        </div>
+                <p class="font-bold text-gray-700 text-sm md:text-base text-center mt-2 leading-tight"><?= htmlspecialchars($g_label) ?></p>
+            </div>
+        <?php endforeach; ?>
     </div>
     <?php endif; ?>
 

@@ -10,6 +10,8 @@ return [
     'nav_profile' => 'Profile',
     'title_2d_bet' => 'Bet 2D',
     'title_3d_bet' => 'Bet 3D',
+    'home_2d_sub' => '2-Digit Bet',
+    'home_3d_sub' => '3-Digit Bet',
     'title_deposit' => 'Deposit',
     'title_withdraw' => 'Withdraw',
     'title_payment_accounts' => 'Withdrawal Accounts',

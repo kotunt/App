@@ -10,6 +10,8 @@ return [
     'nav_profile' => 'ကျွန်ုပ်',
     'title_2d_bet' => '2D ထိုးမည်',
     'title_3d_bet' => '3D ထိုးမည်',
+    'home_2d_sub' => '၂လုံးထိုး',
+    'home_3d_sub' => '၃လုံးထိုး',
     'title_deposit' => 'ငွေဖြည့်မည်',
     'title_withdraw' => 'ငွေထုတ်မည်',
     'title_payment_accounts' => 'ငွေထုတ်အကောင့်များ',

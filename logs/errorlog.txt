@@ -33,3 +33,6 @@
 [2026-06-27 18:44:21] Exception: Call to a member function query() on null in /home/runner/workspace/maintenance.php on line 5
 [2026-06-27 18:45:32] Error: Undefined variable $conn in /home/runner/workspace/maintenance.php on line 5
 [2026-06-27 18:45:32] Exception: Call to a member function query() on null in /home/runner/workspace/maintenance.php on line 5
+[2026-06-27 20:11:24] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:11:27] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19
+[2026-06-27 20:11:32] Exception: Call to private Database::__construct() from scope DepositController in /home/runner/workspace/src/controllers/DepositController.php on line 19

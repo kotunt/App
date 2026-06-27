@@ -171,6 +171,20 @@ require_once __DIR__ . '/../../includes/header.php';
                     <i class="fas fa-chevron-right text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
                 </a>
 
+                <a href="bet_history.php" class="group bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center hover:bg-blue-50/50 hover:border-blue-100 hover:shadow-md transition-all duration-300">
+                    <div>
+                        <p class="font-bold text-gray-800 md:text-lg group-hover:text-primary transition-colors"><i class="fas fa-clock-rotate-left text-primary mr-2 md:mr-3"></i> <?= __('menu_history') ?></p>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
+                </a>
+
+                <a href="guides.php" class="group bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center hover:bg-blue-50/50 hover:border-blue-100 hover:shadow-md transition-all duration-300">
+                    <div>
+                        <p class="font-bold text-gray-800 md:text-lg group-hover:text-primary transition-colors"><i class="fas fa-book-open text-primary mr-2 md:mr-3"></i> <?= __('menu_guide') ?></p>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400 group-hover:text-primary group-hover:translate-x-1 transition-all"></i>
+                </a>
+
                 <a href="support.php" class="group bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center hover:bg-blue-50/50 hover:border-blue-100 hover:shadow-md transition-all duration-300 mb-2 md:mb-0">
                     <div>
                         <p class="font-bold text-gray-800 md:text-lg group-hover:text-primary transition-colors"><i class="fas fa-headset text-primary mr-2 md:mr-3"></i> <?= __('support_contact') ?></p>
