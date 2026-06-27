@@ -24,6 +24,7 @@ $stmt_3d = $conn->query("SELECT COUNT(*) as total_bets, SUM(amount) as total_amo
 $pending_3d = $stmt_3d->fetch_assoc();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    require_admin_csrf();
     $winning_number = trim($_POST['winning_number'] ?? '');
     $multiplier = intval($_POST['multiplier'] ?? 80);
     $bet_section = $_POST['bet_section'] ?? '';
@@ -199,6 +200,7 @@ require_once __DIR__ . '/../includes/header.php';
         <?php endif; ?>
 
         <form method="POST" action="" class="bg-white p-5 sm:p-7 rounded-2xl shadow-card border border-gray-100 relative overflow-hidden">
+            <?= admin_csrf_field() ?>
             <div class="absolute top-0 left-0 w-full h-1.5 bg-brand-gradient"></div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>

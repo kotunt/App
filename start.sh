@@ -105,7 +105,7 @@ fi
 # Start PHP built-in server on port 5000
 echo "[start.sh] Starting PHP server on port 5000..."
 cd /home/runner/workspace
-PHP_SOCK_PATH="$MYSQL_SOCKET" php -S 0.0.0.0:5000 -t /home/runner/workspace &
+PHP_SOCK_PATH="$MYSQL_SOCKET" php -c /home/runner/workspace/php.ini -S 0.0.0.0:5000 -t /home/runner/workspace &
 PHP_PID=$!
 
 echo "[start.sh] All services started. PHP PID: $PHP_PID, MySQL PID: $MYSQL_PID"

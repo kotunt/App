@@ -10,6 +10,7 @@ $error_message = "";
 
 // Sub-Admin အသစ်ထည့်ရန်
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_sub_admin'])) {
+    require_admin_csrf();
     $new_username = trim($_POST['new_username'] ?? '');
     $new_phone = trim($_POST['new_phone'] ?? '');
     $new_password = $_POST['new_password'] ?? '';
@@ -50,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_sub_admin'])) {
 
 // Sub-Admin ကို ဖျက်ရန်
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_sub_admin'])) {
+    require_admin_csrf();
     $target_user_id = intval($_POST['target_user_id'] ?? 0);
 
     if ($target_user_id > 1) { // Main Admin ကို ဖျက်လို့မရအောင် ကာကွယ်ခြင်း
@@ -94,6 +96,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <!-- Add New Sub-Admin Form -->
         <form method="POST" action="" class="bg-white p-4 sm:p-6 rounded-xl shadow-md border-t-4 border-primary mb-8">
+            <?= admin_csrf_field() ?>
             <h2 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-user-plus text-primary mr-2"></i> <?= __('admin_sub_add_new_title') ?></h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
@@ -133,7 +136,7 @@ require_once __DIR__ . '/../includes/header.php';
                             </div>
                             <div class="flex justify-between items-center">
                                 <p class="text-[10px] text-gray-400"><i class="far fa-clock mr-1"></i> <?= date('d-M-Y h:i A', strtotime($u['created_at'])) ?></p>
-                                <form method="POST" action="" class="inline-block" onsubmit="return confirm('<?= __('admin_sub_confirm_delete') ?>');">
+                                <form method="POST" action="" class="inline-block" onsubmit="return confirm('<?= __('admin_sub_confirm_delete') ?>');"><?= admin_csrf_field() ?>
                                     <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
                                     <button type="submit" name="delete_sub_admin" class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition"><i class="fas fa-trash mr-1"></i> <?= __('admin_sub_btn_delete') ?></button>
                                 </form>
@@ -162,7 +165,7 @@ require_once __DIR__ . '/../includes/header.php';
                                     <td class="px-5 py-4 text-sm text-gray-600"><?= htmlspecialchars($u['phone_number']) ?></td>
                                     <td class="px-5 py-4 text-xs text-gray-500"><?= date('d-M-Y h:i A', strtotime($u['created_at'])) ?></td>
                                     <td class="px-5 py-3 whitespace-nowrap text-center">
-                                        <form method="POST" action="" class="inline-block" onsubmit="return confirm('<?= __('admin_sub_confirm_delete') ?>');"><input type="hidden" name="target_user_id" value="<?= $u['id'] ?>"><button type="submit" name="delete_sub_admin" class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition"><i class="fas fa-trash mr-1"></i> <?= __('admin_sub_btn_delete') ?></button></form>
+                                        <form method="POST" action="" class="inline-block" onsubmit="return confirm('<?= __('admin_sub_confirm_delete') ?>');"><?= admin_csrf_field() ?><input type="hidden" name="target_user_id" value="<?= $u['id'] ?>"><button type="submit" name="delete_sub_admin" class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition"><i class="fas fa-trash mr-1"></i> <?= __('admin_sub_btn_delete') ?></button></form>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

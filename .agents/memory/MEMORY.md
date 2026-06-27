@@ -1,6 +1,2 @@
-- [Admin header architecture](admin-header-architecture.md) — admin_header.php is a navbar FRAGMENT, not a full head; do NOT add doctype/head/body to it.
-- [Include path conventions](include-path-conventions.md) — correct __DIR__ depths for includes/views; which routing (legacy root vs MVC) is actually live vs dead.
-- [Frontend safety & modal patterns](frontend-safety-patterns.md) — Tailwind modals: toggle only `hidden` on a `hidden flex` overlay; wrap DB urls in `safe_url()` (header.php) for href/src.
-- [Home page render chain](home-page-render-chain.md) — index.php (bootstrap pattern) must include header.php + footer.php or the home page loses Tailwind/CSS entirely.
-- [DB transaction safety](db-transaction-safety.md) — mysqli is MYSQLI_REPORT_OFF (non-throwing); check every execute() return in transactions before commit, and deduct balance with `AND balance >= ?` + affected_rows.
-- [db_connect $conn scope](db-connect-conn-scope.md) — $conn from db_connect.php isn't always in scope; in any method/view fetch via Database::getInstance()->getConnection().
+- [PHP built-in server ini config](php-builtin-server-ini.md) — `php -S` ignores .user.ini; set global ini (session cookie flags) via `php -c php.ini` in start.sh.
+- [CSRF token systems](csrf-token-systems.md) — three coexisting CSRF schemes; for admin use auth_helper's get/validate/require_admin_csrf (stable per-session token).

@@ -85,6 +85,7 @@ if ($check_pin_col && $check_pin_col->num_rows == 0) {
 
 // Form Submit လုပ်လာသောအခါ Update လုပ်ခြင်း
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_limit'])) {
+    require_admin_csrf();
     $new_kbz_acc = trim($_POST['kbz_pay_account'] ?? '');
     $new_kbz_name = trim($_POST['kbz_pay_name'] ?? '');
     $new_kbz_qr = trim($_POST['kbz_pay_qr_url'] ?? '');
@@ -273,6 +274,7 @@ require_once __DIR__ . '/../includes/header.php';
 
         <div class="bg-white rounded-xl shadow-md p-4 sm:p-6">
             <form method="POST" action="" enctype="multipart/form-data">
+                <?= admin_csrf_field() ?>
 
                 <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2 mt-8"><?= __('daily_bonus') ?></h2>
                 <div class="mb-5 bg-green-50 p-4 rounded-lg border border-green-200">

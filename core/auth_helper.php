@@ -5,6 +5,50 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 /**
+ * Returns the per-session admin CSRF token, generating one if needed.
+ * Shared session-wide token (stable across admin pages); do not rotate
+ * per-request or open admin forms would be invalidated.
+ */
+function get_admin_csrf_token() {
+    if (empty($_SESSION['admin_csrf_token'])) {
+        $_SESSION['admin_csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['admin_csrf_token'];
+}
+
+/**
+ * Renders a hidden CSRF input field for admin forms.
+ */
+function admin_csrf_field() {
+    return '<input type="hidden" name="admin_csrf_token" value="'
+        . htmlspecialchars(get_admin_csrf_token(), ENT_QUOTES, 'UTF-8') . '">';
+}
+
+/**
+ * Validates a submitted admin CSRF token (timing-safe).
+ */
+function validate_admin_csrf_token($token) {
+    if (empty($token) || empty($_SESSION['admin_csrf_token'])) {
+        return false;
+    }
+    return hash_equals($_SESSION['admin_csrf_token'], $token);
+}
+
+/**
+ * Guards an admin POST request: rejects with HTTP 403 if the CSRF token
+ * is missing or invalid. Call at the top of every admin POST handler.
+ */
+function require_admin_csrf() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $token = $_POST['admin_csrf_token'] ?? '';
+        if (!validate_admin_csrf_token($token)) {
+            http_response_code(403);
+            die('Invalid security token. Please reload the page and try again.');
+        }
+    }
+}
+
+/**
  * Displays a styled access denied page and terminates the script.
  * @param string $message The error message to display.
  */
