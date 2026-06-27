@@ -1,693 +1,252 @@
 <?php
 session_start();
-require_once __DIR__ . '/../core/db_connect.php';
+require_once '../core/db_connect.php';
+require_once '../core/auth_helper.php';
+require_once '../lang/language.php';
 
-require_once __DIR__ . '/../core/auth_helper.php';
-require_admin_login();
+require_admin();
 
-$search_tx = '';
-$search_bet = '';
+$page_title = __('admin_dashboard_title');
 
-// Initialize stats array
-$stats = [
-    'total_users' => 0, 'today_users' => 0, 'this_month_users' => 0,
-    'total_balance' => 0, 'total_income' => 0, 'total_payout' => 0,
-    'today_income' => 0, 'today_payout' => 0, 'this_month_income' => 0, 'this_month_payout' => 0,
-    'pending_bets_amount' => 0, 'outstanding_loans' => 0,
-    'total_loans_given' => 0, 'total_loans_repaid' => 0,
-    'today_loans_given' => 0, 'today_loans_repaid' => 0,
-    'this_month_loans_given' => 0, 'this_month_loans_repaid' => 0,
-];
+// Fetch initial data
+$today_date = date('Y-m-d');
 
-    // ၁။ User Stats နှင့် Pending Counts - Consolidated Query
-    $user_stats_query = "
-        SELECT 
-            COUNT(id) as total_users, 
-            SUM(balance) as total_balance,
-            SUM(CASE WHEN created_at >= CURDATE() AND created_at < CURDATE() + INTERVAL 1 DAY THEN 1 ELSE 0 END) as today_users,
-            SUM(CASE WHEN created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') AND created_at < DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH THEN 1 ELSE 0 END) as this_month_users
-        FROM users
-    ";
-    $res = $conn->query($user_stats_query);
-    if ($res && $row = $res->fetch_assoc()) {
-        $stats['total_users'] = $row['total_users'] ?? 0;
-        $stats['total_balance'] = $row['total_balance'] ?? 0;
-        $stats['today_users'] = $row['today_users'] ?? 0;
-        $stats['this_month_users'] = $row['this_month_users'] ?? 0;
-    }
+// Total Users
+$total_users_res = $conn->query("SELECT COUNT(id) as count FROM users");
+$total_users = $total_users_res->fetch_assoc()['count'] ?? 0;
 
-    // ၂။ Bets Stats (Income, Payout, Pending for Total, Today, This Month) - Consolidated Query
-    $payout_logic = "CASE WHEN status = 'win' THEN amount * IFNULL(odds, IF(LENGTH(bet_number) = 2, 80, 500)) ELSE 0 END";
-    $income_logic = "amount - IFNULL(discount_amount, 0)";
-    $bets_stats_query = "
-        SELECT
-            SUM($income_logic) as total_income,
-            SUM($payout_logic) as total_payout,
-            SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) as pending_bets_amount,
-            SUM(CASE WHEN created_at >= CURDATE() AND created_at < CURDATE() + INTERVAL 1 DAY THEN $income_logic ELSE 0 END) as today_income,
-            SUM(CASE WHEN created_at >= CURDATE() AND created_at < CURDATE() + INTERVAL 1 DAY THEN $payout_logic ELSE 0 END) as today_payout,
-            SUM(CASE WHEN created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') AND created_at < DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH THEN $income_logic ELSE 0 END) as this_month_income,
-            SUM(CASE WHEN created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') AND created_at < DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH THEN $payout_logic ELSE 0 END) as this_month_payout
-        FROM bets
-    ";
-    $res = $conn->query($bets_stats_query);
-    if ($res && $row = $res->fetch_assoc()) {
-        $stats['total_income'] = $row['total_income'] ?? 0;
-        $stats['total_payout'] = $row['total_payout'] ?? 0;
-        $stats['pending_bets_amount'] = $row['pending_bets_amount'] ?? 0;
-        $stats['today_income'] = $row['today_income'] ?? 0;
-        $stats['today_payout'] = $row['today_payout'] ?? 0;
-        $stats['this_month_income'] = $row['this_month_income'] ?? 0;
-        $stats['this_month_payout'] = $row['this_month_payout'] ?? 0;
-    }
+// Today's Revenue (Deposits)
+$today_revenue_res = $conn->query("SELECT SUM(amount) as total FROM deposits WHERE status = 'approved' AND DATE(created_at) = '{$today_date}'");
+$today_revenue = $today_revenue_res->fetch_assoc()['total'] ?? 0;
 
-    // ၃။ ချေးငွေ အဝင်/အထွက် အခြေအနေများ (Loans Cashflow) - Consolidated Query
-    $loans_stats_query = "
-        SELECT
-            SUM(CASE WHEN status = 'approved' THEN amount ELSE 0 END) as outstanding_loans,
-            SUM(CASE WHEN status = 'approved' THEN amount ELSE 0 END) as total_loans_given,
-            SUM(CASE WHEN status = 'repaid' THEN amount ELSE 0 END) as total_loans_repaid,
-            SUM(CASE WHEN status = 'approved' AND updated_at >= CURDATE() AND updated_at < CURDATE() + INTERVAL 1 DAY THEN amount ELSE 0 END) as today_loans_given,
-            SUM(CASE WHEN status = 'repaid' AND updated_at >= CURDATE() AND updated_at < CURDATE() + INTERVAL 1 DAY THEN amount ELSE 0 END) as today_loans_repaid,
-            SUM(CASE WHEN status = 'approved' AND updated_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') AND updated_at < DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH THEN amount ELSE 0 END) as this_month_loans_given,
-            SUM(CASE WHEN status = 'repaid' AND updated_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') AND updated_at < DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH THEN amount ELSE 0 END) as this_month_loans_repaid
-        FROM loans
-    ";
-    $res = $conn->query($loans_stats_query);
-    if ($res && $row = $res->fetch_assoc()) { 
-        $stats['outstanding_loans'] = $row['outstanding_loans'] ?? 0;
-        $stats['total_loans_given'] = $row['total_loans_given'] ?? 0; 
-        $stats['total_loans_repaid'] = $row['total_loans_repaid'] ?? 0; 
-        $stats['today_loans_given'] = $row['today_loans_given'] ?? 0; 
-        $stats['today_loans_repaid'] = $row['today_loans_repaid'] ?? 0; 
-        $stats['this_month_loans_given'] = $row['this_month_loans_given'] ?? 0; 
-        $stats['this_month_loans_repaid'] = $row['this_month_loans_repaid'] ?? 0; 
-    }
+// Today's Payout (Withdrawals)
+$today_payout_res = $conn->query("SELECT SUM(amount) as total FROM withdrawals WHERE status = 'approved' AND DATE(created_at) = '{$today_date}'");
+$today_payout = $today_payout_res->fetch_assoc()['total'] ?? 0;
 
-    // အမြတ်/အရှုံး တွက်ချက်ခြင်း (Net Cashflow) - ရငွေ - လျော်ငွေ - ထုတ်ချေးငွေ + ပြန်ဆပ်ငွေ
-    $total_profit = $stats['total_income'] - $stats['total_payout'] - $stats['total_loans_given'] + $stats['total_loans_repaid'];
-    $today_profit = $stats['today_income'] - $stats['today_payout'] - $stats['today_loans_given'] + $stats['today_loans_repaid'];
-    $this_month_profit = $stats['this_month_income'] - $stats['this_month_payout'] - $stats['this_month_loans_given'] + $stats['this_month_loans_repaid'];
+// Today's Bets
+$today_bets_res = $conn->query("SELECT SUM(amount) as total FROM bets WHERE DATE(created_at) = '{$today_date}'");
+$today_bets = $today_bets_res->fetch_assoc()['total'] ?? 0;
 
-    // ရာခိုင်နှုန်း တွက်ချက်ခြင်း (Profit Margin)
-    $total_profit_percent = $stats['total_income'] > 0 ? ($total_profit / $stats['total_income']) * 100 : 0;
-    $today_profit_percent = $stats['today_income'] > 0 ? ($today_profit / $stats['today_income']) * 100 : 0;
-    $this_month_profit_percent = $stats['this_month_income'] > 0 ? ($this_month_profit / $stats['this_month_income']) * 100 : 0;
+// Latest Activities
+$latest_activities_res = $conn->query("
+    (SELECT id, user_id, amount, 'deposit' as type, created_at FROM deposits ORDER BY created_at DESC LIMIT 3)
+    UNION ALL
+    (SELECT id, user_id, amount, 'withdrawal' as type, created_at FROM withdrawals ORDER BY created_at DESC LIMIT 3)
+    UNION ALL
+    (SELECT id, id as user_id, 0 as amount, 'register' as type, created_at FROM users ORDER BY created_at DESC LIMIT 3)
+    ORDER BY created_at DESC LIMIT 5
+");
 
-    // ယခုလ၏ နေ့စဉ် ထိုးကြေးနှင့် လျော်ကြေး (Chart အတွက်)
-    $chart_data_query = "SELECT 
-        DATE(created_at) as date, 
-        SUM(amount - IFNULL(discount_amount, 0)) as income, 
-        SUM(CASE WHEN status = 'win' THEN amount * IFNULL(odds, IF(LENGTH(bet_number) = 2, 80, 500)) ELSE 0 END) as payout
-        FROM bets 
-        WHERE created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') AND created_at < DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH
-        GROUP BY DATE(created_at)
-        ORDER BY DATE(created_at) ASC";
-    $chart_result = $conn->query($chart_data_query);
-    $chart_labels = [];
-    $chart_incomes = [];
-    $chart_payouts = [];
-    if ($chart_result) {
-        while ($row = $chart_result->fetch_assoc()) {
-            $chart_labels[] = date('d-M', strtotime($row['date']));
-            $chart_incomes[] = floatval($row['income']);
-            $chart_payouts[] = floatval($row['payout']);
-        }
-    }
-
-    // နောက်ဆုံးဝင်ရောက်လာသော User ၅ ယောက်
-    $recent_users_query = "SELECT id, username, phone_number, created_at FROM users ORDER BY created_at DESC LIMIT 5";
-    $recent_users_result = $conn->query($recent_users_query);
-    $recent_users = [];
-    if ($recent_users_result) {
-        while ($row = $recent_users_result->fetch_assoc()) {
-            $recent_users[] = $row;
-        }
-    }
-
-    // ယခုလအတွင်း အများဆုံး ထိုးကြေးထည့်ထားသော User (Top 5)
-    $top_bettors_query = "
-        SELECT u.id, u.username, u.phone_number, SUM(b.amount - IFNULL(b.discount_amount, 0)) as total_betted 
-        FROM bets b 
-        JOIN users u ON b.user_id = u.id 
-        WHERE b.created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01') AND b.created_at < DATE_FORMAT(CURDATE(), '%Y-%m-01') + INTERVAL 1 MONTH
-        GROUP BY u.id, u.username, u.phone_number 
-        ORDER BY total_betted DESC 
-        LIMIT 5
-    ";
-    $top_bettors_result = $conn->query($top_bettors_query);
-    $top_bettors = [];
-    if ($top_bettors_result) {
-        while ($row = $top_bettors_result->fetch_assoc()) {
-            $top_bettors[] = $row;
-        }
-    }
-
-// Initial Data Load for Tables
-$recent_transactions = get_recent_transactions($conn);
-$recent_bets = get_recent_bets($conn);
-
+require_once 'admin_header.php';
 ?>
 
-<?php 
-$page_title = __('admin_dashboard_page_title');
-require_once __DIR__ . '/../includes/header.php'; 
-?>
-
-<body class="max-w-6xl mx-auto min-h-screen bg-gray-100 shadow-xl pb-10">
-
-    <?php
-    $header_title = __('admin_dashboard_header_title');
-    $header_icon = "fas fa-tachometer-alt";
-    require_once __DIR__ . '/admin_header.php';
-?>
-
-    <div class="p-4 md:p-6 pt-0">
-        <!-- Quick Links (System Logs) -->
-        <div class="flex flex-wrap gap-2 mb-6">
-            <a href="admin_health_check.php" class="bg-white border border-gray-200 text-gray-700 hover:text-red-600 hover:border-red-300 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center">
-                <i class="fas fa-heartbeat text-red-500 mr-2"></i> <span class="hidden sm:inline"><?= __('admin_system_health') ?></span>
-            </a>
-            <a href="admin_activity_log.php" class="bg-white border border-gray-200 text-gray-700 hover:text-blue-600 hover:border-blue-300 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center">
-                <i class="fas fa-clipboard-list text-blue-500 mr-2"></i> <?= __('admin_activity_logs') ?>
-            </a>
-            <a href="admin_error_logs.php" class="bg-white border border-red-200 text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition flex items-center">
-                <i class="fas fa-bug text-red-500 mr-2"></i> <?= __('admin_error_logs') ?>
-            </a>
-        </div>
-        
-        <h2 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-blue-500 pl-3"><?= __('admin_today_status_title') ?></h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="relative bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl">
-                <div class="absolute -right-6 -top-6 text-white/10">
-                    <i class="fas fa-user-plus text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start">
-                    <div>
-                        <p class="text-indigo-100 text-sm font-medium mb-1"><?= __('admin_today_new_users') ?></p>
-                        <p class="text-3xl font-extrabold text-white">+ <?= number_format($stats['today_users']) ?> <span class="text-base font-normal text-indigo-200"><?= __('unit_users') ?></span></p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/30">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="relative bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl">
-                <div class="absolute -right-6 -top-6 text-white/10">
-                    <i class="fas fa-hand-holding-usd text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start">
-                    <div>
-                        <p class="text-blue-100 text-sm font-medium mb-1"><?= __('admin_today_bet_income') ?></p>
-                        <p class="text-3xl font-extrabold text-white">+ <?= number_format($stats['today_income']) ?> <span class="text-base font-normal text-blue-200"><?= __('currency') ?></span></p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/30">
-                        <i class="fas fa-hand-holding-usd"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="relative bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl">
-                <div class="absolute -right-6 -top-6 text-white/10">
-                    <i class="fas fa-money-bill-wave text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start">
-                    <div>
-                        <p class="text-rose-100 text-sm font-medium mb-1"><?= __('admin_today_payout') ?></p>
-                        <p class="text-3xl font-extrabold text-white">- <?= number_format($stats['today_payout']) ?> <span class="text-base font-normal text-rose-200"><?= __('currency') ?></span></p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/30">
-                        <i class="fas fa-money-bill-wave"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="relative bg-gradient-to-br <?= $today_profit >= 0 ? 'from-emerald-500 to-teal-600' : 'from-red-500 to-rose-600' ?> rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between">
-                <div class="absolute -right-6 -top-6 text-white/10">
-                    <i class="fas <?= $today_profit >= 0 ? 'fa-chart-line' : 'fa-chart-line fa-flip-vertical' ?> text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start w-full">
-                    <div>
-                        <p class="text-white/80 text-sm font-medium mb-1" title="<?= __('admin_profit_loss_tooltip') ?>"><?= __('admin_today_profit_loss') ?></p>
-                        <p class="text-3xl font-extrabold text-white">
-                            <?= $today_profit > 0 ? '+' : '' ?><?= number_format($today_profit) ?> <span class="text-base font-normal text-white/70"><?= __('currency') ?></span>
-                        </p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/30 flex-shrink-0">
-                        <i class="fas <?= $today_profit >= 0 ? 'fa-chart-line' : 'fa-chart-line fa-flip-vertical' ?>"></i>
-                    </div>
-                </div>
-                <div class="relative z-10 mt-3 flex justify-between items-end w-full">
-                    <?php if ($stats['today_loans_given'] > 0 || $stats['today_loans_repaid'] > 0): ?>
-                        <p class="text-[11px] text-white/70 font-medium bg-black/10 px-2 py-1 rounded"><?= __('admin_loans') ?> <span class="text-red-200">-<?= number_format($stats['today_loans_given']) ?></span> | <span class="text-green-200">+<?= number_format($stats['today_loans_repaid']) ?></span></p>
-                    <?php else: ?>
-                        <span></span>
-                    <?php endif; ?>
-                    <?php if ($stats['today_income'] > 0): ?>
-                        <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/20 text-white backdrop-blur-sm border border-white/30 shadow-sm">
-                            <?= $today_profit > 0 ? '+' : '' ?><?= number_format($today_profit_percent, 1) ?>%
-                        </span>
-                    <?php endif; ?>
-                </div>
+<div class="p-4 md:p-8">
+    <!-- Stat Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-2xl"><i class="fas fa-users"></i></div>
+            <div>
+                <p class="text-sm text-gray-500 font-bold uppercase"><?= __('total_users') ?></p>
+                <p id="stat_total_users" class="text-3xl font-black text-gray-800 transition-colors"><?= number_format($total_users) ?></p>
             </div>
         </div>
-
-        <h2 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-green-500 pl-3"><?= __('admin_this_month_status_title') ?></h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="relative bg-gradient-to-br from-purple-600 to-indigo-600 rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl">
-                <div class="absolute -right-6 -top-6 text-white/10">
-                    <i class="fas fa-users text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start">
-                    <div>
-                        <p class="text-indigo-100 text-sm font-medium mb-1"><?= __('admin_this_month_new_users') ?></p>
-                        <p class="text-3xl font-extrabold text-white">+ <?= number_format($stats['this_month_users']) ?> <span class="text-base font-normal text-indigo-200"><?= __('unit_users') ?></span></p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/30">
-                        <i class="fas fa-users"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="relative bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl">
-                <div class="absolute -right-6 -top-6 text-white/10">
-                    <i class="fas fa-wallet text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start">
-                    <div>
-                        <p class="text-blue-100 text-sm font-medium mb-1"><?= __('admin_this_month_bet_income') ?></p>
-                        <p class="text-3xl font-extrabold text-white">+ <?= number_format($stats['this_month_income']) ?> <span class="text-base font-normal text-blue-200"><?= __('currency') ?></span></p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/30">
-                        <i class="fas fa-wallet"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="relative bg-gradient-to-br from-rose-500 to-red-600 rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl">
-                <div class="absolute -right-6 -top-6 text-white/10">
-                    <i class="fas fa-hand-holding-usd text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start">
-                    <div>
-                        <p class="text-rose-100 text-sm font-medium mb-1"><?= __('admin_this_month_payout') ?></p>
-                        <p class="text-3xl font-extrabold text-white">- <?= number_format($stats['this_month_payout']) ?> <span class="text-base font-normal text-rose-200"><?= __('currency') ?></span></p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/30">
-                        <i class="fas fa-hand-holding-usd"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="relative bg-gradient-to-br <?= $this_month_profit >= 0 ? 'from-emerald-500 to-teal-600' : 'from-red-500 to-rose-600' ?> rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between">
-                <div class="absolute -right-6 -top-6 text-white/10">
-                    <i class="fas <?= $this_month_profit >= 0 ? 'fa-chart-pie' : 'fa-chart-pie' ?> text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start w-full">
-                    <div>
-                        <p class="text-white/80 text-sm font-medium mb-1" title="<?= __('admin_profit_loss_tooltip') ?>"><?= __('admin_this_month_profit_loss') ?></p>
-                        <p class="text-3xl font-extrabold text-white">
-                            <?= $this_month_profit > 0 ? '+' : '' ?><?= number_format($this_month_profit) ?> <span class="text-base font-normal text-white/70"><?= __('currency') ?></span>
-                        </p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/30 flex-shrink-0">
-                        <i class="fas <?= $this_month_profit >= 0 ? 'fa-chart-pie' : 'fa-chart-pie' ?>"></i>
-                    </div>
-                </div>
-                <div class="relative z-10 mt-3 flex justify-between items-end w-full">
-                    <?php if ($stats['this_month_loans_given'] > 0 || $stats['this_month_loans_repaid'] > 0): ?>
-                        <p class="text-[11px] text-white/70 font-medium bg-black/10 px-2 py-1 rounded"><?= __('admin_loans') ?> <span class="text-red-200">-<?= number_format($stats['this_month_loans_given']) ?></span> | <span class="text-green-200">+<?= number_format($stats['this_month_loans_repaid']) ?></span></p>
-                    <?php else: ?>
-                        <span></span>
-                    <?php endif; ?>
-                    <?php if ($stats['this_month_income'] > 0): ?>
-                        <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/20 text-white backdrop-blur-sm border border-white/30 shadow-sm">
-                            <?= $this_month_profit > 0 ? '+' : '' ?><?= number_format($this_month_profit_percent, 1) ?>%
-                        </span>
-                    <?php endif; ?>
-                </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-2xl"><i class="fas fa-arrow-down"></i></div>
+            <div>
+                <p class="text-sm text-gray-500 font-bold uppercase"><?= __('today_revenue') ?></p>
+                <p id="stat_today_revenue" class="text-3xl font-black text-gray-800 transition-colors"><?= number_format($today_revenue, 2) ?></p>
             </div>
         </div>
-
-        <!-- Chart & Recent Users Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            <!-- Chart Section -->
-            <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-5 border border-gray-100 flex flex-col">
-                <h3 class="font-bold text-gray-700 mb-4"><i class="fas fa-chart-area text-blue-500 mr-2"></i> <?= __('admin_monthly_profit_loss_chart') ?></h3>
-                <div class="relative flex-1 min-h-[320px] w-full">
-                    <canvas id="monthlyChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Sidebar Section (Top Bettors & Recent Users) -->
-            <div class="lg:col-span-1 flex flex-col gap-6">
-                <!-- Top Bettors Section -->
-                <div class="bg-white rounded-xl shadow-md p-5 border border-gray-100 flex-1">
-                    <h3 class="font-bold text-gray-700 mb-4"><i class="fas fa-trophy text-yellow-500 mr-2"></i> <?= __('admin_top_users_this_month') ?></h3>
-                    <div class="space-y-3">
-                        <?php if (count($top_bettors) > 0): ?>
-                            <?php foreach ($top_bettors as $index => $user): ?>
-                                <a href="admin_user_history.php?user_id=<?= $user['id'] ?>" class="flex items-center p-2 rounded-lg hover:bg-gray-50 border border-gray-50">
-                                    <div class="w-8 h-8 rounded-full <?= $index == 0 ? 'bg-yellow-100 text-yellow-600' : ($index == 1 ? 'bg-gray-200 text-gray-600' : ($index == 2 ? 'bg-orange-100 text-orange-600' : 'bg-blue-50 text-blue-500')) ?> flex items-center justify-center mr-3 font-bold text-xs shadow-sm">#<?= $index + 1 ?></div>
-                                    <div class="flex-1">
-                                        <p class="font-bold text-sm text-gray-800"><?= htmlspecialchars($user['username']) ?></p>
-                                        <p class="text-[10px] text-gray-500"><?= htmlspecialchars($user['phone_number']) ?></p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="font-bold text-sm text-red-600"><?= number_format($user['total_betted']) ?> <?= __('currency') ?></p>
-                                        <p class="text-[10px] text-gray-400"><?= __('currency') ?></p>
-                                    </div>
-                                </a>
-                            <?php endforeach; ?>
-                        <?php else: ?> <p class="text-sm text-gray-500 italic text-center py-4"><?= __('no_records_found') ?></p> <?php endif; ?>
-                    </div>
-                </div>
-
-                <!-- Recent Users Section -->
-                <div class="bg-white rounded-xl shadow-md p-5 border border-gray-100 flex-1">
-                    <h3 class="font-bold text-gray-700 mb-4"><i class="fas fa-user-clock text-purple-500 mr-2"></i> <?= __('admin_recent_users') ?></h3>
-                    <div class="space-y-3">
-                        <?php if (count($recent_users) > 0): ?>
-                            <?php foreach ($recent_users as $user): ?>
-                                <a href="admin_user_history.php?user_id=<?= $user['id'] ?>" class="flex items-center p-2 rounded-lg hover:bg-gray-50 border border-gray-50">
-                                    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-gray-500"><i class="fas fa-user text-xs"></i></div>
-                                    <div class="flex-1">
-                                        <p class="font-bold text-sm text-gray-800"><?= htmlspecialchars($user['username']) ?></p>
-                                        <p class="text-[10px] text-gray-500"><?= htmlspecialchars($user['phone_number']) ?></p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-[10px] text-gray-400"><i class="far fa-clock"></i> <?= date('d-M h:i A', strtotime($user['created_at'])) ?></p>
-                                    </div>
-                                </a>
-                            <?php endforeach; ?>
-                        <?php else: ?> <p class="text-sm text-gray-500 italic text-center py-4"><?= __('admin_dash_no_new_users') ?></p> <?php endif; ?>
-                    </div>
-                </div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-2xl"><i class="fas fa-arrow-up"></i></div>
+            <div>
+                <p class="text-sm text-gray-500 font-bold uppercase"><?= __('today_payout') ?></p>
+                <p id="stat_today_payout" class="text-3xl font-black text-gray-800 transition-colors"><?= number_format($today_payout, 2) ?></p>
             </div>
         </div>
-
-        <!-- Recent Transactions Section -->
-        <div class="bg-white rounded-xl shadow-md p-5 mb-8 border border-gray-100">
-            <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
-                <h3 class="font-bold text-gray-700"><i class="fas fa-exchange-alt text-green-500 mr-2"></i> <?= __('admin_dash_recent_tx') ?></h3>
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-                    <div class="relative" role="search">
-                        <input type="text" id="txSearchInput" value="<?= htmlspecialchars($search_tx ?? '') ?>" oninput="liveTxSearch()" placeholder="<?= __('admin_search_name_phone_placeholder') ?>" class="w-full sm:w-48 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500">
-                        <i class="fas fa-search absolute right-2.5 top-2 text-gray-400 text-xs pointer-events-none"></i>
-                    </div>
-                    <a href="admin_transactions.php" class="text-sm text-blue-600 hover:underline font-bold whitespace-nowrap"><?= __('admin_dash_view_all') ?></a>
-                </div>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-left text-sm">
-                    <thead>
-                        <tr class="bg-gray-50 text-gray-600 border-b">
-                            <th class="px-4 py-3 font-bold whitespace-nowrap"><?= __('admin_dash_col_type') ?></th>
-                            <th class="px-4 py-3 font-bold whitespace-nowrap"><?= __('admin_username_user') ?></th>
-                            <th class="px-4 py-3 font-bold text-right whitespace-nowrap"><?= __('admin_dash_col_amount') ?></th>
-                            <th class="px-4 py-3 font-bold text-center whitespace-nowrap"><?= __('admin_dash_col_status') ?></th>
-                            <th class="px-4 py-3 font-bold text-right whitespace-nowrap"><?= __('admin_dash_col_time') ?></th>
-                        </tr>
-                    </thead>
-                    <tbody id="txTableBody" class="text-gray-700 divide-y">
-                        <?php if (count($recent_transactions) > 0): ?>
-                            <?php foreach ($recent_transactions as $tx): ?>
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-4 py-3 whitespace-nowrap">
-                                        <?php if ($tx['type'] == 'deposit'): ?>
-                                            <span class="text-green-600 font-bold"><i class="fas fa-arrow-down mr-1"></i> <?= __('admin_dash_type_deposit') ?></span>
-                                        <?php else: ?>
-                                            <span class="text-red-600 font-bold"><i class="fas fa-arrow-up mr-1"></i> <?= __('admin_dash_type_withdraw') ?></span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="px-4 py-3 font-bold whitespace-nowrap"><?= htmlspecialchars($tx['username']) ?></td>
-                                    <td class="px-4 py-3 text-right font-bold whitespace-nowrap <?= $tx['type'] == 'deposit' ? 'text-green-600' : 'text-red-600' ?>">
-                                        <?= $tx['type'] == 'deposit' ? '+' : '-' ?><?= number_format($tx['amount']) ?> Ks
-                                    </td>
-                                    <td class="px-4 py-3 text-center whitespace-nowrap">
-                                        <?php if ($tx['status'] == 'approved'): ?>
-                                            <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded border border-green-300"><?= __('admin_dash_status_success') ?></span>
-                                        <?php elseif ($tx['status'] == 'pending'): ?>
-                                            <span class="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-1 rounded border border-yellow-300"><?= __('admin_dash_status_pending') ?></span>
-                                        <?php else: ?>
-                                            <span class="bg-red-100 text-red-700 text-[10px] px-2 py-1 rounded border border-red-300"><?= __('admin_dash_status_rejected') ?></span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="px-4 py-3 text-right text-xs text-gray-500 whitespace-nowrap">
-                                        <?= date('d-M-Y h:i A', strtotime($tx['created_at'])) ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="5" class="px-4 py-8 text-center text-gray-500 italic"><?= __('admin_dash_no_records') ?></td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-2xl"><i class="fas fa-dice"></i></div>
+            <div>
+                <p class="text-sm text-gray-500 font-bold uppercase"><?= __('today_bets') ?></p>
+                <p id="stat_today_bets" class="text-3xl font-black text-gray-800 transition-colors"><?= number_format($today_bets, 2) ?></p>
             </div>
         </div>
-
-        <!-- Recent Bets Section -->
-        <div class="bg-white rounded-xl shadow-md p-5 mb-8 border border-gray-100">
-            <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
-                <h3 class="font-bold text-gray-700"><i class="fas fa-dice text-blue-500 mr-2"></i> <?= __('admin_dash_recent_bets') ?></h3>
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-                    <div class="relative" role="search">
-                        <input type="text" id="betSearchInput" value="<?= htmlspecialchars($search_bet ?? '') ?>" oninput="liveBetSearch()" placeholder="<?= __('admin_search_name_phone_number_placeholder') ?>" class="w-full sm:w-48 px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500">
-                        <i class="fas fa-search absolute right-2.5 top-2 text-gray-400 text-xs pointer-events-none"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full text-left text-sm">
-                    <thead>
-                        <tr class="bg-gray-50 text-gray-600 border-b">
-                            <th class="px-4 py-3 font-bold whitespace-nowrap"><?= __('admin_username_user') ?></th>
-                            <th class="px-4 py-3 font-bold text-center whitespace-nowrap"><?= __('admin_dash_col_number') ?></th>
-                            <th class="px-4 py-3 font-bold text-right whitespace-nowrap"><?= __('admin_dash_col_amount') ?></th>
-                            <th class="px-4 py-3 font-bold text-center whitespace-nowrap"><?= __('admin_dash_col_status') ?></th>
-                            <th class="px-4 py-3 font-bold text-right whitespace-nowrap"><?= __('admin_dash_col_time') ?></th>
-                        </tr>
-                    </thead>
-                    <tbody id="betTableBody" class="text-gray-700 divide-y">
-                        <?php if (count($recent_bets) > 0): ?>
-                            <?php foreach ($recent_bets as $bet): ?>
-                                <tr class="hover:bg-gray-50 transition">
-                                    <td class="px-4 py-3 font-bold whitespace-nowrap"><?= htmlspecialchars($bet['username']) ?></td>
-                                    <td class="px-4 py-3 text-center font-bold text-blue-600 whitespace-nowrap tracking-wider"><?= htmlspecialchars($bet['bet_number']) ?></td>
-                                    <td class="px-4 py-3 text-right font-bold text-red-600 whitespace-nowrap"><?= number_format($bet['amount']) ?> Ks</td>
-                                    <td class="px-4 py-3 text-center whitespace-nowrap">
-                                        <?php if ($bet['status'] == 'win'): ?>
-                                            <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded border border-green-300"><?= __('admin_dash_status_win') ?></span>
-                                        <?php elseif ($bet['status'] == 'pending'): ?>
-                                            <span class="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-1 rounded border border-yellow-300"><?= __('admin_dash_status_pending') ?></span>
-                                        <?php else: ?>
-                                            <span class="bg-red-100 text-red-700 text-[10px] px-2 py-1 rounded border border-red-300"><?= __('admin_dash_status_lose') ?></span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td class="px-4 py-3 text-right text-xs text-gray-500 whitespace-nowrap">
-                                        <?= date('d-M-Y h:i A', strtotime($bet['created_at'])) ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="5" class="px-4 py-8 text-center text-gray-500 italic"><?= __('admin_dash_no_records') ?></td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <h2 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-purple-500 pl-3"><?= __('admin_dash_overall_status') ?></h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="relative bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl">
-                <div class="absolute -right-6 -top-6 text-white/5">
-                    <i class="fas fa-users-cog text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start">
-                    <div>
-                        <p class="text-gray-300 text-sm font-medium mb-1"><?= __('admin_dash_total_users') ?></p>
-                        <p class="text-3xl font-extrabold text-white"><?= number_format($stats['total_users']) ?> <span class="text-base font-normal text-gray-400"><?= __('admin_dash_users_unit') ?></span></p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/20">
-                        <i class="fas fa-users-cog"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="relative bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between">
-                <div class="absolute -right-6 -top-6 text-white/10">
-                    <i class="fas fa-coins text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start w-full">
-                    <div>
-                        <p class="text-amber-100 text-sm font-medium mb-1"><?= __('admin_dash_total_balance') ?></p>
-                        <p class="text-3xl font-extrabold text-white"><?= number_format($stats['total_balance']) ?> <span class="text-base font-normal text-amber-200">Ks</span></p>
-                        <p class="text-[11px] text-amber-200 mt-1 font-medium"><?= __('admin_dash_liability') ?></p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/30 flex-shrink-0">
-                        <i class="fas fa-coins"></i>
-                    </div>
-                </div>
-                <div class="relative z-10 mt-3 pt-3 border-t border-white/20 flex justify-between items-center w-full">
-                    <p class="text-xs text-amber-100 font-medium"><?= __('admin_outstanding_loans') ?></p>
-                    <p class="text-sm font-bold text-white"><?= number_format($stats['outstanding_loans'] ?? 0) ?> <span class="text-[10px] font-normal text-amber-200">Ks</span></p>
-                </div>
-            </div>
-            <div class="relative bg-gradient-to-br from-fuchsia-500 to-purple-600 rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl">
-                <div class="absolute -right-6 -top-6 text-white/10">
-                    <i class="fas fa-hourglass-half text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start">
-                    <div>
-                        <p class="text-fuchsia-100 text-sm font-medium mb-1"><?= __('admin_dash_pending_bets') ?></p>
-                        <p class="text-3xl font-extrabold text-white"><?= number_format($stats['pending_bets_amount']) ?> <span class="text-base font-normal text-fuchsia-200">Ks</span></p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/30">
-                        <i class="fas fa-hourglass-half"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="relative bg-gradient-to-br <?= $total_profit >= 0 ? 'from-emerald-500 to-teal-600' : 'from-red-500 to-rose-600' ?> rounded-2xl shadow-lg p-6 overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between">
-                <div class="absolute -right-6 -top-6 text-white/10">
-                    <i class="fas fa-gem text-8xl"></i>
-                </div>
-                <div class="relative z-10 flex flex-wrap justify-between items-start w-full">
-                    <div>
-                        <p class="text-white/80 text-sm font-medium mb-1"><?= __('admin_dash_net_profit') ?></p>
-                        <p class="text-3xl font-extrabold text-white">
-                            <?= $total_profit > 0 ? '+' : '' ?><?= number_format($total_profit) ?> <span class="text-base font-normal text-white/70">Ks</span>
-                        </p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl shadow-inner border border-white/30 flex-shrink-0">
-                        <i class="fas fa-gem"></i>
-                    </div>
-                </div>
-                <div class="relative z-10 mt-3 flex justify-end w-full">
-                    <?php if ($stats['total_income'] > 0): ?>
-                        <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-white/20 text-white backdrop-blur-sm border border-white/30 shadow-sm">
-                            <?= $total_profit > 0 ? '+' : '' ?><?= number_format($total_profit_percent, 1) ?>%
-                        </span>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-
-        <?php if($pending_counts['total_tx'] > 0): ?>
-            <div class="bg-orange-50 border border-orange-200 rounded-xl p-5 mb-8 flex justify-between items-center shadow-sm">
-                <div>
-                    <h3 class="font-bold text-orange-800 mb-1"><i class="fas fa-exclamation-triangle mr-1"></i> <?= __('admin_important_alert') ?></h3>
-                    <p class="text-sm text-orange-700"><?= __('admin_deposit_requests') ?> (<?= $pending_counts['deposits'] ?>) <?= __('admin_and') ?> <?= __('admin_withdrawal_requests') ?> (<?= $pending_counts['withdrawals'] ?>) <?= __('admin_to_review') ?></p>
-                </div>
-                <a href="admin_transactions.php" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded shadow text-sm font-bold transition"><?= __('admin_go_to_review') ?></a>
-            </div>
-        <?php endif; ?>
-
     </div>
 
-    <!-- Chart.js ဖြင့် ဂရပ်ဆွဲခြင်း -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('monthlyChart').getContext('2d');
-        const monthlyChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: <?= json_encode($chart_labels) ?>,
-                datasets: [
-                    {
-                        label: '<?= __('admin_chart_income') ?>',
-                        data: <?= json_encode($chart_incomes) ?>,
-                        borderColor: 'rgb(59, 130, 246)', // Tailwind blue-500
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: '<?= __('admin_chart_payout') ?>',
-                        data: <?= json_encode($chart_payouts) ?>,
-                        borderColor: 'rgb(239, 68, 68)', // Tailwind red-500
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return value.toLocaleString() + ' <?= __('currency') ?>';
-                            }
-                        }
-                    }
+    <!-- Latest Activities -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-history mr-2 text-primary"></i> <?= __('latest_activities') ?>
+            <span id="realtime_status" class="ml-auto w-3 h-3 bg-gray-300 rounded-full" title="Real-time Connection Status"></span>
+        </h3>
+        <div class="space-y-3 max-h-96 overflow-y-auto pr-2" id="activity_list">
+            <?php while($activity = $latest_activities_res->fetch_assoc()): 
+                $user_info_res = $conn->query("SELECT username FROM users WHERE id = " . intval($activity['user_id']));
+                $username = $user_info_res->fetch_assoc()['username'] ?? 'Unknown';
+                
+                $icon = 'fa-question-circle';
+                $color = 'gray';
+                $text = 'An unknown activity occurred.';
+
+                switch($activity['type']) {
+                    case 'deposit':
+                        $icon = 'fa-arrow-down'; $color = 'green';
+                        $text = sprintf(__('%s requested a deposit of %s Ks.'), "<strong>{$username}</strong>", "<strong>" . number_format($activity['amount']) . "</strong>");
+                        break;
+                    case 'withdrawal':
+                        $icon = 'fa-arrow-up'; $color = 'red';
+                        $text = sprintf(__('%s requested a withdrawal of %s Ks.'), "<strong>{$username}</strong>", "<strong>" . number_format($activity['amount']) . "</strong>");
+                        break;
+                    case 'register':
+                        $icon = 'fa-user-plus'; $color = 'blue';
+                        $text = sprintf(__('%s has registered a new account.'), "<strong>{$username}</strong>");
+                        break;
                 }
+            ?>
+            <div class="flex items-center gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <div class="w-10 h-10 bg-<?= $color ?>-100 text-<?= $color ?>-600 rounded-full flex items-center justify-center text-lg"><i class="fas <?= $icon ?>"></i></div>
+                <div class="flex-1">
+                    <p class="text-sm text-gray-700"><?= $text ?></p>
+                    <p class="text-xs text-gray-400 mt-1"><?= date('h:i:s A', strtotime($activity['created_at'])) ?></p>
+                </div>
+            </div>
+            <?php endwhile; ?>
+        </div>
+    </div>
+</div>
+
+<audio id="notificationSound" src="../assets/sounds/notification.mp3" preload="auto"></audio>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const statusIndicator = document.getElementById('realtime_status');
+    const activityList = document.getElementById('activity_list');
+    const notificationSound = document.getElementById('notificationSound');
+
+    function connectWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/`;
+        const ws = new WebSocket(wsUrl);
+
+        ws.onopen = function() {
+            console.log('Admin Dashboard: WebSocket connection established.');
+            statusIndicator.classList.remove('bg-gray-300', 'bg-red-500');
+            statusIndicator.classList.add('bg-green-500', 'animate-pulse');
+            statusIndicator.title = 'Real-time connection active';
+        };
+
+        ws.onmessage = function(event) {
+            try {
+                const message = JSON.parse(event.data);
+                console.log('Real-time update received:', message);
+                
+                // Play sound
+                notificationSound.currentTime = 0;
+                notificationSound.play().catch(e => console.warn("Audio autoplay prevented."));
+
+                // Update UI
+                updateDashboard(message.event, message.data);
+
+            } catch (e) {
+                console.error('Error parsing WebSocket message:', e);
             }
-        });
+        };
 
-    // AJAX Search for Transactions Table
-    let txSearchTimeout;
-    function liveTxSearch() {
-        clearTimeout(txSearchTimeout);
-        txSearchTimeout = setTimeout(() => {
-            let searchTerm = document.getElementById('txSearchInput').value;
-            let url = `ajax_dashboard_search.php?search_tx=${encodeURIComponent(searchTerm)}`;
-            
-            let tbody = document.getElementById('txTableBody');
-            if (tbody) tbody.style.opacity = '0.5'; // Show loading state
-            
-            // Get CSRF token from meta tag
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        ws.onclose = function() {
+            console.log('Admin Dashboard: WebSocket connection closed. Reconnecting in 5 seconds...');
+            statusIndicator.classList.remove('bg-green-500', 'animate-pulse');
+            statusIndicator.classList.add('bg-red-500');
+            statusIndicator.title = 'Real-time connection lost. Reconnecting...';
+            setTimeout(connectWebSocket, 5000);
+        };
 
-            fetch(url, {
-                headers: {
-                    'X-CSRF-Token': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest' // Standard header for AJAX
-                }
-            })
-                .then(response => response.text())
-                .then(html => {
-                    if (tbody) tbody.innerHTML = html;
-                    if (tbody) tbody.style.opacity = '1';
-                })
-                .catch(err => console.error('Search error:', err));
-        }, 300);
+        ws.onerror = function(error) {
+            console.error('WebSocket error:', error);
+            statusIndicator.classList.remove('bg-green-500', 'animate-pulse');
+            statusIndicator.classList.add('bg-red-500');
+            ws.close();
+        };
     }
 
-    // AJAX Search for Recent Bets Table
-    let betSearchTimeout;
-    function liveBetSearch() {
-        clearTimeout(betSearchTimeout);
-        betSearchTimeout = setTimeout(() => {
-            let searchTerm = document.getElementById('betSearchInput').value;
-            let url = `ajax_dashboard_search.php?search_bet=${encodeURIComponent(searchTerm)}`;
-            
-            let tbody = document.getElementById('betTableBody');
-            if (tbody) tbody.style.opacity = '0.5'; // Show loading state
-            
-            // Get CSRF token from meta tag
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    function updateDashboard(event, data) {
+        let icon = 'fa-question-circle';
+        let color = 'gray';
+        let text = 'An unknown activity occurred.';
+        let amount = parseFloat(data.amount || 0);
 
-            fetch(url, {
-                headers: {
-                    'X-CSRF-Token': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-                .then(response => response.text())
-                .then(html => {
-                    if (tbody) tbody.innerHTML = html;
-                    if (tbody) tbody.style.opacity = '1';
-                })
-                .catch(err => console.error('Search error:', err));
-        }, 300);
+        switch(event) {
+            case 'new_user':
+                icon = 'fa-user-plus'; color = 'blue';
+                text = `<strong>${data.username}</strong> has registered a new account.`;
+                updateStat('total_users', 1);
+                break;
+            case 'new_deposit':
+                icon = 'fa-arrow-down'; color = 'green';
+                text = `<strong>${data.username}</strong> requested a deposit of <strong>${amount.toLocaleString()}</strong> Ks.`;
+                // Note: We only update revenue on 'approved' status, so this is just for activity feed.
+                break;
+            case 'new_withdrawal':
+                icon = 'fa-arrow-up'; color = 'red';
+                text = `<strong>${data.username}</strong> requested a withdrawal of <strong>${amount.toLocaleString()}</strong> Ks.`;
+                break;
+            case 'new_bet':
+                icon = 'fa-dice'; color = 'purple';
+                text = `<strong>${data.username}</strong> placed a ${data.type} bet of <strong>${amount.toLocaleString()}</strong> Ks.`;
+                updateStat('today_bets', amount);
+                break;
+        }
+
+        addActivityToList(icon, color, text);
     }
-    </script>
+
+    function updateStat(elementId, valueToAdd) {
+        const el = document.getElementById(`stat_${elementId}`);
+        if (el) {
+            let currentValue = parseFloat(el.innerText.replace(/,/g, '')) || 0;
+            let newValue = currentValue + valueToAdd;
+            el.innerText = newValue.toLocaleString(undefined, { minimumFractionDigits: elementId.includes('revenue') || elementId.includes('payout') || elementId.includes('bets') ? 2 : 0 });
+            
+            // Highlight effect
+            el.classList.add('text-yellow-500');
+            setTimeout(() => {
+                el.classList.remove('text-yellow-500');
+            }, 1500);
+        }
+    }
+
+    function addActivityToList(icon, color, text) {
+        const newActivity = document.createElement('div');
+        newActivity.className = 'flex items-center gap-4 p-3 bg-blue-50 rounded-xl border border-blue-200 animate__animated animate__fadeInDown';
+        
+        const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+
+        newActivity.innerHTML = `
+            <div class="w-10 h-10 bg-${color}-100 text-${color}-600 rounded-full flex items-center justify-center text-lg"><i class="fas ${icon}"></i></div>
+            <div class="flex-1">
+                <p class="text-sm text-gray-700">${text}</p>
+                <p class="text-xs text-gray-400 mt-1">${time}</p>
+            </div>
+        `;
+
+        activityList.prepend(newActivity);
+
+        // Keep the list to a max of 10 items
+        if (activityList.children.length > 10) {
+            activityList.lastChild.remove();
+        }
+
+        // Remove highlight after a few seconds
+        setTimeout(() => {
+            newActivity.classList.remove('bg-blue-50', 'border-blue-200', 'animate__fadeInDown');
+            newActivity.classList.add('bg-gray-50', 'border-gray-100');
+        }, 3000);
+    }
+
+    connectWebSocket();
+});
+</script>
+
+<?php require_once 'admin_footer.php'; ?>
+
 </body>
 </html>
