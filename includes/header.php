@@ -16,6 +16,7 @@ if (file_exists(dirname(__DIR__) . '/lang/language.php')) {
     <meta name="theme-color" content="#1a428a">
     <link rel="manifest" href="manifest.json">
     <title><?= isset($page_title) ? htmlspecialchars($page_title) : 'Thai 2D3D' ?></title>
+    <meta name="csrf-token" content="<?= htmlspecialchars($_SESSION['admin_csrf_token'] ?? '') ?>">
     <script src="https://cdn.tailwindcss.com"></script>
     <?php 
        // db_connect မပါသေးပါက ထည့်ပေးရန်လိုအပ်ပါသည် (index.php တွင် ပါပြီးသားဖြစ်၍ ပြဿနာမရှိ)
