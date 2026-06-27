@@ -73,17 +73,22 @@ require_once __DIR__ . '/core/config.php';
 
 $is_sqlite = (DB_DRIVER === 'sqlite');
 
-// ၁။ MySQL Server သို့ ချိတ်ဆက်ခြင်း (Database နာမည်မပါဘဲ ချိတ်ဆက်သည်)
-$conn = new mysqli($servername, $username, $password);
+if ($is_sqlite) {
+    // SQLite အတွက်၊ db_connect.php က file ကို အလိုအလျောက် တည်ဆောက်ပေးပြီးသားဖြစ်လို့ ဒီနေရာမှာ ဘာမှလုပ်စရာမလိုပါ။
+    echo "<p class='success'><b>SQLite mode is active. Skipping MySQL connection.</b></p>";
+    $conn = new PDO("sqlite:" . DB_PATH);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} else {
+    // ၁။ MySQL Server သို့ ချိတ်ဆက်ခြင်း (Database နာမည်မပါဘဲ ချိတ်ဆက်သည်)
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS);
 
-// ချိတ်ဆက်မှု အောင်မြင်ခြင်း ရှိ/မရှိ စစ်ဆေးခြင်း
-if ($conn->connect_error) {
-    die("MySQL သို့ ချိတ်ဆက်ရာတွင် အဆင်မပြေပါ: " . $conn->connect_error);
-}
-echo "<p class='success'><b>MySQL သို့ အောင်မြင်စွာ ချိတ်ဆက်ပြီးပါပြီ။</b></p>";
+    // ချိတ်ဆက်မှု အောင်မြင်ခြင်း ရှိ/မရှိ စစ်ဆေးခြင်း
+    if ($conn->connect_error) {
+        die("<p class='error'>MySQL သို့ ချိတ်ဆက်ရာတွင် အဆင်မပြေပါ: " . $conn->connect_error . "</p>");
+    }
+    echo "<p class='success'><b>MySQL server သို့ အောင်မြင်စွာ ချိတ်ဆက်ပြီးပါပြီ။</b></p>";
 
-// မြန်မာစာနှင့် အခြား Unicode စာလုံးများ မှန်ကန်စွာ သိမ်းဆည်းနိုင်ရန် utf8mb4 ကို သတ်မှတ်ခြင်း
-$conn->set_charset("utf8mb4");
+    $conn->set_charset("utf8mb4");
 
 // ၂။ Database အလိုအလျောက် တည်ဆောက်ခြင်း
 $dbname = "thai_2d3d_db";
@@ -96,6 +101,7 @@ if ($conn->query($sql_create_db) === TRUE) {
 
 // ဖန်တီးလိုက်သော Database ကို ရွေးချယ်အသုံးပြုခြင်း
 $conn->select_db($dbname);
+}
 
 // Helper function: Column ရှိ/မရှိ စစ်ဆေးပြီး မရှိပါက ထည့်သွင်းရန်
 function addColumnIfNotExists($conn, $table, $column, $definition, $after_column = "") {

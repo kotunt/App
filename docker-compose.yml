@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Nginx Web Server Service (Handles incoming HTTP requests)
+  nginx:
+    image: nginx:stable-alpine
+    container_name: thai2d3d-nginx
+    ports:
+      - "8000:80" # Host port 8000 -> Container port 80
+    volumes:
+      - .:/var/www/html:ro # Mount code as read-only for security
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+
+  # PHP-FPM Service (Executes PHP code)
+  php:
+    build: .
+    container_name: thai2d3d-php
+    volumes:
+      # Mount volumes for user-generated content that needs to be persisted
+      - ./uploads:/var/www/html/uploads
+      - ./logs:/var/www/html/logs
+      - ./backups:/var/www/html/backups
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+  # Database Service (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: thai2d3d-db
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - db_data:/var/lib/mysql # Database data များ မပျက်စီးစေရန် volume သတ်မှတ်ခြင်း။
+
+volumes:
+  db_data:

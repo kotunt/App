@@ -1,0 +1,139 @@
+name: PHP CI/CD Pipeline
+
+# Triggers: Run on push to main/develop or pull request to main/develop
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  # --- CI Job: Build, Lint, and Test ---
+  build_and_test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Setup PHP environment
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: mbstring, gd, mysqli, pdo, pdo_mysql, zip
+          tools: composer:v2, php-cs-fixer
+          coverage: none # No tests yet
+
+      # 3. Cache Composer dependencies
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      # 4. Install dependencies
+      - name: Install Composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      # 5. Run PHP Code Style Fixer (Linter)
+      - name: Run PHP-CS-Fixer
+        run: php-cs-fixer fix --dry-run --diff --verbose
+
+      # 6. Run PHPUnit tests
+      - name: Run PHPUnit tests
+        run: composer test
+
+  # --- CD Job for Staging Environment ---
+  deploy_staging:
+    name: Deploy to Staging
+    needs: build_and_test # Run only if build_and_test job succeeds
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_PAT }}
+
+      - name: Build and Push Staging Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/thai2d3d-php:staging
+
+      - name: Deploy to Staging Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.STAGING_SSH_HOST }}
+          username: ${{ secrets.STAGING_SSH_USERNAME }}
+          key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.STAGING_SSH_PORT || 22 }}
+          script: |
+            cd /path/to/your/staging-project
+            echo "DB_PASS=${{ secrets.STAGING_DB_PASS }}" >> .env
+            echo "MYSQL_ROOT_PASSWORD=${{ secrets.STAGING_DB_PASS }}" >> .env
+            
+            docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GH_PAT }}
+            docker-compose pull
+            docker-compose up -d --force-recreate
+            docker image prune -f
+
+  # --- CD Job for Production Environment ---
+  deploy_production:
+    name: Deploy to Production
+    needs: build_and_test # Run only if build_and_test job succeeds
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_PAT }}
+
+      - name: Build and Push Production Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/thai2d3d-php:${{ github.sha }} # Unique tag for rollback
+            ghcr.io/${{ github.repository_owner }}/thai2d3d-php:latest # Latest tag
+
+      - name: Deploy to Production Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            cd /path/to/your/project/on/server
+            echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
+            echo "MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASS }}" >> .env
+            
+            docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GH_PAT }}
+            docker-compose pull
+            docker-compose up -d --force-recreate
+            docker image prune -f
