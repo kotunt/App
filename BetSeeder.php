@@ -10,6 +10,11 @@ class BetSeeder extends AbstractSeed
      */
     public function run(): void
     {
+        // Safety check: Do not run seeder in production environment.
+        if (defined('APP_ENV') && APP_ENV === 'production') {
+            throw new \Exception('Cannot run seeders in the production environment!');
+        }
+
         // 1. Check for dependencies (users and sessions)
         $users = $this->fetchAll('SELECT id FROM users WHERE role = "user"');
         $sessions = $this->fetchAll('SELECT id, game_type, section, target_date, open_time, close_time FROM betting_sessions WHERE status = "active"');

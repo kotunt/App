@@ -1,0 +1,25 @@
+version: '3.8'
+
+# This file is for local development overrides
+services:
+  nginx:
+    volumes:
+      # Override the read-only mount to be read-write for easier development
+      - .:/var/www/html
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      # Mount the full directory for local development to see changes instantly
+      - .:/var/www/html
+    environment:
+      # This helps Xdebug connect back to the IDE
+      # The value is the IP address of your docker host network
+      XDEBUG_CONFIG: "client_host=host.docker.internal"
+
+  cron:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev

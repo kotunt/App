@@ -15,6 +15,11 @@ class UserSeeder extends AbstractSeed
      */
     public function run(): void
     {
+        // Safety check: Do not run seeder in production environment.
+        if (defined('APP_ENV') && APP_ENV === 'production') {
+            throw new \Exception('Cannot run seeders in the production environment!');
+        }
+
         // Install faker: composer require --dev fakerphp/faker
         $faker = Faker\Factory::create('my_MM'); // Use Myanmar locale for names
 
