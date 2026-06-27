@@ -36,7 +36,7 @@ return [
     'username' => 'အမည်',
     'phone_number' => 'ဖုန်းနံပါတ်',
     'last_activity' => 'နောက်ဆုံးလှုပ်ရှားမှု',
-    'refresh' => 'Refresh',
+    'refresh' => 'ပြန်လည်ဆွဲယူရန်',
     'currency' => 'ကျပ်',
     'daily_bonus_received_noti' => '🎉 ဂုဏ်ယူပါတယ်။ နေ့စဉ်အပိုဆု (Daily Bonus) %s Ks ရရှိပါသည်။',
     'daily_bonus_received_alert' => '🎉 ယနေ့အတွက် အပိုဆုငွေ %s Ks ရရှိပါသည်။',

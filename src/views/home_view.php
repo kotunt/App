@@ -22,7 +22,7 @@ if (!isset($user)) { exit('Direct access not permitted.'); }
                 <button id="userThemeToggle" class="mr-4 md:mr-6 text-gray-200 hover:text-white transition-transform hover:rotate-12">
                     <i class="fas fa-moon text-xl md:text-2xl"></i>
                 </button>
-                <button class="mr-4 md:mr-6 hover:rotate-180 transition-transform duration-500"><i class="fas fa-sync-alt text-xl md:text-2xl text-gray-200 hover:text-white"></i></button>
+                <button type="button" onclick="window.location.reload()" title="<?= __('refresh') ?>" class="mr-4 md:mr-6 hover:rotate-180 transition-transform duration-500"><i class="fas fa-sync-alt text-xl md:text-2xl text-gray-200 hover:text-white"></i></button>
                 <a href="logout.php" title="<?= __('logout_tooltip') ?>"><i class="fas fa-sign-out-alt text-xl md:text-2xl text-red-300 hover:text-red-400 transition-colors"></i></a>
             </div>
         </div>
