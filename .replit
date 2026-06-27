@@ -1,0 +1,60 @@
+modules = ["php-8.2", "nodejs-20", "bash"]
+[agent]
+expertMode = true
+stack = "BEST_EFFORT_FALLBACK"
+
+[nix]
+channel = "stable-25_05"
+
+[[ports]]
+localPort = 3306
+externalPort = 3000
+exposeLocalhost = true
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+APP_ENV = "development"
+DB_DRIVER = "mysql"
+DB_HOST = "127.0.0.1"
+DB_NAME = "thai_2d3d_db"
+DB_USER = "root"
+DB_PASS = "secret"
+MYSQL_DATABASE = "thai_2d3d_db"
+MYSQL_USER = "root"
+MYSQL_PASSWORD = "secret"
+MYSQL_ROOT_PASSWORD = "secret"
+REDIS_HOST = "127.0.0.1"
+REDIS_PORT = "6379"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash /home/runner/workspace/start.sh"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[deployment]
+deploymentTarget = "vm"
+run = ["bash", "/home/runner/workspace/start.sh"]

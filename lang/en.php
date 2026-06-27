@@ -1,4 +1,4 @@
-﻿﻿﻿﻿<?php
+<?php
 return [
     'admin_dashboard_page_title' => 'Admin Dashboard - Thai 2D3D',
     'home_page_title' => 'Home - Thai 2D3D',

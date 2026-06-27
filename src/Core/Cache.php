@@ -15,8 +15,9 @@ class Cache
         if (class_exists('Redis')) {
             try {
                 $this->redis = new Redis();
-                // Use 'redis' as the hostname, which is the service name in docker-compose
-                $this->redis->connect('redis', 6379);
+                $redisHost = getenv('REDIS_HOST') ?: '127.0.0.1';
+                $redisPort = (int)(getenv('REDIS_PORT') ?: 6379);
+                $this->redis->connect($redisHost, $redisPort);
             } catch (RedisException $e) {
                 $this->redis = null;
                 // Log the error but don't kill the application
