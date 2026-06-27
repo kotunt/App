@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Nginx Web Server Service (Handles incoming HTTP requests)
   nginx:
@@ -17,8 +15,10 @@ services:
   php:
     container_name: thai2d3d-php
     # Build from the local Dockerfile instead of pulling a pre-built image
-    build: .
-    # image: ghcr.io/${COMPOSE_PROJECT_NAME:-gemini/app}/thai2d3d-php:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
     volumes:
       # Mount volumes for user-generated content that needs to be persisted
       - ./uploads:/var/www/html/uploads

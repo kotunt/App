@@ -1,5 +1,5 @@
 # Use the official PHP 8.1 FPM image as a base
-FROM php:8.1-fpm-alpine
+FROM php:8.1-fpm-alpine as base
 
 # Set working directory
 WORKDIR /var/www/html
@@ -15,3 +15,12 @@ RUN apk add --no-cache \
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd mysqli pdo pdo_mysql zip
+
+# --- Development Stage ---
+FROM base as dev
+
+# Install development-specific dependencies
+RUN apk add --no-cache $PHPIZE_DEPS \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && apk del $PHPIZE_DEPS

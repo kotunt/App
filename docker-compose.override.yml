@@ -1,5 +1,3 @@
-version: '3.8'
-
 # This file is for local development overrides
 services:
   nginx:
@@ -8,15 +6,12 @@ services:
       - .:/var/www/html
 
   php:
-    # The 'image' name here is a local-only name for the base image.
-    image: thai2d3d-php:latest 
     build:
       context: .
-      # The 'dockerfile' here points to the new dev-specific Dockerfile.
-      dockerfile: Dockerfile.dev
-      # This 'args' section tells Docker to build the base image from the main Dockerfile first.
-      args:
-        BASE_IMAGE: thai2d3d-php:latest
+      # The 'dockerfile' here points to the main Dockerfile
+      dockerfile: Dockerfile
+      # This tells docker-compose to build the 'dev' stage from the Dockerfile
+      target: dev
     volumes:
       # Mount the full directory for local development to see changes instantly
       - .:/var/www/html
