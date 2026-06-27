@@ -1,15 +1,16 @@
 <?php
-session_start();
+
+// 1. Bootstrap the application
+require_once __DIR__ . '/bootstrap.php';
+
+use App\Core\Database;
+$conn = Database::getInstance()->getConnection();
 
 // Login ဝင်ထားခြင်း မရှိပါက login.php သို့ ပြန်ပို့ရန်
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
-require_once __DIR__ . '/core/db_connect.php';
-require_once __DIR__ . '/lang/language.php';
-require_once __DIR__ . '/core/security_helper.php';
 
 $user_id = $_SESSION['user_id'];
 $success_message = "";
