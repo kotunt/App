@@ -37,5 +37,10 @@ COPY --from=builder /app .
 # Copy Xdebug configuration
 COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
+# Copy mail configuration for MailHog
+COPY docker/php/mail.ini /usr/local/etc/php/conf.d/mail.ini
+COPY docker/php/msmtprc /etc/msmtprc
+RUN chmod 644 /etc/msmtprc
+
 # Set correct permissions
 RUN chown -R www-data:www-data /var/www/html
