@@ -1,26 +1,20 @@
-# Use the official PHP 8.1 FPM image as a base
-FROM php:8.1-fpm-alpine as base
+# Use an official Node.js runtime as a parent image
+FROM node:18-alpine
 
-# Set working directory
-WORKDIR /var/www/html
+# Set the working directory in the container
+WORKDIR /usr/src/app
 
-# Install system dependencies needed for extensions
-RUN apk add --no-cache \
-    $PHPIZE_DEPS \
-    libzip-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev
+# Copy package.json and package-lock.json (if available)
+COPY package*.json ./
 
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd mysqli pdo pdo_mysql zip
+# Install any needed packages
+RUN npm install
 
-# --- Development Stage ---
-FROM base as dev
+# Bundle app source
+COPY . .
 
-# Install development-specific dependencies
-RUN apk add --no-cache $PHPIZE_DEPS \
-    && pecl install xdebug \
-    && docker-php-ext-enable xdebug \
-    && apk del $PHPIZE_DEPS
+# Your app will run on port 3000
+EXPOSE 3000
+
+# Define the command to run your app
+CMD [ "node", "server.js" ]
