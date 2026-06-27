@@ -15,10 +15,8 @@ services:
 
   # PHP-FPM Service (Executes PHP code)
   php:
-    # Use the specific image tag from the .env file
-    image: ghcr.io/${COMPOSE_PROJECT_NAME:-gemini/app}/thai2d3d-php:${IMAGE_TAG:-latest}
-    # build: . # We build in CI, so we use the image directly
     container_name: thai2d3d-php
+    image: ghcr.io/${COMPOSE_PROJECT_NAME:-gemini/app}/thai2d3d-php:${IMAGE_TAG:-latest}
     volumes:
       # Mount volumes for user-generated content that needs to be persisted
       - ./uploads:/var/www/html/uploads

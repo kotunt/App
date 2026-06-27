@@ -177,18 +177,52 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
+            set -e # Exit immediately if a command exits with a non-zero status.
+            
             cd /path/to/your/project/on/server
+
+            # 1. Get the ID of the current running image to use for rollback if needed
+            # Use a default value if the image doesn't exist yet (first deployment)
+            PREVIOUS_IMAGE_ID=$(docker images ghcr.io/${{ github.repository_owner }}/thai2d3d-php:latest -q) || PREVIOUS_IMAGE_ID="none"
+            echo "Previous Image ID for rollback: $PREVIOUS_IMAGE_ID"
+
+            # 2. Update environment file with the new image tag
+            # Create .env if it doesn't exist, and ensure required variables are present
+            echo "IMAGE_TAG=${{ github.sha }}" > .env
             echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
             echo "MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASS }}" >> .env
+            echo "DB_HOST=db" >> .env
+            echo "DB_NAME=thai_2d3d_db" >> .env
+            echo "DB_USER=root" >> .env
+            echo "MYSQL_DATABASE=thai_2d3d_db" >> .env
+            echo "MYSQL_USER=root" >> .env
+            echo "MYSQL_PASSWORD=${{ secrets.DB_PASS }}" >> .env
             
             docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GH_PAT }}
 
-            # Run database migrations
-            docker-compose run --rm --no-deps php vendor/bin/phinx migrate -e production
+            # 3. Pull the new image
+            docker-compose pull php
 
-            docker-compose pull
-            docker-compose up -d --force-recreate
-            docker image prune -f
+            # 4. Run database migrations
+            echo "Running database migrations..."
+            docker-compose run --rm php vendor/bin/phinx migrate -e production
+
+            # 5. Deploy the new version
+            echo "Deploying new version: ${{ github.sha }}"
+            docker-compose up -d
+
+            # 6. Health Check
+            echo "Waiting for application to start..."
+            sleep 20 # Give containers time to initialize
+            echo "Performing health check..."
+            curl --fail http://localhost:8000/health-check.php || (echo "Health check failed! Rolling back..." && docker-compose down && echo "IMAGE_TAG=latest" > .env && docker-compose up -d && exit 1)
+
+            echo "Deployment successful!"
+            
+            # 7. Tag the new image as 'latest' and clean up
+            docker tag ghcr.io/${{ github.repository_owner }}/thai2d3d-php:${{ github.sha }} ghcr.io/${{ github.repository_owner }}/thai2d3d-php:latest
+            docker push ghcr.io/${{ github.repository_owner }}/thai2d3d-php:latest
+            docker image prune -af
 
   # --- Job to Notify on Failure ---
   notify_failure:
