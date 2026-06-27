@@ -3,11 +3,8 @@
 // 1. Bootstrap the application
 require_once __DIR__ . '/bootstrap.php';
 
-// 2. Use the Database connection
-use App\Core\Database;
-$conn = Database::getInstance()->getConnection();
-
-// 3. Load Controller, View, etc.
+// 2. Load Controller, View, etc.
+// The $conn variable is now available from bootstrap.php
 require_once __DIR__ . '/src/controllers/HomeController.php';
 $page_title = __('home_page_title');
 require_once __DIR__ . '/includes/header.php';

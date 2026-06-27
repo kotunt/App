@@ -2,50 +2,43 @@
 
 namespace App\Core;
 
-use PDO;
-use PDOException;
+use mysqli;
+use mysqli_sql_exception;
 
 class Database
 {
     private static ?Database $instance = null;
-    private PDO $conn;
+    private ?mysqli $conn = null;
 
     private function __construct()
     {
-        $this->connect();
-    }
-
-    private function connect(): void
-    {
-        $driver = DB_DRIVER;
-        $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-        ];
-
         try {
-            if ($driver === 'sqlite') {
-                $db_path = DB_PATH;
-                $dir = dirname($db_path);
-                if (!is_dir($dir)) {
-                    mkdir($dir, 0777, true);
-                }
-                $this->conn = new PDO("sqlite:" . $db_path, null, null, $options);
-            } else { // Default to mysql
-                $dsn = sprintf("mysql:host=%s;dbname=%s;charset=utf8mb4", DB_HOST, DB_NAME);
-                $this->conn = new PDO($dsn, DB_USER, DB_PASS, $options);
+            // Suppress errors to handle them manually
+            mysqli_report(MYSQLI_REPORT_OFF);
+            
+            $this->conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            
+            if ($this->conn->connect_error) {
+                throw new mysqli_sql_exception($this->conn->connect_error, $this->conn->connect_errno);
             }
-        } catch (PDOException $e) {
+            
+            $this->conn->set_charset("utf8mb4");
+            
+        } catch (mysqli_sql_exception $e) {
             // In a real app, you'd want to log this error and show a generic error page.
             error_log("Database connection failed: " . $e->getMessage());
-            if (APP_ENV !== 'production') {
+            if (getenv('APP_ENV') !== 'production') {
                 die("Database connection failed: " . $e->getMessage());
             }
             die("Database connection unavailable.");
         }
     }
 
+    /**
+     * Gets the single instance of the Database class.
+     *
+     * @return self
+     */
     public static function getInstance(): self
     {
         if (self::$instance === null) {
@@ -54,7 +47,7 @@ class Database
         return self::$instance;
     }
 
-    public function getConnection(): PDO
+    public function getConnection(): mysqli
     {
         return $this->conn;
     }
