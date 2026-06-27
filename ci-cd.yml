@@ -181,3 +181,26 @@ jobs:
             docker-compose pull
             docker-compose up -d --force-recreate
             docker image prune -f
+
+  # --- Job to Notify on Failure ---
+  notify_failure:
+    name: Notify on Failure
+    # This job needs all other jobs, so it runs after them
+    needs: [build_and_test, deploy_staging, deploy_production]
+    # This condition ensures the job only runs if any of the previous jobs have failed
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Telegram notification on failure
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: markdown
+          message: |
+            🚨 *Workflow Failed!*
+
+            A job failed in the `${{ github.repository }}` repository.
+            *Branch:* `${{ github.ref }}`
+            *Actor:* `${{ github.actor }}`
+            🔗 View Workflow Run
