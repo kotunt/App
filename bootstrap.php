@@ -2,7 +2,6 @@
 
 use App\Core\Database;
 use App\Core\Session;
-use App\Core\Database;
 
 // 1. Set Default Timezone
 date_default_timezone_set('Asia/Yangon');
