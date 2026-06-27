@@ -1,48 +1,9 @@
-# ===== Builder Stage =====
-# This stage installs dependencies including dev dependencies
-FROM composer:2 as builder
+# Use the base image built from the main Dockerfile
+ARG BASE_IMAGE=thai2d3d-php:latest
+FROM ${BASE_IMAGE}
 
-WORKDIR /app
-
-# Copy composer files and install all dependencies (including require-dev)
-COPY composer.json composer.lock ./
-RUN composer install --no-interaction --optimize-autoloader
-
-# Copy the rest of the application code
-COPY . .
-
-
-# ===== Final Development Stage =====
-# This stage builds the development image with Xdebug
-FROM php:8.1-fpm-alpine
-
-WORKDIR /var/www/html
-
-# Install system packages, PHP extensions, AND Xdebug
+# Install development-specific dependencies
 RUN apk add --no-cache $PHPIZE_DEPS \
-        freetype-dev \
-        busybox-cron \
-        libjpeg-turbo-dev \
-        libpng-dev \
-        msmtp \
-        ca-certificates \
-        zip \
-    && pecl install xdebug redis \
+    && pecl install xdebug \
     && docker-php-ext-enable xdebug \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd mysqli pdo pdo_mysql zip mbstring \
     && apk del $PHPIZE_DEPS
-
-# Copy application code and all dependencies from the builder stage
-COPY --from=builder /app .
-
-# Copy Xdebug configuration
-COPY docker/php/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-
-# Copy mail configuration for MailHog
-COPY docker/php/mail.ini /usr/local/etc/php/conf.d/mail.ini
-COPY docker/php/msmtprc /etc/msmtprc
-RUN chmod 644 /etc/msmtprc
-
-# Set correct permissions
-RUN chown -R www-data:www-data /var/www/html
