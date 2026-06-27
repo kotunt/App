@@ -16,14 +16,14 @@ class DepositController {
             exit();
         }
         $this->user_id = $_SESSION['user_id'];
-        $this->conn = (new Database())->getConnection();
+        $this->conn = Database::getInstance()->getConnection();
     }
 
     public function handleRequest() {
         $action = $_POST['action'] ?? null;
 
         if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])) {
                 $this->renderView('deposit_view', ['error_message' => 'Invalid CSRF token.', 'step' => 1]);
                 return;
             }
@@ -111,8 +111,8 @@ class DepositController {
         $stmt->bind_param("idssss", $this->user_id, $amount, $payment_method, $transaction_id, $slip_image_url, $initial_status);
 
         if ($stmt->execute()) {
-            if ($is_auto_approved) {
-                $this->processAutoApproval($pre_approved_id, $amount);
+            $deposit_id = $this->conn->insert_id;
+            if ($is_auto_approved && $this->processAutoApproval($pre_approved_id, $amount, $deposit_id)) {
                 $_SESSION['deposit_success_message'] = __('deposit_auto_approved_success');
             } else {
                 $this->notifyAdmin($amount, $payment_method, $transaction_id, $settings);
@@ -160,30 +160,47 @@ class DepositController {
         return ['approved' => false, 'id' => 0];
     }
 
-    private function processAutoApproval($pre_approved_id, $amount) {
+    private function processAutoApproval($pre_approved_id, $amount, $deposit_id): bool {
         $this->conn->begin_transaction();
         try {
-            $upd_pre = $this->conn->prepare("UPDATE pre_approved_transactions SET status = 'used' WHERE id = ?");
+            // Mark the pre-approved transaction as used. The WHERE status = 'pending'
+            // guard + affected_rows check prevents the same transaction being
+            // credited twice by concurrent requests (double-credit race).
+            $upd_pre = $this->conn->prepare("UPDATE pre_approved_transactions SET status = 'used' WHERE id = ? AND status = 'pending'");
             $upd_pre->bind_param("i", $pre_approved_id);
-            $upd_pre->execute();
+            if (!$upd_pre->execute()) { $upd_pre->close(); throw new Exception('DB_ERROR'); }
+            $pre_used = $upd_pre->affected_rows;
+            $upd_pre->close();
+            if ($pre_used < 1) { throw new Exception('ALREADY_USED'); }
 
             $upd_user = $this->conn->prepare("UPDATE users SET balance = balance + ? WHERE id = ?");
             $upd_user->bind_param("di", $amount, $this->user_id);
-            $upd_user->execute();
-            
+            if (!$upd_user->execute()) { $upd_user->close(); throw new Exception('DB_ERROR'); }
+            $upd_user->close();
+
             $noti_msg = str_replace('%amount%', number_format($amount), __('deposit_auto_approved_noti'));
             $stmt_noti = $this->conn->prepare("INSERT INTO system_notifications (user_id, message) VALUES (?, ?)");
             $stmt_noti->bind_param("is", $this->user_id, $noti_msg);
-            $stmt_noti->execute();
+            if (!$stmt_noti->execute()) { $stmt_noti->close(); throw new Exception('DB_ERROR'); }
+            $stmt_noti->close();
 
             $stmt_noti_update = $this->conn->prepare("UPDATE users SET notifications = notifications + 1 WHERE id = ?");
             $stmt_noti_update->bind_param("i", $this->user_id);
-            $stmt_noti_update->execute();
+            if (!$stmt_noti_update->execute()) { $stmt_noti_update->close(); throw new Exception('DB_ERROR'); }
+            $stmt_noti_update->close();
 
             $this->conn->commit();
+            return true;
         } catch (Exception $e) {
             $this->conn->rollback();
-            // Log error, maybe revert deposit to pending
+            // Auto-approval failed: revert the deposit row to 'pending' so it is not
+            // left falsely marked 'approved' without the balance being credited.
+            // The admin can then review and approve it manually.
+            $revert = $this->conn->prepare("UPDATE deposits SET status = 'pending' WHERE id = ?");
+            $revert->bind_param("i", $deposit_id);
+            $revert->execute();
+            $revert->close();
+            return false;
         }
     }
 
@@ -245,6 +262,10 @@ class DepositController {
         $min_deposit = $settings['min_deposit'];
         $max_deposit = $settings['max_deposit'];
         $payment_accounts = $this->getPaymentAccounts();
+
+        // Expose the DB connection to the view (the view runs in this method scope,
+        // so the global $conn from db_connect.php is NOT visible here).
+        $conn = $this->conn;
 
         // Handle step 3 success message display
         if (isset($_SESSION['deposit_step']) && $_SESSION['deposit_step'] === 3) {

@@ -11,7 +11,6 @@
 
     <div class="p-4 md:p-8 max-w-2xl mx-auto">
         <?php
-        require_once __DIR__ . '/../../core/db_connect.php';
         $tv_url = '';
         $tv_res = $conn->query("SELECT setting_value FROM settings WHERE setting_key = 'deposit_video_url'");
         if ($tv_res && $tv_row = $tv_res->fetch_assoc()) { $tv_url = trim($tv_row['setting_value']); }
