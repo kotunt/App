@@ -109,6 +109,10 @@ jobs:
             # Login to container registry
             docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GH_PAT }}
 
+            # Run database migrations before starting the new container
+            # We run it in a temporary container that connects to the existing 'db' network
+            docker-compose run --rm --no-deps php vendor/bin/phinx migrate -e production
+
             # Pull the latest images defined in docker-compose.yml
             docker-compose pull
 
@@ -178,6 +182,10 @@ jobs:
             echo "MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASS }}" >> .env
             
             docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GH_PAT }}
+
+            # Run database migrations
+            docker-compose run --rm --no-deps php vendor/bin/phinx migrate -e production
+
             docker-compose pull
             docker-compose up -d --force-recreate
             docker image prune -f

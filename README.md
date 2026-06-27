@@ -169,6 +169,26 @@ Docker ကို အသုံးပြုခြင်းဖြင့် PHP, MyS
     php -S localhost:8000 -t .
     ```
 
+## Database Migrations
+
+ဤ Project သည် database schema ပြောင်းလဲမှုများကို စီမံခန့်ခွဲရန် `Phinx` ကို အသုံးပြုထားပါသည်။
+
+### Migration အသစ်တစ်ခု ပြုလုပ်ခြင်း
+
+Database table structure ကို ပြောင်းလဲလိုပါက (ဥပမာ- column အသစ်ထည့်ခြင်း)၊ migration အသစ်တစ်ခု ပြုလုပ်ရန် အောက်ပါ command ကို အသုံးပြုပါ။
+```bash
+composer migrate:create AddAvatarUrlToUsersTable
+```
+၎င်း command သည် `database/migrations/` directory အောက်တွင် migration file အသစ်တစ်ခုကို ဖန်တီးပေးပါလိမ့်မည်။
+
+### Migration များကို Run ခြင်း
+
+Local development တွင် database schema ကို update လုပ်ရန် အောက်ပါ command ကို run ပါ။
+```bash
+composer migrate
+```
+
+
 ## Cron Jobs (Scheduled Tasks)
 
 ဤ Project တွင် အလိုအလျောက်လုပ်ဆောင်ရန် လိုအပ်သော Cron Job များပါဝင်သည်။ Server တွင် ၎င်းတို့ကို သတ်မှတ်ရန်လိုအပ်သည်။
