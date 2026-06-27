@@ -119,6 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $step = 3;
             }
             $stmt->close();
+        }
     }
 }
 
