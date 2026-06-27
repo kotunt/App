@@ -1,7 +1,9 @@
 <?php
-session_start();
-require_once __DIR__ . '/../core/db_connect.php';
-require_once __DIR__ . '/../core/auth_helper.php';
+
+require_once __DIR__ . '/../bootstrap.php';
+
+use App\Core\Database;
+$conn = Database::getInstance()->getConnection();
 
 // Main Admin သာ ကြည့်ရှုနိုင်မည်
 require_main_admin();

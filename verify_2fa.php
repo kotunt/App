@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/bootstrap.php';
+
+use App\Core\Database;
+$conn = Database::getInstance()->getConnection();
+
 // Ensure the user came from the login page
 if (!isset($_SESSION['temp_2fa_user_id'])) {
     header("Location: login.php");

@@ -1,8 +1,9 @@
 <?php
-session_start();
-require_once '../core/db_connect.php';
-require_once '../core/auth_helper.php';
-require_once '../lang/language.php';
+
+require_once __DIR__ . '/../bootstrap.php';
+
+use App\Core\Database;
+$conn = Database::getInstance()->getConnection();
 
 require_admin();
 

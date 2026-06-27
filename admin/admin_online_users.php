@@ -1,7 +1,9 @@
 <?php
-session_start();
-require_once __DIR__ . '/../core/db_connect.php';
-require_once __DIR__ . '/../core/auth_helper.php';
+
+require_once __DIR__ . '/../bootstrap.php';
+
+use App\Core\Database;
+$conn = Database::getInstance()->getConnection();
 
 require_main_admin(); // Main Admin (User ID 1) သာ ဝင်ခွင့်ပြုမည်
 
