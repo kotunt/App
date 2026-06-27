@@ -40,11 +40,11 @@ require_once __DIR__ . '/includes/header.php';
 
 <body class="w-full md:max-w-3xl lg:max-w-5xl mx-auto min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300 pb-32 md:pb-10 flex flex-col relative">
 
-    <div class="glass-header bg-primary/90 dark:bg-slate-900/80 text-white flex items-center p-4 md:p-5 sticky top-0 z-40 shadow-sm border-b border-blue-800 dark:border-slate-800 transition-colors duration-300">
+    <div class="glass-header bg-brand-gradient dark:bg-slate-900/80 text-white flex items-center p-4 md:p-5 sticky top-0 z-40 shadow-card border-b border-primary-800/50 dark:border-slate-800 transition-colors duration-300">
         <a href="index.php" class="mr-4 text-xl w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-all active:scale-95"><i class="fas fa-arrow-left"></i></a>
         <div class="flex-1">
             <h1 class="text-lg md:text-xl font-bold tracking-wide leading-tight"><?= __('title_3d_bet') ?></h1>
-            <p class="text-[10px] md:text-xs text-blue-200 dark:text-slate-400 mt-0.5"><i class="fas fa-wallet mr-1"></i> <?= number_format($user['balance']) ?> <?= __('currency') ?></p>
+            <p class="text-[10px] md:text-xs text-blue-200 dark:text-slate-400 mt-0.5"><i class="fas fa-wallet mr-1 text-gold-400"></i> <span class="text-gold-300 font-bold"><?= number_format($user['balance']) ?></span> <?= __('currency') ?></p>
         </div>
     </div>
 
@@ -52,7 +52,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <!-- Open/Close Time Header Display -->
     <?php if ($active_session): ?>
-    <div class="bg-white dark:bg-slate-800/50 p-4 mx-4 md:mx-8 mt-4 rounded-xl flex flex-col gap-2 border border-slate-200 dark:border-slate-700/50 shadow-sm">
+    <div class="bg-white dark:bg-slate-800/50 p-4 mx-4 md:mx-8 mt-4 rounded-2xl flex flex-col gap-2 border border-slate-200 dark:border-slate-700/50 shadow-card">
         <div class="flex justify-between items-center">
             <div class="text-sm font-bold text-slate-600 dark:text-slate-300">
                 <i class="far fa-calendar-alt mr-1 text-primary dark:text-blue-400"></i> <?= date('d M Y', strtotime($active_session['target_date'])) ?>
@@ -152,7 +152,7 @@ require_once __DIR__ . '/includes/header.php';
             </script>
         <?php endif; ?>
 
-        <form method="POST" action="" id="betForm" class="bg-white dark:bg-slate-800 md:p-8 rounded-3xl shadow-sm md:shadow-xl border border-slate-100 dark:border-slate-700/50 transition-colors duration-300 relative overflow-hidden">
+        <form method="POST" action="" id="betForm" class="bg-white dark:bg-slate-800 md:p-8 rounded-4xl shadow-card md:shadow-premium border border-slate-100 dark:border-slate-700/50 transition-colors duration-300 relative overflow-hidden">
             
             <!-- Stepper Navigation -->
             <div class="flex justify-between items-center mb-8 px-4 md:px-12 relative pt-4 md:pt-0">
@@ -340,7 +340,7 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <!-- Mobile Bottom Action Bar -->
-    <div id="mobileBottomBar" class="md:hidden fixed bottom-0 left-0 right-0 glass-footer bg-white/80 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800 p-4 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] transition-transform duration-300">
+    <div id="mobileBottomBar" class="md:hidden fixed bottom-0 left-0 right-0 glass-footer bg-white/80 dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800 p-4 rounded-t-3xl z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] transition-transform duration-300">
         <div class="flex justify-between items-center mb-3 px-2">
             <div>
                 <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mb-0.5"><?= __('selected_kwek') ?></p>

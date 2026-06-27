@@ -38,6 +38,7 @@ $latest_activities_res = $conn->query("
     ORDER BY created_at DESC LIMIT 5
 ");
 
+require_once __DIR__ . '/../includes/header.php';
 require_once 'admin_header.php';
 ?>
 

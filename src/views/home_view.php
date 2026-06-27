@@ -5,9 +5,11 @@ if (!isset($user)) { exit('Direct access not permitted.'); }
 
 <body class="w-full lg:max-w-5xl md:max-w-3xl mx-auto relative min-h-screen pb-20 bg-gray-50 md:shadow-2xl md:border-x border-gray-200 transition-all duration-300">
 
-    <div class="bg-primary text-white rounded-b-3xl md:rounded-b-[3rem] pb-12 md:pb-16 shadow-lg">
-        <div class="flex justify-between items-center p-4 md:p-6 md:px-8">
-            <button class="bg-yellow-500 hover:bg-yellow-400 text-white px-3 md:px-4 py-1.5 md:py-2 rounded flex items-center font-bold text-sm md:text-base shadow transition-colors">
+    <div class="bg-brand-gradient text-white rounded-b-4xl md:rounded-b-5xl pb-12 md:pb-16 shadow-premium relative overflow-hidden">
+        <div class="absolute top-[-30%] right-[-10%] w-72 h-72 bg-gold-400/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-[-10%] w-64 h-64 bg-blue-300/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex justify-between items-center p-4 md:p-6 md:px-8 relative z-10">
+            <button class="bg-gold-gradient text-primary-900 px-3 md:px-4 py-1.5 md:py-2 rounded-xl flex items-center font-bold text-sm md:text-base shadow-gold hover:-translate-y-0.5 transition-transform">
                 <?= __('app_download_btn') ?> <i class="fas fa-download ml-2"></i>
             </button>
             <div class="text-center">
@@ -172,15 +174,15 @@ if (!isset($user)) { exit('Direct access not permitted.'); }
 
 
     <div class="grid grid-cols-2 gap-4 md:gap-8 px-4 md:px-8 mt-6 md:mt-8">
-        <a href="2d_bet.php" class="group bg-primary text-white py-5 md:py-8 rounded-2xl shadow-lg relative overflow-hidden font-bold text-xl md:text-3xl border border-blue-800 flex justify-center items-center hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
-            <?= __('title_2d_bet') ?>
-            <div class="absolute top-0 right-0 w-10 h-10 md:w-16 md:h-16 bg-yellow-500 opacity-20 rounded-bl-full group-hover:scale-110 transition-transform"></div>
-            <i class="fas fa-play-circle absolute bottom-[-10px] left-[-10px] text-5xl md:text-7xl opacity-10 group-hover:rotate-12 transition-transform"></i>
+        <a href="2d_bet.php" class="group bg-brand-gradient text-white py-6 md:py-9 rounded-4xl shadow-card relative overflow-hidden font-extrabold text-xl md:text-3xl border border-primary-800/50 flex justify-center items-center card-hover hover:shadow-premium transition-all duration-300">
+            <span class="relative z-10 tracking-wide drop-shadow"><?= __('title_2d_bet') ?></span>
+            <div class="absolute top-0 right-0 w-16 h-16 md:w-24 md:h-24 bg-gold-gradient opacity-20 rounded-bl-full group-hover:scale-125 transition-transform duration-500"></div>
+            <i class="fas fa-play-circle absolute bottom-[-12px] left-[-12px] text-6xl md:text-8xl opacity-10 group-hover:rotate-12 transition-transform duration-500"></i>
         </a>
-        <a href="3d_bet.php" class="group bg-primary text-white py-5 md:py-8 rounded-2xl shadow-lg relative overflow-hidden font-bold text-xl md:text-3xl border border-blue-800 flex justify-center items-center hover:-translate-y-1 hover:shadow-2xl transition-all duration-300">
-            <?= __('title_3d_bet') ?>
-            <div class="absolute top-0 right-0 w-10 h-10 md:w-16 md:h-16 bg-yellow-500 opacity-20 rounded-bl-full group-hover:scale-110 transition-transform"></div>
-            <i class="fas fa-dice absolute bottom-[-10px] left-[-10px] text-5xl md:text-7xl opacity-10 group-hover:rotate-12 transition-transform"></i>
+        <a href="3d_bet.php" class="group bg-brand-gradient text-white py-6 md:py-9 rounded-4xl shadow-card relative overflow-hidden font-extrabold text-xl md:text-3xl border border-primary-800/50 flex justify-center items-center card-hover hover:shadow-premium transition-all duration-300">
+            <span class="relative z-10 tracking-wide drop-shadow"><?= __('title_3d_bet') ?></span>
+            <div class="absolute top-0 right-0 w-16 h-16 md:w-24 md:h-24 bg-gold-gradient opacity-20 rounded-bl-full group-hover:scale-125 transition-transform duration-500"></div>
+            <i class="fas fa-dice absolute bottom-[-12px] left-[-12px] text-6xl md:text-8xl opacity-10 group-hover:rotate-12 transition-transform duration-500"></i>
         </a>
     </div>
 

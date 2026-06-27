@@ -42,26 +42,26 @@ if ($cs_stmt) {
         <?php endif; ?>
     </div>
 
-    <div id="bottomNavBar" class="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-md md:max-w-3xl lg:max-w-5xl bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 md:border-x md:rounded-t-3xl flex justify-around py-2 md:py-3 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:shadow-[0_-5px_25px_rgba(0,0,0,0.1)] z-50 transition-transform duration-500 transform translate-y-0">
-        <a href="<?= $base_url ?>index.php" class="flex flex-col items-center bottom-nav-icon group <?= $current_page == 'index.php' ? 'active text-primary dark:text-blue-400' : 'text-gray-500 hover:text-primary dark:hover:text-blue-300' ?> transition-colors">
-            <i class="fas fa-home mb-1 md:mb-1.5 text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
-            <span class="text-[10px] md:text-xs font-medium"><?= __('nav_home') ?></span>
+    <div id="bottomNavBar" class="fixed bottom-0 left-0 right-0 mx-auto w-full max-w-md md:max-w-3xl lg:max-w-5xl glass dark:bg-gray-800/90 border-t border-white/40 dark:border-gray-700 md:border-x md:rounded-t-4xl flex justify-around py-2 md:py-3 shadow-[0_-4px_24px_rgba(26,66,138,0.12)] md:shadow-[0_-8px_36px_rgba(26,66,138,0.16)] z-50 transition-transform duration-500 transform translate-y-0">
+        <a href="<?= $base_url ?>index.php" class="flex flex-col items-center bottom-nav-icon group transition-all <?= $current_page == 'index.php' ? 'active' : '' ?>">
+            <span class="flex items-center justify-center w-11 h-8 md:w-14 md:h-9 rounded-2xl transition-all <?= $current_page == 'index.php' ? 'bg-primary/10 text-primary dark:bg-blue-400/15 dark:text-blue-300' : 'text-gray-500 group-hover:text-primary dark:text-gray-400 dark:group-hover:text-blue-300' ?>"><i class="fas fa-home text-lg md:text-xl group-hover:scale-110 transition-transform"></i></span>
+            <span class="text-[10px] md:text-xs font-semibold mt-0.5 <?= $current_page == 'index.php' ? 'text-primary dark:text-blue-300' : 'text-gray-500 dark:text-gray-400' ?>"><?= __('nav_home') ?></span>
         </a>
-        <a href="<?= $base_url ?>deposit.php" class="flex flex-col items-center bottom-nav-icon group <?= in_array($current_page, ['deposit.php', 'withdraw.php']) ? 'active text-primary dark:text-blue-400' : 'text-gray-500 hover:text-primary dark:hover:text-blue-300' ?> transition-colors">
-            <i class="fas fa-wallet mb-1 md:mb-1.5 text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
-            <span class="text-[10px] md:text-xs font-medium"><?= __('nav_wallet') ?></span>
+        <a href="<?= $base_url ?>deposit.php" class="flex flex-col items-center bottom-nav-icon group transition-all <?= in_array($current_page, ['deposit.php', 'withdraw.php']) ? 'active' : '' ?>">
+            <span class="flex items-center justify-center w-11 h-8 md:w-14 md:h-9 rounded-2xl transition-all <?= in_array($current_page, ['deposit.php', 'withdraw.php']) ? 'bg-primary/10 text-primary dark:bg-blue-400/15 dark:text-blue-300' : 'text-gray-500 group-hover:text-primary dark:text-gray-400 dark:group-hover:text-blue-300' ?>"><i class="fas fa-wallet text-lg md:text-xl group-hover:scale-110 transition-transform"></i></span>
+            <span class="text-[10px] md:text-xs font-semibold mt-0.5 <?= in_array($current_page, ['deposit.php', 'withdraw.php']) ? 'text-primary dark:text-blue-300' : 'text-gray-500 dark:text-gray-400' ?>"><?= __('nav_wallet') ?></span>
         </a>
-        <a href="<?= $base_url ?>bet_history.php" class="flex flex-col items-center bottom-nav-icon group <?= $current_page == 'bet_history.php' ? 'active text-primary dark:text-blue-400' : 'text-gray-500 hover:text-primary dark:hover:text-blue-300' ?> transition-colors">
-            <i class="fas fa-gift mb-1 md:mb-1.5 text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
-            <span class="text-[10px] md:text-xs font-medium"><?= __('nav_history') ?></span>
+        <a href="<?= $base_url ?>bet_history.php" class="flex flex-col items-center bottom-nav-icon group transition-all <?= $current_page == 'bet_history.php' ? 'active' : '' ?>">
+            <span class="flex items-center justify-center w-11 h-8 md:w-14 md:h-9 rounded-2xl transition-all <?= $current_page == 'bet_history.php' ? 'bg-primary/10 text-primary dark:bg-blue-400/15 dark:text-blue-300' : 'text-gray-500 group-hover:text-primary dark:text-gray-400 dark:group-hover:text-blue-300' ?>"><i class="fas fa-gift text-lg md:text-xl group-hover:scale-110 transition-transform"></i></span>
+            <span class="text-[10px] md:text-xs font-semibold mt-0.5 <?= $current_page == 'bet_history.php' ? 'text-primary dark:text-blue-300' : 'text-gray-500 dark:text-gray-400' ?>"><?= __('nav_history') ?></span>
         </a>
-        <a href="<?= $base_url ?>guides.php" class="flex flex-col items-center bottom-nav-icon group <?= $current_page == 'guides.php' ? 'active text-primary dark:text-blue-400' : 'text-gray-500 hover:text-primary dark:hover:text-blue-300' ?> transition-colors">
-            <i class="fas fa-book-open mb-1 md:mb-1.5 text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
-            <span class="text-[10px] md:text-xs font-medium"><?= __('nav_guide') ?></span>
+        <a href="<?= $base_url ?>guides.php" class="flex flex-col items-center bottom-nav-icon group transition-all <?= $current_page == 'guides.php' ? 'active' : '' ?>">
+            <span class="flex items-center justify-center w-11 h-8 md:w-14 md:h-9 rounded-2xl transition-all <?= $current_page == 'guides.php' ? 'bg-primary/10 text-primary dark:bg-blue-400/15 dark:text-blue-300' : 'text-gray-500 group-hover:text-primary dark:text-gray-400 dark:group-hover:text-blue-300' ?>"><i class="fas fa-book-open text-lg md:text-xl group-hover:scale-110 transition-transform"></i></span>
+            <span class="text-[10px] md:text-xs font-semibold mt-0.5 <?= $current_page == 'guides.php' ? 'text-primary dark:text-blue-300' : 'text-gray-500 dark:text-gray-400' ?>"><?= __('nav_guide') ?></span>
         </a>
-        <a href="<?= $base_url ?>profile.php" class="flex flex-col items-center bottom-nav-icon group <?= in_array($current_page, ['profile.php', 'commissions_history.php']) ? 'active text-primary dark:text-blue-400' : 'text-gray-500 hover:text-primary dark:hover:text-blue-300' ?> transition-colors">
-            <i class="fas fa-user-circle mb-1 md:mb-1.5 text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
-            <span class="text-[10px] md:text-xs font-medium"><?= __('nav_profile') ?></span>
+        <a href="<?= $base_url ?>profile.php" class="flex flex-col items-center bottom-nav-icon group transition-all <?= in_array($current_page, ['profile.php', 'commissions_history.php']) ? 'active' : '' ?>">
+            <span class="flex items-center justify-center w-11 h-8 md:w-14 md:h-9 rounded-2xl transition-all <?= in_array($current_page, ['profile.php', 'commissions_history.php']) ? 'bg-primary/10 text-primary dark:bg-blue-400/15 dark:text-blue-300' : 'text-gray-500 group-hover:text-primary dark:text-gray-400 dark:group-hover:text-blue-300' ?>"><i class="fas fa-user-circle text-lg md:text-xl group-hover:scale-110 transition-transform"></i></span>
+            <span class="text-[10px] md:text-xs font-semibold mt-0.5 <?= in_array($current_page, ['profile.php', 'commissions_history.php']) ? 'text-primary dark:text-blue-300' : 'text-gray-500 dark:text-gray-400' ?>"><?= __('nav_profile') ?></span>
         </a>
     </div>
 

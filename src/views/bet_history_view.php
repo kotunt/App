@@ -6,7 +6,7 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
 
 <body class="w-full md:max-w-3xl lg:max-w-5xl mx-auto min-h-screen bg-gray-50 md:shadow-2xl md:border-x border-gray-200 transition-all duration-300 pb-20 md:pb-24">
 
-    <div class="bg-primary text-white flex items-center p-4 md:p-6 sticky top-0 z-20 shadow-md">
+    <div class="bg-brand-gradient text-white flex items-center p-4 md:p-6 sticky top-0 z-20 shadow-premium">
         <a href="index.php" class="mr-4 text-xl md:text-2xl w-6 md:w-10 hover:scale-110 transition-transform"><i class="fas fa-arrow-left"></i></a>
         <h1 class="text-xl md:text-2xl font-bold flex-1 text-center pr-6 md:pr-10 tracking-wide"><?= __('title_bet_history') ?></h1>
     </div>
@@ -15,7 +15,7 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
 
         <?php if (!empty($success_message)): ?>
             <div class="px-4 mt-4">
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 md:py-4 rounded-xl relative text-sm md:text-base font-medium shadow-sm"><?= htmlspecialchars($success_message) ?></div>
+                <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 md:py-4 rounded-2xl relative text-sm md:text-base font-medium shadow-soft flex items-center gap-2"><i class="fas fa-circle-check"></i><span><?= htmlspecialchars($success_message) ?></span></div>
             </div>
             <audio id="cancelSuccessSound" src="assets/sounds/notification.mp3" autoplay></audio>
             <script>
@@ -31,32 +31,32 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
         
         <?php if (!empty($error_message)): ?>
             <div class="px-4 mt-4">
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 md:py-4 rounded-xl relative text-sm md:text-base font-medium shadow-sm"><?= htmlspecialchars($error_message) ?></div>
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 md:py-4 rounded-2xl relative text-sm md:text-base font-medium shadow-soft flex items-center gap-2"><i class="fas fa-circle-exclamation"></i><span><?= htmlspecialchars($error_message) ?></span></div>
             </div>
         <?php endif; ?>
 
         <div class="px-4 mt-4">
-            <div class="bg-white rounded-2xl shadow-md p-4 md:p-6 border-t-4 hover:shadow-lg transition-shadow <?= $daily_profit >= 0 ? 'border-green-500' : 'border-red-500' ?>">
-                <h3 class="font-bold text-gray-700 mb-4 md:mb-5 border-b pb-3 text-sm md:text-base flex items-center">
+            <div class="bg-white rounded-3xl shadow-card p-4 md:p-6 border-t-4 card-hover <?= $daily_profit >= 0 ? 'border-green-500' : 'border-red-500' ?>">
+                <h3 class="font-bold text-gray-700 mb-4 md:mb-5 border-b border-gray-100 pb-3 text-sm md:text-base flex items-center">
                     <i class="fas fa-chart-pie mr-2 md:mr-3 text-lg <?= $daily_profit >= 0 ? 'text-green-500' : 'text-red-500' ?>"></i> 
                     <?= ($summary_date == date('Y-m-d') ? __('today') : date('d-M-Y', strtotime($summary_date))) . __('daily_summary_suffix') ?>
                 </h3>
-                <div class="grid grid-cols-3 gap-4 md:gap-8 text-center mb-5 md:mb-6">
-                    <div class="bg-blue-50/50 p-2 md:p-4 rounded-xl">
+                <div class="grid grid-cols-3 gap-3 md:gap-6 text-center mb-5 md:mb-6">
+                    <div class="bg-blue-50/60 p-2 md:p-4 rounded-2xl border border-blue-100/60">
                         <p class="text-xs md:text-sm text-gray-500 font-medium">ထိုးကွက်</p>
                         <p class="font-bold text-blue-600 text-lg md:text-2xl mt-1"><?= number_format($daily_total_tickets) ?></p>
                     </div>
-                    <div class="bg-green-50/50 p-2 md:p-4 rounded-xl">
+                    <div class="bg-green-50/60 p-2 md:p-4 rounded-2xl border border-green-100/60">
                         <p class="text-xs md:text-sm text-gray-500 font-medium">ပေါက်ကွက်</p>
                         <p class="font-bold text-green-600 text-lg md:text-2xl mt-1"><?= number_format($daily_win_tickets) ?></p>
                     </div>
-                    <div class="bg-red-50/50 p-2 md:p-4 rounded-xl">
+                    <div class="bg-red-50/60 p-2 md:p-4 rounded-2xl border border-red-100/60">
                         <p class="text-xs md:text-sm text-gray-500 font-medium">ရှုံးကွက်</p>
                         <p class="font-bold text-red-500 text-lg md:text-2xl mt-1"><?= number_format($daily_lose_tickets) ?></p>
                     </div>
                 </div>
                 
-                <div class="bg-gray-50 p-3 md:p-5 rounded-xl border border-gray-200 space-y-2 md:space-y-3 shadow-inner">
+                <div class="bg-gray-50 p-3 md:p-5 rounded-2xl border border-gray-200 space-y-2 md:space-y-3 shadow-inner">
                     <div class="flex justify-between items-center">
                         <span class="text-sm md:text-base text-gray-500 font-medium"><?= __('total_bet_amount') ?></span>
                         <span class="text-sm md:text-base font-bold text-red-500">- <?= number_format($daily_bet) ?> <?= __('currency') ?></span>
@@ -72,7 +72,7 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
                         </span>
                     </div>
                     <div class="mt-4 md:mt-5 text-center border-t border-gray-100 pt-4 md:pt-5">
-                        <a href="export_history.php?date=<?= htmlspecialchars($summary_date) ?>" class="inline-block bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300 text-xs md:text-sm font-bold py-2 md:py-2.5 px-4 md:px-6 rounded-lg shadow-sm transition-all duration-300 hover:-translate-y-0.5">
+                        <a href="export_history.php?date=<?= htmlspecialchars($summary_date) ?>" class="inline-block bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:border-gray-300 text-xs md:text-sm font-bold py-2 md:py-2.5 px-4 md:px-6 rounded-xl shadow-soft transition-all duration-300 hover:-translate-y-0.5">
                             <i class="fas fa-file-excel mr-1.5 text-green-600"></i> <?= __('download_daily_history') ?>
                         </a>
                     </div>
@@ -81,26 +81,26 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
         </div>
 
         <div class="px-4 mt-4">
-            <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100">
+            <div class="bg-white p-4 md:p-5 rounded-2xl shadow-card border border-gray-100">
                 <form method="GET" action="" class="flex flex-col md:flex-row gap-3 md:gap-4 items-end">
                     <input type="hidden" name="filter" value="<?= htmlspecialchars($filter) ?>">
                     
                     <div class="flex gap-2 w-full md:w-2/3">
                         <div class="w-1/2">
                             <label class="block text-xs font-bold text-gray-500 mb-1 ml-1"><?= __('search_number_placeholder') ?></label>
-                            <input type="text" name="search_number" value="<?= htmlspecialchars($search_number) ?>" placeholder="ဥပမာ - 99" maxlength="3" class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                            <input type="text" name="search_number" value="<?= htmlspecialchars($search_number) ?>" placeholder="ဥပမာ - 99" maxlength="3" class="w-full px-4 py-2.5 md:py-3 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-all">
                         </div>
                         <div class="w-1/2">
                             <label class="block text-xs font-bold text-gray-500 mb-1 ml-1">ရက်စွဲ</label>
-                            <input type="date" name="search_date" value="<?= htmlspecialchars($search_date) ?>" class="w-full px-3 py-2.5 md:py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-gray-700">
+                            <input type="date" name="search_date" value="<?= htmlspecialchars($search_date) ?>" class="w-full px-4 py-2.5 md:py-3 border border-gray-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition-all text-gray-700">
                         </div>
                     </div>
 
                     <div class="flex gap-2 w-full md:w-1/3">
-                        <button type="submit" class="w-2/3 bg-primary text-white rounded-xl text-sm md:text-base py-2.5 md:py-3 font-bold shadow-md hover:bg-blue-800 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+                        <button type="submit" class="w-2/3 bg-brand-gradient text-white rounded-2xl text-sm md:text-base py-2.5 md:py-3 font-bold shadow-card hover:shadow-premium hover:-translate-y-0.5 transition-all duration-300">
                             <i class="fas fa-search mr-1.5"></i> <?= __('search') ?>
                         </button>
-                        <a href="bet_history.php" class="w-1/3 bg-gray-200 text-gray-700 rounded-xl text-sm md:text-base py-2.5 md:py-3 font-bold shadow-sm hover:bg-gray-300 transition-colors text-center flex justify-center items-center">
+                        <a href="bet_history.php" class="w-1/3 bg-gray-200 text-gray-700 rounded-2xl text-sm md:text-base py-2.5 md:py-3 font-bold shadow-soft hover:bg-gray-300 transition-colors text-center flex justify-center items-center">
                             <i class="fas fa-sync-alt md:hidden"></i><span class="hidden md:inline"><?= __('clear_filter') ?></span>
                         </a>
                     </div>
@@ -115,7 +115,7 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
         ?>
 
         <div class="px-4 mt-4">
-            <div class="bg-white flex justify-around text-sm md:text-base font-bold text-gray-500 shadow-sm rounded-xl overflow-hidden border border-gray-100">
+            <div class="bg-white flex justify-around text-sm md:text-base font-bold text-gray-500 shadow-card rounded-2xl overflow-hidden border border-gray-100">
                 <a href="?filter=all<?= $search_params ?>" class="py-3 md:py-4 w-1/4 text-center transition-colors <?= $filter == 'all' ? 'text-primary border-b-2 border-primary bg-blue-50/50' : 'hover:bg-gray-50 hover:text-primary' ?>"><?= __('all') ?></a>
                 <a href="?filter=win<?= $search_params ?>" class="py-3 md:py-4 w-1/4 text-center transition-colors <?= $filter == 'win' ? 'text-green-600 border-b-2 border-green-600 bg-green-50/50' : 'hover:bg-gray-50 hover:text-green-600' ?>"><?= __('winning_numbers') ?></a>
                 <a href="?filter=pending<?= $search_params ?>" class="py-3 md:py-4 w-1/4 text-center transition-colors <?= $filter == 'pending' ? 'text-yellow-600 border-b-2 border-yellow-600 bg-yellow-50/50' : 'hover:bg-gray-50 hover:text-yellow-600' ?>"><?= __('pending_bets') ?></a>
@@ -125,20 +125,20 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
 
         <div class="p-4">
             <?php if (count($bets) > 0): ?>
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden md:bg-transparent md:border-none md:shadow-none md:space-y-3">
+                <div class="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden md:bg-transparent md:border-none md:shadow-none md:space-y-3">
                     <?php foreach ($bets as $bet): ?>
                         <?php 
                             $voucher_id = strtoupper(substr($bet['voucher_id_hash'], 0, 8)); 
                         ?>
-                        <div id="voucher_<?= $voucher_id ?>" class="border-b border-gray-100 last:border-b-0 p-4 md:p-5 flex justify-between items-center hover:bg-gray-50 bg-white md:rounded-xl md:border md:shadow-sm transition-all duration-200">
+                        <div id="voucher_<?= $voucher_id ?>" class="border-b border-gray-100 last:border-b-0 p-4 md:p-5 flex justify-between items-center hover:bg-gray-50 bg-white md:rounded-2xl md:border md:shadow-card md:card-hover transition-all duration-200">
                             <div class="flex-1 pr-3">
                                 <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-                                    <span class="bg-gray-200 text-gray-700 text-[10px] md:text-xs px-2 md:px-2.5 py-0.5 md:py-1 rounded-md font-mono font-bold tracking-wider">#<?= $voucher_id ?></span>
+                                    <span class="bg-gray-100 text-gray-700 text-[10px] md:text-xs px-2 md:px-2.5 py-0.5 md:py-1 rounded-lg font-mono font-bold tracking-wider">#<?= $voucher_id ?></span>
                                     <p class="text-xs md:text-sm text-gray-500 font-medium"><i class="far fa-clock mr-1"></i> <?= date('d-M-Y h:i A', strtotime($bet['created_at'])) ?></p>
                                     
-                                    <div class="flex items-center ml-1 md:ml-2 border-l border-gray-300 pl-2">
-                                        <button onclick="showVoucherDetails('<?= $voucher_id ?>', '<?= $bet['created_at'] ?>')" class="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-1.5 rounded-md transition-colors" title="<?= __('view_details') ?>"><i class="fas fa-eye text-sm md:text-base"></i></button>
-                                        <button onclick="downloadVoucher('<?= $voucher_id ?>')" class="text-gray-400 hover:text-blue-700 hover:bg-blue-50 p-1.5 rounded-md transition-colors ml-1 download-btn" title="<?= __('download_voucher') ?>"><i class="fas fa-download text-sm md:text-base"></i></button>
+                                    <div class="flex items-center ml-1 md:ml-2 border-l border-gray-200 pl-2">
+                                        <button onclick="showVoucherDetails('<?= $voucher_id ?>', '<?= $bet['created_at'] ?>')" class="text-primary hover:text-primary-800 hover:bg-blue-50 p-1.5 rounded-lg transition-colors" title="<?= __('view_details') ?>"><i class="fas fa-eye text-sm md:text-base"></i></button>
+                                        <button onclick="downloadVoucher('<?= $voucher_id ?>')" class="text-gray-400 hover:text-primary-800 hover:bg-blue-50 p-1.5 rounded-lg transition-colors ml-1 download-btn" title="<?= __('download_voucher') ?>"><i class="fas fa-download text-sm md:text-base"></i></button>
                                     </div>
                                 </div>
                                 <p class="font-bold text-lg md:text-xl text-gray-800">
@@ -153,11 +153,11 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
                                 <p class="font-bold text-red-600 text-base md:text-xl mb-2"><?= number_format($bet['total_amount']) ?> <span class="text-xs md:text-sm font-normal"><?= __('currency') ?></span></p>
                                 
                                 <?php if ($bet['win_count'] > 0): ?>
-                                    <span class="bg-green-100 text-green-700 text-[10px] md:text-xs px-2.5 md:px-3 py-1 md:py-1.5 rounded-md border border-green-300 font-bold tracking-wide shadow-sm"><?= __('status_win') ?></span>
+                                    <span class="inline-flex items-center gap-1 bg-green-100 text-green-700 text-[10px] md:text-xs px-2.5 md:px-3 py-1 md:py-1.5 rounded-full border border-green-300 font-bold tracking-wide shadow-soft"><i class="fas fa-trophy"></i> <?= __('status_win') ?></span>
                                 <?php elseif ($bet['pending_count'] > 0): ?>
-                                    <span class="bg-yellow-100 text-yellow-700 text-[10px] md:text-xs px-2.5 md:px-3 py-1 md:py-1.5 rounded-md border border-yellow-300 font-bold tracking-wide shadow-sm"><?= __('status_pending') ?></span>
+                                    <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-[10px] md:text-xs px-2.5 md:px-3 py-1 md:py-1.5 rounded-full border border-yellow-300 font-bold tracking-wide shadow-soft"><i class="fas fa-hourglass-half"></i> <?= __('status_pending') ?></span>
                                 <?php else: ?>
-                                    <span class="bg-red-100 text-red-700 text-[10px] md:text-xs px-2.5 md:px-3 py-1 md:py-1.5 rounded-md border border-red-300 font-bold tracking-wide shadow-sm"><?= __('status_lose') ?></span>
+                                    <span class="inline-flex items-center gap-1 bg-red-100 text-red-700 text-[10px] md:text-xs px-2.5 md:px-3 py-1 md:py-1.5 rounded-full border border-red-300 font-bold tracking-wide shadow-soft"><i class="fas fa-circle-xmark"></i> <?= __('status_lose') ?></span>
                                 <?php endif; ?>
                                 
                                 <?php 
@@ -166,7 +166,7 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
                                         <input type="hidden" name="action" value="cancel_bet">
                                         <input type="hidden" name="voucher_id" value="<?= $voucher_id ?>">
                                         <input type="hidden" name="created_at" value="<?= $bet['created_at'] ?>">
-                                        <button type="submit" class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white border border-red-200 hover:border-red-500 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-md shadow-sm transition-all duration-300">
+                                        <button type="submit" class="bg-red-50 text-red-600 hover:bg-red-500 hover:text-white border border-red-200 hover:border-red-500 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-xl shadow-soft transition-all duration-300">
                                             <i class="fas fa-undo mr-1"></i> <?= __('btn_cancel_bet') ?>
                                         </button>
                                     </form>
@@ -176,13 +176,13 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <div class="bg-white rounded-2xl shadow-md p-10 md:p-16 text-center mt-4 border border-gray-100">
-                    <div class="text-gray-200 mb-5 animate-pulse">
-                        <i class="fas fa-receipt text-7xl md:text-8xl"></i>
+                <div class="bg-white rounded-3xl shadow-card p-10 md:p-16 text-center mt-4 border border-gray-100">
+                    <div class="w-24 h-24 md:w-28 md:h-28 mx-auto mb-6 rounded-3xl bg-blue-50 text-primary flex items-center justify-center shadow-soft">
+                        <i class="fas fa-receipt text-5xl md:text-6xl"></i>
                     </div>
                     <p class="text-gray-500 font-bold text-sm md:text-lg mb-6"><?= __('no_records_found') ?></p>
-                    <a href="2d_bet.php" class="inline-block bg-primary text-white px-8 md:px-10 py-3 md:py-3.5 rounded-xl text-sm md:text-base font-bold shadow-md hover:bg-blue-800 hover:shadow-lg transition-all hover:-translate-y-0.5">
-                        <i class="fas fa-play-circle mr-2"></i> <?= __('go_to_2d_bet') ?>
+                    <a href="2d_bet.php" class="inline-flex items-center justify-center gap-2 bg-brand-gradient text-white px-8 md:px-10 py-3 md:py-3.5 rounded-2xl text-sm md:text-base font-bold shadow-card hover:shadow-premium transition-all hover:-translate-y-0.5">
+                        <i class="fas fa-play-circle"></i> <?= __('go_to_2d_bet') ?>
                     </a>
                 </div>
             <?php endif; ?>
@@ -190,13 +190,13 @@ $cancel_limit_minutes = $cancel_limit_seconds / 60;
             <?php if ($total_pages > 1): ?>
                 <div class="flex justify-center items-center mt-8 md:mt-10 mb-4 space-x-2 md:space-x-3">
                     <?php if ($page > 1): ?>
-                        <a href="?page=<?= $page - 1 ?>&filter=<?= htmlspecialchars($filter) ?><?= $search_params ?>" class="px-4 md:px-5 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg md:rounded-xl text-gray-600 hover:bg-gray-50 hover:text-primary hover:border-primary shadow-sm transition-all"><i class="fas fa-chevron-left text-xs md:text-sm"></i></a>
+                        <a href="?page=<?= $page - 1 ?>&filter=<?= htmlspecialchars($filter) ?><?= $search_params ?>" class="px-4 md:px-5 py-2 md:py-2.5 bg-white border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-primary hover:border-primary shadow-soft transition-all"><i class="fas fa-chevron-left text-xs md:text-sm"></i></a>
                     <?php endif; ?>
                     
-                    <span class="px-4 md:px-6 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg md:rounded-xl text-sm md:text-base font-bold text-gray-700 shadow-sm"><?= __('page') ?> <?= $page ?> / <?= $total_pages ?></span>
+                    <span class="px-4 md:px-6 py-2 md:py-2.5 bg-white border border-gray-200 rounded-xl text-sm md:text-base font-bold text-gray-700 shadow-soft"><?= __('page') ?> <?= $page ?> / <?= $total_pages ?></span>
                     
                     <?php if ($page < $total_pages): ?>
-                        <a href="?page=<?= $page + 1 ?>&filter=<?= htmlspecialchars($filter) ?><?= $search_params ?>" class="px-4 md:px-5 py-2 md:py-2.5 bg-white border border-gray-300 rounded-lg md:rounded-xl text-gray-600 hover:bg-gray-50 hover:text-primary hover:border-primary shadow-sm transition-all"><i class="fas fa-chevron-right text-xs md:text-sm"></i></a>
+                        <a href="?page=<?= $page + 1 ?>&filter=<?= htmlspecialchars($filter) ?><?= $search_params ?>" class="px-4 md:px-5 py-2 md:py-2.5 bg-white border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-primary hover:border-primary shadow-soft transition-all"><i class="fas fa-chevron-right text-xs md:text-sm"></i></a>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>

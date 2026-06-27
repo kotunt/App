@@ -1,3 +1,1 @@
-- [Thai 2D3D Platform Setup](thai2d3d-setup.md) — MySQL 8.0 + PHP 8.2 built-in server on port 5000; start.sh manages MySQL init and PHP startup
-- [Translation Global Scope Fix](translation-scope.md) — lang/language.php must declare `global $translations` before setting it to fix translations inside class methods
-- [Auth Helper Aliases](auth-helper.md) — require_admin() alias added to core/auth_helper.php, included via bootstrap.php
+- [Admin header architecture](admin-header-architecture.md) — admin_header.php is a navbar FRAGMENT, not a full head; do NOT add doctype/head/body to it.

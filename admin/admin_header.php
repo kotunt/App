@@ -124,20 +124,23 @@ $pending_counts = get_all_pending_counts($conn); // This variable will be availa
     }
 </style>
 
-<div class="bg-gradient-to-r from-[#1a428a] to-blue-800 text-white px-2 py-3 sm:p-4 sticky top-0 z-40 shadow-lg flex justify-between items-center gap-2">
-    <h1 class="text-base md:text-xl font-bold flex-shrink-0 truncate"><i class="<?= htmlspecialchars($header_icon) ?> mr-2"></i> <?= htmlspecialchars($header_title) ?></h1>
-    <div class="flex items-center gap-2 sm:gap-4">
-        <button id="themeToggleBtn" class="text-gray-300 hover:text-white transition" title="<?= __('admin_dark_mode_toggle') ?>">
-            <i class="fas fa-moon text-lg"></i>
+<div class="bg-brand-gradient text-white px-3 py-3 sm:p-4 sticky top-0 z-40 shadow-card flex justify-between items-center gap-2 border-b-2 border-gold-500/60">
+    <h1 class="text-base md:text-xl font-extrabold flex-shrink-0 truncate flex items-center gap-2.5">
+        <span class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm"><i class="<?= htmlspecialchars($header_icon) ?> text-gold-400"></i></span>
+        <?= htmlspecialchars($header_title) ?>
+    </h1>
+    <div class="flex items-center gap-1.5 sm:gap-3">
+        <button id="themeToggleBtn" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-gray-100 hover:text-white transition flex items-center justify-center" title="<?= __('admin_dark_mode_toggle') ?>">
+            <i class="fas fa-moon"></i>
         </button>
-        <button id="soundToggleBtn" class="text-gray-300 hover:text-white transition" title="<?= __('admin_sound_alert_toggle') ?>">
-            <i class="fas fa-bell text-lg"></i>
+        <button id="soundToggleBtn" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-gray-100 hover:text-white transition flex items-center justify-center" title="<?= __('admin_sound_alert_toggle') ?>">
+            <i class="fas fa-bell"></i>
         </button>
-        <a href="index.php" class="bg-white/10 hover:bg-white/20 px-3 py-2 sm:px-4 rounded-lg text-sm font-bold backdrop-blur-sm border border-white/20 transition-all shadow-sm flex items-center gap-1.5"><i class="fas fa-home"></i> <span class="hidden sm:inline"><?= __('admin_home') ?></span></a>
+        <a href="index.php" class="bg-white/10 hover:bg-white/20 px-3 py-2 sm:px-4 rounded-xl text-sm font-bold backdrop-blur-sm border border-white/20 transition-all shadow-sm flex items-center gap-1.5 hover:-translate-y-0.5"><i class="fas fa-home"></i> <span class="hidden sm:inline"><?= __('admin_home') ?></span></a>
     </div>
 </div>
 
-<div class="bg-white shadow-md border-b border-gray-100 px-2 py-2 sm:px-4 sm:py-3 flex flex-wrap gap-2 sm:gap-3 items-center justify-center sm:justify-start mb-6 text-sm font-bold relative z-30">
+<div class="bg-white/95 backdrop-blur shadow-soft border-b border-gray-100 px-2 py-2.5 sm:px-4 sm:py-3 flex flex-wrap gap-2 sm:gap-3 items-center justify-center sm:justify-start mb-6 text-sm font-bold relative z-30 sticky top-[60px]">
     <a href="admin_dashboard.php" class="bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-blue-600 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-gray-200 hover:border-blue-300 transition-all shadow-sm whitespace-nowrap"><i class="fas fa-tachometer-alt mr-1 text-blue-500"></i> <?= __('admin_dashboard') ?></a>
     <a href="admin_declare_result.php" class="bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl border border-red-200 hover:border-red-300 transition-all shadow-sm whitespace-nowrap"><i class="fas fa-bullhorn mr-1 text-red-500"></i> <?= __('admin_declare_result') ?></a>
 
