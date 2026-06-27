@@ -23,6 +23,7 @@ services:
       - ./logs:/var/www/html/logs
       - ./backups:/var/www/html/backups
     depends_on:
+      - redis
       - db
     env_file:
       - .env
@@ -39,6 +40,7 @@ services:
       - ./docker/cron/entrypoint.sh:/entrypoint.sh
     entrypoint: ["/bin/sh", "/entrypoint.sh"]
     depends_on:
+      - redis
       - db
     env_file:
       - .env

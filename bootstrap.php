@@ -1,5 +1,7 @@
 <?php
 
+use App\Core\Session;
+
 // 1. Set Default Timezone
 date_default_timezone_set('Asia/Yangon');
 
@@ -39,9 +41,7 @@ set_exception_handler(function($e) {
 });
 
 // 6. Start Session
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+Session::start();
 
 // 7. Load Language Helper
 require_once __DIR__ . '/lang/language.php';
