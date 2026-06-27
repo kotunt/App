@@ -22,6 +22,21 @@ if [ ! -d "$MYSQL_DATA_DIR/mysql" ]; then
     echo "[start.sh] MySQL initialized."
 fi
 
+# Shut down any MySQL instance still holding the data directory lock from a
+# previous run (otherwise the new mysqld fails with "Unable to lock ./ibdata1").
+if pgrep -f "mysqld .*--datadir=$MYSQL_DATA_DIR" >/dev/null 2>&1; then
+    echo "[start.sh] Existing MySQL process found, shutting it down..."
+    mysqladmin -u root -S "$MYSQL_SOCKET" shutdown >/dev/null 2>&1 \
+        || mysqladmin -u root -p"$DB_PASS" -S "$MYSQL_SOCKET" shutdown >/dev/null 2>&1 \
+        || pkill -f "mysqld .*--datadir=$MYSQL_DATA_DIR" || true
+    for i in $(seq 1 15); do
+        pgrep -f "mysqld .*--datadir=$MYSQL_DATA_DIR" >/dev/null 2>&1 || break
+        sleep 1
+    done
+    # Force kill if still alive
+    pkill -9 -f "mysqld .*--datadir=$MYSQL_DATA_DIR" >/dev/null 2>&1 || true
+fi
+
 # Clean up stale socket/pid files
 rm -f "$MYSQL_SOCKET" "$MYSQL_SOCKET.lock" "$MYSQL_RUN_DIR/mysql.pid"
 
