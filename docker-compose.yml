@@ -16,7 +16,9 @@ services:
   # PHP-FPM Service (Executes PHP code)
   php:
     container_name: thai2d3d-php
-    image: ghcr.io/${COMPOSE_PROJECT_NAME:-gemini/app}/thai2d3d-php:${IMAGE_TAG:-latest}
+    # Build from the local Dockerfile instead of pulling a pre-built image
+    build: .
+    # image: ghcr.io/${COMPOSE_PROJECT_NAME:-gemini/app}/thai2d3d-php:${IMAGE_TAG:-latest}
     volumes:
       # Mount volumes for user-generated content that needs to be persisted
       - ./uploads:/var/www/html/uploads

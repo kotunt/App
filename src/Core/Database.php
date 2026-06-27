@@ -14,17 +14,17 @@ class Database
     {
         try {
             // Suppress errors to handle them manually
-            mysqli_report(MYSQLI_REPORT_OFF);
+            \mysqli_report(MYSQLI_REPORT_OFF);
             
-            $this->conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+            $this->conn = new \mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
             
             if ($this->conn->connect_error) {
-                throw new mysqli_sql_exception($this->conn->connect_error, $this->conn->connect_errno);
+                throw new \mysqli_sql_exception($this->conn->connect_error, $this->conn->connect_errno);
             }
             
             $this->conn->set_charset("utf8mb4");
             
-        } catch (mysqli_sql_exception $e) {
+        } catch (\mysqli_sql_exception $e) {
             // In a real app, you'd want to log this error and show a generic error page.
             error_log("Database connection failed: " . $e->getMessage());
             if (getenv('APP_ENV') !== 'production') {
