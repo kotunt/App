@@ -1,9 +1,0 @@
-# Use the base image built from the main Dockerfile
-ARG BASE_IMAGE=thai2d3d-php:latest
-FROM ${BASE_IMAGE}
-
-# Install development-specific dependencies
-RUN apk add --no-cache $PHPIZE_DEPS \
-    && pecl install xdebug \
-    && docker-php-ext-enable xdebug \
-    && apk del $PHPIZE_DEPS

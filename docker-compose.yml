@@ -33,7 +33,10 @@ services:
   # Cron Service (For running scheduled tasks)
   cron:
     container_name: thai2d3d-cron
-    image: ghcr.io/${COMPOSE_PROJECT_NAME:-gemini/app}/thai2d3d-php:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base
     restart: always
     volumes:
       # Mount the same code and log volumes as the php service
