@@ -89,7 +89,7 @@ Phone: `{$phone}`");
 
         if ($user = $result->fetch_assoc()) {
             if (password_verify($password, $user['password'])) {
-                $this->handleSuccessfulPasswordVerification($user, $ip_address);
+                $this->handleSuccessfulPasswordVerification($user, $ip_address, $phone);
             } else {
                 $this->error_message = __('incorrect_password');
                 record_failed_login($this->db, $ip_address, $phone);
@@ -101,7 +101,7 @@ Phone: `{$phone}`");
         $stmt->close();
     }
 
-    private function handleSuccessfulPasswordVerification($user, $ip_address) {
+    private function handleSuccessfulPasswordVerification($user, $ip_address, $phone) {
         if (isset($user['verification_status']) && $user['verification_status'] === 'pending') {
             $this->error_message = __('account_pending_verification');
             return;
@@ -123,11 +123,11 @@ Phone: `{$phone}`");
             return;
         }
         
-        clear_failed_logins($this->db, $ip_address, $user['phone_number'] ?? ''); // Assuming phone is available
+        clear_failed_logins($this->db, $ip_address, $phone);
         $this->updateLastLoginIp($user, $ip_address);
 
         if (!empty($user['google2fa_secret'])) {
-            $this->setup2FASession($user);
+            $this->setup2FASession($user, $phone);
             header("Location: verify_2fa.php");
             exit();
         } else {
@@ -154,10 +154,10 @@ Old IP: `{$user['last_login_ip']}`");
         }
     }
 
-    private function setup2FASession($user) {
+    private function setup2FASession($user, $phone) {
         $_SESSION['temp_2fa_user_id'] = $user['id'];
         $_SESSION['temp_2fa_username'] = $user['username'];
-        $_SESSION['temp_2fa_phone'] = $_POST['phone'] ?? ''; // Assuming phone is from POST
+        $_SESSION['temp_2fa_phone'] = $phone;
         $_SESSION['temp_2fa_role'] = $user['role'];
     }
 

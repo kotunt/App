@@ -666,6 +666,17 @@ if ($conn->query($sql_create_pin_attempts) === TRUE) {
     echo "<p class='success'>Table 'pin_attempts' ကို အောင်မြင်စွာ ဖန်တီးပြီးပါပြီ။</p>";
 }
 
+// ၂၂။ Registration Attempts Table တည်ဆောက်ခြင်း
+$sql_create_reg_attempts = "CREATE TABLE IF NOT EXISTS registration_attempts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ip_address VARCHAR(45) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX(ip_address)
+)";
+if ($conn->query($sql_create_reg_attempts) === TRUE) {
+    echo "<p class='success'>Table 'registration_attempts' ကို အောင်မြင်စွာ ဖန်တီးပြီးပါပြီ။</p>";
+}
+
     // လိုအပ်သော Folders များ တည်ဆောက်ခြင်း
     $dirs = ['uploads/avatars', 'uploads/slips', 'uploads/payments', 'uploads/notifications', 'uploads/support', 'uploads/banners', 'logs', 'backups'];
     foreach ($dirs as $dir) {
