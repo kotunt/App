@@ -1,13 +1,10 @@
 <?php
 
 // 1. Bootstrap the application
-require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/bootstrap.php'; // This handles DB connection, sessions, etc.
 
-// 2. Load Controller, View, etc.
-// The $conn variable is now available from bootstrap.php
+// 2. Instantiate and run the appropriate controller
 require_once __DIR__ . '/src/controllers/HomeController.php';
-$page_title = __('home_page_title');
-require_once __DIR__ . '/includes/header.php';
-require_once __DIR__ . '/src/views/home_view.php';
-require_once __DIR__ . '/includes/footer.php';
-?>
+
+$controller = new HomeController();
+$controller->show(); // Assuming a 'show' method exists in HomeController to render the page
