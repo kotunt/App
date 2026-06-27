@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\Database;
 use App\Core\Session;
 use App\Core\Database;
 
