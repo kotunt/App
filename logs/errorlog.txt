@@ -4,3 +4,6 @@
 [2026-06-27 11:52:15] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
 [2026-06-27 11:52:20] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
 [2026-06-27 11:52:28] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
+[2026-06-27 12:02:19] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
+[2026-06-27 12:03:14] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
+[2026-06-27 12:05:27] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21

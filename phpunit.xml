@@ -7,10 +7,25 @@
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests/Unit</directory>
         </testsuite>
+        <testsuite name="Integration">
+            <directory suffix="Test.php">./tests/Integration</directory>
+        </testsuite>
     </testsuites>
     <coverage processUncoveredFiles="true">
         <include>
             <directory suffix=".php">./src</directory>
         </include>
+        <report>
+            <clover outputFile="build/logs/clover.xml"/>
+            <html outputDirectory="build/coverage"/>
+            <text outputFile="php://stdout" showUncoveredFiles="true" showOnlySummary="true"/>
+        </report>
     </coverage>
+    <php>
+        <!-- Force the test environment to use an in-memory SQLite database -->
+        <!-- This ensures tests are fast and don't affect the development database -->
+        <env name="DB_DRIVER" value="sqlite"/>
+        <env name="DB_PATH" value=":memory:"/>
+        <env name="APP_ENV" value="testing"/>
+    </php>
 </phpunit>

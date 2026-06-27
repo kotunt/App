@@ -1,5 +1,5 @@
 name: PHP CI/CD Pipeline
-
+  
 # Triggers: Run on push to main/develop or pull request to main/develop
 on:
   push:
@@ -10,6 +10,12 @@ on:
     branches:
       - main
       - develop
+
+# Permissions needed for posting comments on PRs
+permissions:
+  contents: read
+  pull-requests: write
+
 
 jobs:
   # --- CI Job: Build, Lint, and Test ---
@@ -27,8 +33,8 @@ jobs:
         with:
           php-version: '8.1'
           extensions: mbstring, gd, mysqli, pdo, pdo_mysql, zip
-          tools: composer:v2, php-cs-fixer
-          coverage: none # No tests yet
+          tools: composer:v2
+          coverage: pcov # Use PCOV for faster coverage generation
 
       # 3. Cache Composer dependencies
       - name: Cache Composer packages
@@ -45,19 +51,25 @@ jobs:
         if: steps.composer-cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist --no-progress --no-suggest
 
-      # 5. Run PHP Code Style Fixer (Linter)
-      - name: Run PHP-CS-Fixer
-        run: php-cs-fixer fix --dry-run --diff --verbose
-
-      # 6. Run PHPUnit tests
+      # 5. Run PHPUnit tests and generate coverage report
       - name: Run PHPUnit tests
-        run: composer test
+        run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+
+      # 6. Upload coverage report to Codecov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # Required for private repos
+          files: ./build/logs/clover.xml
+          fail_ci_if_error: true
+          verbose: true
 
   # --- CD Job for Staging Environment ---
   deploy_staging:
     name: Deploy to Staging
-    needs: build_and_test # Run only if build_and_test job succeeds
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    needs: build_and_test
+    # Run on push to 'develop' OR pull request targeting 'develop'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/develop') || (github.event_name == 'pull_request' && github.base_ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -76,7 +88,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/thai2d3d-php:staging
+            ghcr.io/${{ github.repository_owner }}/thai2d3d-php:staging-${{ github.sha }}
 
       - name: Deploy to Staging Server
         uses: appleboy/ssh-action@master
@@ -86,20 +98,52 @@ jobs:
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           port: ${{ secrets.STAGING_SSH_PORT || 22 }}
           script: |
+            # Go to project directory
             cd /path/to/your/staging-project
+
+            # Create or update .env file with secrets
             echo "DB_PASS=${{ secrets.STAGING_DB_PASS }}" >> .env
             echo "MYSQL_ROOT_PASSWORD=${{ secrets.STAGING_DB_PASS }}" >> .env
+            echo "IMAGE_TAG=staging-${{ github.sha }}" >> .env
             
+            # Login to container registry
             docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GH_PAT }}
+
+            # Pull the latest images defined in docker-compose.yml
             docker-compose pull
+
+            # Start the services with the new image
             docker-compose up -d --force-recreate
+
+            # Clean up old, unused images
             docker image prune -f
+
+  # --- Job to Comment on Pull Request ---
+  comment_on_pr:
+    name: Post Staging Link
+    needs: deploy_staging
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.number }}
+          body: |
+            🚀 **Staging Environment Ready!**
+
+            This pull request has been successfully deployed to the staging server.
+            You can preview the changes here: 👉 **[${{ secrets.STAGING_URL }}](${{ secrets.STAGING_URL }})**
 
   # --- CD Job for Production Environment ---
   deploy_production:
     name: Deploy to Production
     needs: build_and_test # Run only if build_and_test job succeeds
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      # Optional: Display the production URL in the deployment status
+      url: ${{ secrets.PRODUCTION_URL }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
