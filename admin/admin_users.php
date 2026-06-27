@@ -281,46 +281,68 @@ require_once __DIR__ . '/../includes/header.php';
                                     </form>
                                 </td>
                             <td class="px-5 py-3 whitespace-nowrap text-center">
-                                <a href="admin_user_history.php?user_id=<?= $u['id'] ?>" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition inline-block"><i class="fas fa-list mr-1"></i> <?= __('admin_users_action_history') ?></a>
-                                <a href="admin_user_commissions.php?user_id=<?= $u['id'] ?>" class="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition inline-block mb-1"><i class="fas fa-hand-holding-usd mr-1"></i> <?= __('admin_users_action_comm') ?></a>
-                                <a href="admin_user_referrals.php?user_id=<?= $u['id'] ?>" class="bg-orange-100 text-orange-700 hover:bg-orange-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition inline-block mb-1"><i class="fas fa-users mr-1"></i> <?= __('admin_users_action_ref') ?></a>
-                                <?php if($u['id'] != 1): ?>
-                                    <?php if(check_permission('can_manage_transactions')): ?>
-                                        <a href="admin_deposit.php?user_id=<?= $u['id'] ?>" class="bg-pink-100 text-pink-700 hover:bg-pink-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition inline-block mb-1"><i class="fas fa-donate mr-1"></i> <?= __('admin_users_action_transfer') ?></a>
-                                    <?php endif; ?>
-                                    <a href="admin_notifications.php?user_id=<?= $u['id'] ?>" class="bg-yellow-100 text-yellow-700 hover:bg-yellow-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition inline-block"><i class="fas fa-envelope mr-1"></i> <?= __('admin_users_action_noti') ?></a>
-                                    <a href="admin_send_message.php?user_id=<?= $u['id'] ?>" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition inline-block mb-1"><i class="fas fa-comment-dots mr-1"></i> <?= __('admin_users_action_msg') ?></a>
-                                    <form method="POST" action="" class="inline-block mb-1" onsubmit="return confirm('<?= sprintf(__('admin_users_confirm_login_as'), htmlspecialchars($u['username'])) ?>');">
-                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
-                                        <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
-                                        <button type="submit" name="login_as_user" class="bg-purple-100 text-purple-700 hover:bg-purple-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition" title="<?= __('admin_users_btn_login_as') ?>"><i class="fas fa-sign-in-alt mr-1"></i> <?= __('admin_users_btn_login_as') ?></button>
-                                    </form>
-                                    <form method="POST" action="" class="inline-block">
-                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
-                                        <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
-                                        <input type="hidden" name="current_status" value="<?= $u['is_banned'] ? 1 : 0 ?>">
-                                        <?php if($u['is_banned']): ?>
-                                            <button type="submit" name="toggle_ban" class="bg-green-100 text-green-700 hover:bg-green-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition" onclick="return confirm('<?= __('admin_users_confirm_unban') ?>');"><i class="fas fa-unlock mr-1"></i> <?= __('admin_users_unban') ?></button>
-                                        <?php else: ?>
-                                            <button type="submit" name="toggle_ban" class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition" onclick="return confirm('<?= __('admin_users_confirm_ban') ?>');"><i class="fas fa-ban mr-1"></i> <?= __('admin_users_ban') ?></button>
+                                <div class="relative inline-block text-left" data-dropdown-container>
+                                    <div>
+                                        <button onclick="toggleDropdown(this)" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-bold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500" aria-haspopup="true" aria-expanded="false">
+                                            <?= __('Actions') ?>
+                                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-10 hidden" role="menu" aria-orientation="vertical">
+                                        <div class="py-1" role="none">
+                                            <a href="admin_user_history.php?user_id=<?= $u['id'] ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem"><i class="fas fa-list w-5 mr-2 text-indigo-500"></i> <?= __('admin_users_action_history') ?></a>
+                                            <a href="admin_user_commissions.php?user_id=<?= $u['id'] ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem"><i class="fas fa-hand-holding-usd w-5 mr-2 text-emerald-500"></i> <?= __('admin_users_action_comm') ?></a>
+                                            <a href="admin_user_referrals.php?user_id=<?= $u['id'] ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem"><i class="fas fa-users w-5 mr-2 text-orange-500"></i> <?= __('admin_users_action_ref') ?></a>
+                                        </div>
+                                        <?php if($u['id'] != 1): ?>
+                                            <div class="py-1" role="none">
+                                                <?php if(check_permission('can_manage_transactions')): ?>
+                                                    <a href="admin_deposit.php?user_id=<?= $u['id'] ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem"><i class="fas fa-donate w-5 mr-2 text-pink-500"></i> <?= __('admin_users_action_transfer') ?></a>
+                                                <?php endif; ?>
+                                                <a href="admin_notifications.php?user_id=<?= $u['id'] ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem"><i class="fas fa-envelope w-5 mr-2 text-yellow-500"></i> <?= __('admin_users_action_noti') ?></a>
+                                                <a href="admin_send_message.php?user_id=<?= $u['id'] ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem"><i class="fas fa-comment-dots w-5 mr-2 text-blue-500"></i> <?= __('admin_users_action_msg') ?></a>
+                                            </div>
+                                            <div class="py-1" role="none">
+                                                <form method="POST" action="" class="block" onsubmit="return confirm('<?= sprintf(__('admin_users_confirm_login_as'), htmlspecialchars($u['username'])) ?>');" role="menuitem">
+                                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
+                                                    <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
+                                                    <button type="submit" name="login_as_user" class="w-full text-left flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" title="<?= __('admin_users_btn_login_as') ?>"><i class="fas fa-sign-in-alt w-5 mr-2 text-purple-500"></i> <?= __('admin_users_btn_login_as') ?></button>
+                                                </form>
+                                                <form method="POST" action="" class="block" role="menuitem">
+                                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
+                                                    <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
+                                                    <input type="hidden" name="current_status" value="<?= $u['is_banned'] ? 1 : 0 ?>">
+                                                    <?php if($u['is_banned']): ?>
+                                                        <button type="submit" name="toggle_ban" class="w-full text-left flex items-center px-4 py-2 text-sm text-green-600 hover:bg-gray-100 hover:text-green-800" onclick="return confirm('<?= __('admin_users_confirm_unban') ?>');"><i class="fas fa-unlock w-5 mr-2"></i> <?= __('admin_users_unban') ?></button>
+                                                    <?php else: ?>
+                                                        <button type="submit" name="toggle_ban" class="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 hover:text-red-800" onclick="return confirm('<?= __('admin_users_confirm_ban') ?>');"><i class="fas fa-ban w-5 mr-2"></i> <?= __('admin_users_ban') ?></button>
+                                                    <?php endif; ?>
+                                                </form>
+                                            </div>
+                                            <div class="py-1" role="none">
+                                                <form method="POST" action="" class="block" onsubmit="return confirm('<?= __('admin_users_confirm_delete') ?>');" role="menuitem">
+                                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
+                                                    <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
+                                                    <button type="submit" name="delete_user" class="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 hover:text-red-800"><i class="fas fa-trash-alt w-5 mr-2"></i> <?= __('delete') ?></button>
+                                                </form>
+                                            </div>
                                         <?php endif; ?>
-                                    </form>
-                                    <form method="POST" action="" class="inline-block mb-1 ml-1" onsubmit="return confirm('<?= __('admin_users_confirm_delete') ?>');">
-                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
-                                        <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
-                                        <button type="submit" name="delete_user" class="bg-gray-800 text-white hover:bg-gray-900 px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition"><i class="fas fa-trash-alt mr-1"></i> <?= __('delete') ?></button>
-                                    </form>
-                                <?php endif; ?>
-                                <?php if(isset($u['verification_status']) && $u['verification_status'] == 'pending'): ?>
-                                    <form method="POST" action="" class="mt-2 block w-full text-left">
-                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
-                                        <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
-                                        <button type="submit" name="verify_user" value="1" onclick="document.getElementById('verify_action_<?= $u['id'] ?>').value='approved'; return confirm('<?= __('admin_users_confirm_approve') ?>');" class="bg-green-100 text-green-700 hover:bg-green-200 px-3 py-1.5 rounded text-[11px] font-bold shadow-sm transition"><i class="fas fa-check mr-1"></i> <?= __('admin_users_approve') ?></button>
-                                        <button type="submit" name="verify_user" value="1" onclick="document.getElementById('verify_action_<?= $u['id'] ?>').value='rejected'; return confirm('<?= __('admin_users_confirm_reject') ?>');" class="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded text-[11px] font-bold shadow-sm transition ml-1"><i class="fas fa-times mr-1"></i> <?= __('admin_users_reject') ?></button>
-                                        <input type="hidden" name="verify_action" id="verify_action_<?= $u['id'] ?>" value="">
-                                    </form>
-                                <?php endif; ?>
-                                </td>
+                                        <?php if(isset($u['verification_status']) && $u['verification_status'] == 'pending'): ?>
+                                            <div class="py-1" role="none">
+                                                <form method="POST" action="" class="block" role="menuitem">
+                                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['admin_csrf_token']) ?>">
+                                                    <input type="hidden" name="target_user_id" value="<?= $u['id'] ?>">
+                                                    <input type="hidden" name="verify_action" id="verify_action_<?= $u['id'] ?>" value="">
+                                                    <button type="submit" name="verify_user" value="1" onclick="document.getElementById('verify_action_<?= $u['id'] ?>').value='approved'; return confirm('<?= __('admin_users_confirm_approve') ?>');" class="w-full text-left flex items-center px-4 py-2 text-sm text-green-600 hover:bg-gray-100 hover:text-green-800"><i class="fas fa-check w-5 mr-2"></i> <?= __('admin_users_approve') ?></button>
+                                                    <button type="submit" name="verify_user" value="1" onclick="document.getElementById('verify_action_<?= $u['id'] ?>').value='rejected'; return confirm('<?= __('admin_users_confirm_reject') ?>');" class="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100 hover:text-red-800 mt-1"><i class="fas fa-times w-5 mr-2"></i> <?= __('admin_users_reject') ?></button>
+                                                </form>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </td>
                             </tr>
                             <?php endforeach; ?>
 
@@ -404,6 +426,37 @@ require_once __DIR__ . '/../includes/header.php';
 
     <script>
         let searchTimeout;
+
+        function toggleDropdown(button) {
+            const dropdown = button.closest('[data-dropdown-container]').querySelector('[role="menu"]');
+            const isHidden = dropdown.classList.contains('hidden');
+
+            // Close all other open dropdowns first to avoid multiple open menus
+            document.querySelectorAll('[data-dropdown-container] [role="menu"]').forEach(d => {
+                if (d !== dropdown) {
+                    d.classList.add('hidden');
+                }
+            });
+
+            // Toggle the clicked dropdown
+            dropdown.classList.toggle('hidden');
+
+            // Add a one-time event listener to close the dropdown when clicking outside
+            if (!isHidden) {
+                // If the dropdown was just closed by the toggle, don't add the listener
+                return;
+            }
+            
+            const closeHandler = (event) => {
+                const container = button.closest('[data-dropdown-container]');
+                if (!container.contains(event.target)) {
+                    dropdown.classList.add('hidden');
+                    document.removeEventListener('click', closeHandler);
+                }
+            };
+            // Use a timeout to prevent the event from firing immediately on the same click
+            setTimeout(() => document.addEventListener('click', closeHandler), 0);
+        }
         
         function liveSearch() {
             clearTimeout(searchTimeout);
