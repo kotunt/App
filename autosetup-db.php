@@ -68,10 +68,10 @@ ob_implicit_flush(true);
 if (ob_get_level() > 0) { ob_end_flush(); }
 
 
-// MySQL Server အချက်အလက်များ (မိမိစက်နှင့် ကိုက်ညီအောင် ပြင်ဆင်ပါ)
-$servername = "localhost";
-$username = "root";     // XAMPP/WAMP တွင် များသောအားဖြင့် root ဖြစ်သည်
-$password = "";         // XAMPP/WAMP တွင် များသောအားဖြင့် password မရှိပါ
+// Database Configuration
+require_once __DIR__ . '/core/config.php';
+
+$is_sqlite = (DB_DRIVER === 'sqlite');
 
 // ၁။ MySQL Server သို့ ချိတ်ဆက်ခြင်း (Database နာမည်မပါဘဲ ချိတ်ဆက်သည်)
 $conn = new mysqli($servername, $username, $password);
@@ -113,12 +113,21 @@ function addColumnIfNotExists($conn, $table, $column, $definition, $after_column
 }
 
 // ၃။ Users Table အလိုအလျောက် တည်ဆောက်ခြင်း
-$sql_create_table = "CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
-    phone_number VARCHAR(20) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)";
+if ($is_sqlite) {
+    $sql_create_table = "CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        phone_number TEXT NOT NULL UNIQUE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )";
+} else {
+    $sql_create_table = "CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(50) NOT NULL,
+        phone_number VARCHAR(20) NOT NULL UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )";
+}
 
 if ($conn->query($sql_create_table) === TRUE) {
     echo "<p class='success'>Table 'users' အဆင်သင့်ဖြစ်ပါပြီ။</p>";
@@ -128,25 +137,44 @@ if ($conn->query($sql_create_table) === TRUE) {
 
 // Column များကို စစ်ဆေးပြီး လိုအပ်ပါက ဖြည့်စွက်ခြင်း
 if (addColumnIfNotExists($conn, 'users', 'password', "VARCHAR(255) NOT NULL", 'phone_number')) {
-    $default_hash = password_hash('123456', PASSWORD_DEFAULT);
-    $conn->query("UPDATE users SET password = '$default_hash'");
+    if (!$is_sqlite) {
+        $default_hash = password_hash('123456', PASSWORD_DEFAULT);
+        $conn->query("UPDATE users SET password = '$default_hash'");
+    }
 }
 
 addColumnIfNotExists($conn, 'users', 'avatar', "VARCHAR(255) NULL", 'password');
-addColumnIfNotExists($conn, 'users', 'balance', "DECIMAL(10, 2) DEFAULT 0.00", 'avatar');
-addColumnIfNotExists($conn, 'users', 'role', "ENUM('user', 'sub_admin', 'admin') NOT NULL DEFAULT 'user'", 'balance');
+addColumnIfNotExists($conn, 'users', 'balance', $is_sqlite ? "REAL DEFAULT 0.00" : "DECIMAL(10, 2) DEFAULT 0.00", 'avatar');
+addColumnIfNotExists($conn, 'users', 'role', $is_sqlite ? "TEXT NOT NULL DEFAULT 'user' CHECK(role IN ('user', 'sub_admin', 'admin'))" : "ENUM('user', 'sub_admin', 'admin') NOT NULL DEFAULT 'user'", 'balance');
 addColumnIfNotExists($conn, 'users', 'kbz_pay_number', "VARCHAR(50) NULL", 'balance');
 addColumnIfNotExists($conn, 'users', 'kbz_pay_name', "VARCHAR(100) NULL", 'kbz_pay_number');
 addColumnIfNotExists($conn, 'users', 'wave_pay_number', "VARCHAR(50) NULL", 'kbz_pay_name');
 addColumnIfNotExists($conn, 'users', 'wave_pay_name', "VARCHAR(100) NULL", 'wave_pay_number');
 addColumnIfNotExists($conn, 'users', 'transaction_pin', "VARCHAR(255) DEFAULT NULL", 'password');
 addColumnIfNotExists($conn, 'users', 'vip_level', "VARCHAR(20) DEFAULT 'Standard'", 'balance');
-addColumnIfNotExists($conn, 'users', 'lifetime_bet', "DECIMAL(15, 2) DEFAULT 0.00", 'vip_level');
-addColumnIfNotExists($conn, 'users', 'is_banned', "BOOLEAN DEFAULT FALSE");
+addColumnIfNotExists($conn, 'users', 'lifetime_bet', $is_sqlite ? "REAL DEFAULT 0.00" : "DECIMAL(15, 2) DEFAULT 0.00", 'vip_level');
+addColumnIfNotExists($conn, 'users', 'is_banned', $is_sqlite ? "INTEGER DEFAULT 0" : "BOOLEAN DEFAULT FALSE");
 addColumnIfNotExists($conn, 'users', 'notifications', "INT DEFAULT 0");
-addColumnIfNotExists($conn, 'users', 'verification_status', "ENUM('pending', 'approved', 'rejected') DEFAULT 'approved'", 'is_banned');
+addColumnIfNotExists($conn, 'users', 'verification_status', $is_sqlite ? "TEXT DEFAULT 'approved' CHECK(verification_status IN ('pending', 'approved', 'rejected'))" : "ENUM('pending', 'approved', 'rejected') DEFAULT 'approved'", 'is_banned');
 addColumnIfNotExists($conn, 'users', 'last_bonus_date', "DATE NULL", 'is_banned');
-addColumnIfNotExists($conn, 'users', 'last_active', "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", 'last_bonus_date');
+
+if ($is_sqlite) {
+    addColumnIfNotExists($conn, 'users', 'last_active', "DATETIME DEFAULT CURRENT_TIMESTAMP", 'last_bonus_date');
+} else {
+    // For MySQL, handle the ON UPDATE clause which SQLite doesn't support in ALTER TABLE
+    $check_last_active = $conn->query("SHOW COLUMNS FROM `users` LIKE 'last_active'");
+    if ($check_last_active->num_rows == 0) {
+        $conn->query("ALTER TABLE `users` ADD `last_active` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `last_bonus_date`");
+        echo "<p class='success'>Table 'users' သို့ 'last_active' column ထပ်မံဖြည့်စွက်ပြီးပါပြီ။</p>";
+    } else {
+        // If it exists but without ON UPDATE
+        $row = $check_last_active->fetch_assoc();
+        if (strpos(strtoupper($row['Extra']), 'ON UPDATE') === false) {
+            $conn->query("ALTER TABLE `users` MODIFY `last_active` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+        }
+    }
+}
+
 addColumnIfNotExists($conn, 'users', 'telegram_chat_id', "VARCHAR(50) NULL", 'last_active');
 
 if (addColumnIfNotExists($conn, 'users', 'referral_code', "VARCHAR(20) UNIQUE NULL", 'phone_number')) {

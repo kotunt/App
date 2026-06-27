@@ -12,7 +12,6 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 
 session_start();
-var_dump(__DIR__); exit;
 require_once __DIR__ . '/core/db_connect.php';
 require_once __DIR__ . '/lang/language.php';
 require_once __DIR__ . '/src/controllers/HomeController.php';

@@ -1,3 +1,6 @@
 [2026-06-21 16:36:26] Exception: Failed opening required '/storage/emulated/0/htdocs/Thai2D3D/../includes/header.php' (include_path='.:') in /storage/emulated/0/htdocs/Thai2D3D/index.php on line 7
 [2026-06-21 16:36:27] Exception: Failed opening required '/storage/emulated/0/htdocs/Thai2D3D/../includes/header.php' (include_path='.:') in /storage/emulated/0/htdocs/Thai2D3D/index.php on line 7
 [2026-06-21 16:36:37] Exception: Failed opening required '/storage/emulated/0/htdocs/Thai2D3D/../includes/header.php' (include_path='.:') in /storage/emulated/0/htdocs/Thai2D3D/index.php on line 7
+[2026-06-27 11:52:15] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
+[2026-06-27 11:52:20] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
+[2026-06-27 11:52:28] Exception: Class "mysqli" not found in /workspaces/App/core/classes/Database.php on line 21
