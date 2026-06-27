@@ -1,10 +1,10 @@
 <?php
 
 // 1. Bootstrap the application
-require_once __DIR__ . '/bootstrap.php'; // This handles DB connection, sessions, etc.
+require_once __DIR__ . '/bootstrap.php';
 
-// 2. Instantiate and run the appropriate controller
+// 2. Run the controller logic (procedural, sets up $user, $db, etc.)
 require_once __DIR__ . '/src/controllers/HomeController.php';
 
-$controller = new HomeController();
-$controller->show(); // Assuming a 'show' method exists in HomeController to render the page
+// 3. Render the view
+require_once __DIR__ . '/src/views/home_view.php';
