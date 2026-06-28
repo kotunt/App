@@ -7,15 +7,24 @@ use App\Core\Session;
 date_default_timezone_set('Asia/Yangon');
 
 // 3. Setup Error & Exception Handling (as early as possible)
-ini_set('display_errors', 1); // Display errors since .env is not available
 error_reporting(E_ALL);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/logs/errorlog.txt');
+
+if (getenv('APP_ENV') !== 'production') {
+    ini_set('display_errors', 1);
+} else {
+    ini_set('display_errors', 0);
+}
 
 set_exception_handler(function($e) {
     error_log("Uncaught Exception: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine() . "\n" . $e->getTraceAsString());
     if (getenv('APP_ENV') !== 'production') {
-        echo "<b>Fatal error:</b> Uncaught exception '" . get_class($e) . "' with message '" . $e->getMessage() . "' in " . $e->getFile() . ":" . $e->getLine();
+        // In development, show detailed error
+        http_response_code(500);
+        echo "<h1>Fatal Error</h1><p><b>Uncaught exception:</b> " . get_class($e) . "</p><p><b>Message:</b> " . htmlspecialchars($e->getMessage()) . "</p><p><b>Location:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p><pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
     } else {
-        // You can show a generic error page here
+        // In production, show a generic error page
         http_response_code(500);
         echo "A system error occurred. Please try again later.";
     }
@@ -49,7 +58,7 @@ require_once __DIR__ . '/core/auth_helper.php';
 $current_script = basename($_SERVER['PHP_SELF']);
 $allowed_scripts = ['maintenance.php', 'login.php', 'logout.php'];
 
-if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE === '1' && !in_array($current_script, $allowed_scripts, true)) {
+if (getenv('MAINTENANCE_MODE') === '1' && !in_array($current_script, $allowed_scripts, true)) {
     $is_admin = isset($_SESSION['role']) && in_array($_SESSION['role'], ['admin', 'sub_admin']);
     if (!$is_admin) {
         header("Location: /maintenance.php");
