@@ -7,7 +7,12 @@ use App\Core\Session;
 date_default_timezone_set('Asia/Yangon');
 
 // 2. Load Composer Autoloader
-require_once __DIR__ . '/vendor/autoload.php';
+$autoloader = __DIR__ . '/vendor/autoload.php';
+if (!file_exists($autoloader)) {
+    http_response_code(500);
+    die("<h1>Composer Not Installed</h1><p>The application dependencies are not installed. Please run '<code>composer install</code>' in the project root directory.</p>");
+}
+require_once $autoloader;
 
 // 3. Setup Error & Exception Handling (as early as possible)
 ini_set('display_errors', 0); // Default to off
