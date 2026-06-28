@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/core/auth_check.php';
 
-require_once __DIR__ . '/core/db_connect.php';
+require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/core/functions.php';
 require_once __DIR__ . '/lang/language.php';
 
@@ -186,11 +186,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                         // ၅။ Referral Commission
                         process_mlm_commission($conn, $user_id, $user['username'], $user['referred_by'], $total_amount_needed, '3D');
-
-                        // Real-time event for admin dashboard
-                        if (class_exists('App\Core\RealtimeNotifier')) {
-                            \App\Core\RealtimeNotifier::publish('new_bet', ['username' => $user['username'], 'amount' => $total_amount_needed, 'type' => '3D']);
-                        }
 
                         $conn->commit(); 
                         $user['balance'] -= $actual_deduction; 

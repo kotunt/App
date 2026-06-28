@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 // --- Security & Session Management Enhancements ---
 
 // 1. Inactivity Timeout (အသုံးမပြုဘဲ အချိန်ကြာမှ Logout လုပ်မည်)
-require_once __DIR__ . '/db_connect.php';
+require_once __DIR__ . '/../bootstrap.php';
 $timeout_stmt = $conn->query("SELECT setting_value FROM settings WHERE setting_key = 'session_timeout_minutes'");
 $session_timeout_minutes = ($timeout_stmt && $row = $timeout_stmt->fetch_assoc()) ? intval($row['setting_value']) : 30;
 $session_timeout_seconds = $session_timeout_minutes * 60;

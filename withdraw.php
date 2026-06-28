@@ -192,11 +192,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
                         }
                         $insert_stmt->close();
 
-                        // Real-time event for admin dashboard
-                        if (class_exists('App\Core\RealtimeNotifier')) {
-                            \App\Core\RealtimeNotifier::publish('new_withdrawal', ['username' => $user['username'], 'amount' => $amount]);
-                        }
-
                         $conn->commit();
 
                         // --- Telegram Bot သို့ Admin ထံ Notification ပို့ရန် ---

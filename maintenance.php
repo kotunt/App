@@ -1,8 +1,5 @@
 <?php
-require_once __DIR__ . '/core/db_connect.php';
-// maintenance.php is an allowed script, so db_connect.php does not run its
-// maintenance branch here; fetch the connection explicitly from the singleton.
-$conn = Database::getInstance()->getConnection();
+require_once __DIR__ . '/bootstrap.php';
 
 // Maintenance mode စစ်ဆေးခြင်း
 $m_stmt = $conn->query("SELECT setting_value FROM settings WHERE setting_key = 'maintenance_mode'");

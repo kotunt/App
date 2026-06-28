@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-require_once __DIR__ . '/core/db_connect.php';
+require_once __DIR__ . '/bootstrap.php';
 
 // Fetch guides dynamically from the database
 $guides_stmt = $conn->query("SELECT guide_key, icon_class FROM guides WHERE is_active = 1 ORDER BY sort_order ASC");

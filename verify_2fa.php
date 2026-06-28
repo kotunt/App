@@ -12,7 +12,6 @@ if (!isset($_SESSION['temp_2fa_user_id'])) {
     exit();
 }
 
-require_once __DIR__ . '/core/db_connect.php';
 require_once __DIR__ . '/core/GoogleAuthenticator.php';
 require_once __DIR__ . '/lang/language.php';
 

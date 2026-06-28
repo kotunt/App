@@ -1,8 +1,5 @@
 <?php
 
-use App\Core\Database;
-use App\Core\Session;
-
 // 1. Set Default Timezone
 date_default_timezone_set('Asia/Yangon');
 
@@ -33,6 +30,9 @@ set_exception_handler(function($e) {
 // 5. Load Global Configuration (this defines constants like DB_HOST)
 require_once __DIR__ . '/core/config.php';
 
+// Load Core Classes manually since Composer is removed
+require_once __DIR__ . '/core/classes/Database.php';
+
 // Load the global Database class used by legacy controllers
 require_once __DIR__ . '/core/classes/Database.php';
 
@@ -46,7 +46,11 @@ if (!extension_loaded('mysqli')) {
 $conn = Database::getInstance()->getConnection();
 
 // 7. Start Session (now that DB connection is confirmed)
-Session::start();
+if (session_status() === PHP_SESSION_NONE) {
+    // Note: Redis session handler is removed as it was part of the Composer setup.
+    // It will now use the default file-based session handler.
+    session_start();
+}
 
 // 8. Load Language Helper
 require_once __DIR__ . '/lang/language.php';

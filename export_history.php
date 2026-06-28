@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/core/db_connect.php';
+require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/lang/language.php';
 
 // Login ဝင်ထားခြင်း မရှိပါက ပြန်ပို့ရန်

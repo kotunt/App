@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/core/auth_check.php';
-require_once __DIR__ . '/core/db_connect.php';
+require_once __DIR__ . '/bootstrap.php';
 require_once __DIR__ . '/lang/language.php';
 
 $keys = ['cs_telegram_link', 'cs_viber_link', 'cs_messenger_link', 'cs_phone', 'cs_channel_link'];
