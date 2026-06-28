@@ -1,11 +1,4 @@
 <?php
-// Core application bootstrap
-// ---
-
-// Include Composer's autoloader if it exists
-if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
-    require_once __DIR__ . '/../vendor/autoload.php';
-}
 
 // --- Global Configuration & Helpers ---
 require_once __DIR__ . '/config.php';

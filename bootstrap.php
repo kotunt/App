@@ -6,31 +6,9 @@ use App\Core\Session;
 // 1. Set Default Timezone
 date_default_timezone_set('Asia/Yangon');
 
-// 2. Load Composer Autoloader
-$autoloader = __DIR__ . '/vendor/autoload.php';
-if (!file_exists($autoloader)) {
-    http_response_code(500);
-    die("<h1>Composer Not Installed</h1><p>The application dependencies are not installed. Please run '<code>composer install</code>' in the project root directory.</p>");
-}
-require_once $autoloader;
-
 // 3. Setup Error & Exception Handling (as early as possible)
-ini_set('display_errors', 0); // Default to off
+ini_set('display_errors', 1); // Display errors since .env is not available
 error_reporting(E_ALL);
-
-// 4. Load Environment Variables from .env
-try {
-    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-    $dotenv->safeLoad(); // Use safeLoad to avoid errors if .env is missing
-    
-    // Set error display based on environment
-    if (getenv('APP_ENV') !== 'production') {
-        ini_set('display_errors', 1);
-    }
-} catch (Throwable $e) {
-    // Silently ignore if dotenv is not installed or fails
-    ini_set('display_errors', 1); // Show errors if dotenv fails in dev
-}
 
 set_exception_handler(function($e) {
     error_log("Uncaught Exception: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine() . "\n" . $e->getTraceAsString());

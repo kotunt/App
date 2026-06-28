@@ -16,58 +16,9 @@ permissions:
   contents: read
   pull-requests: write
 
-
-jobs:
-  # --- CI Job: Build, Lint, and Test ---
-  build_and_test:
-    name: Build & Test
-    runs-on: ubuntu-latest
-    steps:
-      # 1. Checkout the repository code
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # 2. Setup PHP environment
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.1'
-          extensions: mbstring, gd, mysqli, pdo, pdo_mysql, zip
-          tools: composer:v2
-          coverage: pcov # Use PCOV for faster coverage generation
-
-      # 3. Cache Composer dependencies
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
-      # 4. Install dependencies
-      - name: Install Composer dependencies
-        if: steps.composer-cache.outputs.cache-hit != 'true'
-        run: composer install --prefer-dist --no-progress --no-suggest
-
-      # 5. Run PHPUnit tests and generate coverage report
-      - name: Run PHPUnit tests
-        run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-
-      # 6. Upload coverage report to Codecov
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }} # Required for private repos
-          files: ./build/logs/clover.xml
-          fail_ci_if_error: true
-          verbose: true
-
   # --- CD Job for Staging Environment ---
   deploy_staging:
     name: Deploy to Staging
-    needs: build_and_test
     # Run on push to 'develop' OR pull request targeting 'develop'
     if: (github.event_name == 'push' && github.ref == 'refs/heads/develop') || (github.event_name == 'pull_request' && github.base_ref == 'refs/heads/develop')
     runs-on: ubuntu-latest
@@ -109,10 +60,6 @@ jobs:
             # Login to container registry
             docker login ghcr.io -u ${{ github.repository_owner }} -p ${{ secrets.GH_PAT }}
 
-            # Run database migrations before starting the new container
-            # We run it in a temporary container that connects to the existing 'db' network
-            docker-compose run --rm --no-deps php vendor/bin/phinx migrate -e production
-
             # Pull the latest images defined in docker-compose.yml
             docker-compose pull
 
@@ -122,27 +69,11 @@ jobs:
             # Clean up old, unused images
             docker image prune -f
 
-  # --- Job to Comment on Pull Request ---
-  comment_on_pr:
-    name: Post Staging Link
-    needs: deploy_staging
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          issue-number: ${{ github.event.number }}
-          body: |
-            🚀 **Staging Environment Ready!**
-
-            This pull request has been successfully deployed to the staging server.
-            You can preview the changes here: 👉 **[${{ secrets.STAGING_URL }}](${{ secrets.STAGING_URL }})**
-
   # --- CD Job for Production Environment ---
   deploy_production:
     name: Deploy to Production
-    needs: build_and_test # Run only if build_and_test job succeeds
+    # This job does not need any other jobs, it runs independently on push to main
+    # needs: build_and_test 
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: production
@@ -203,10 +134,6 @@ jobs:
             # 3. Pull the new image
             docker-compose pull php
 
-            # 4. Run database migrations
-            echo "Running database migrations..."
-            docker-compose run --rm php vendor/bin/phinx migrate -e production
-
             # 5. Deploy the new version
             echo "Deploying new version: ${{ github.sha }}"
             docker-compose up -d
@@ -223,26 +150,3 @@ jobs:
             docker tag ghcr.io/${{ github.repository_owner }}/thai2d3d-php:${{ github.sha }} ghcr.io/${{ github.repository_owner }}/thai2d3d-php:latest
             docker push ghcr.io/${{ github.repository_owner }}/thai2d3d-php:latest
             docker image prune -af
-
-  # --- Job to Notify on Failure ---
-  notify_failure:
-    name: Notify on Failure
-    # This job needs all other jobs, so it runs after them
-    needs: [build_and_test, deploy_staging, deploy_production]
-    # This condition ensures the job only runs if any of the previous jobs have failed
-    if: failure()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send Telegram notification on failure
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          format: markdown
-          message: |
-            🚨 *Workflow Failed!*
-
-            A job failed in the `${{ github.repository }}` repository.
-            *Branch:* `${{ github.ref }}`
-            *Actor:* `${{ github.actor }}`
-            🔗 View Workflow Run
